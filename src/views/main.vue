@@ -64,13 +64,13 @@ export default {
     // 获取当前管理员信息
     getUserInfo () {
       this.$http({
-        url: this.$http.adornUrl('/admin/sys/user/info'),
+        url: this.$http.adornUrl('/auth/info'),
         method: 'get',
         params: this.$http.adornParams()
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.loading = false
-          this.userId = data.user.userId
+          this.userId = data.user.uid
           this.userName = data.user.username
         }
       })
