@@ -4,16 +4,16 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
-      <el-form-item label="" prop="patientName">
+      <el-form-item label="患者名称" prop="patientName">
         <el-input v-model="dataForm.patientName" placeholder=""></el-input>
       </el-form-item>
-      <el-form-item label="" prop="isBack">
+      <el-form-item label="是否退号" prop="isBack">
         <el-input v-model="dataForm.isBack" placeholder=""></el-input>
       </el-form-item>
-      <el-form-item label="" prop="registerCost">
+      <el-form-item label="挂号费用" prop="registerCost">
         <el-input v-model="dataForm.registerCost" placeholder=""></el-input>
       </el-form-item>
-      <el-form-item label="" prop="departmentId">
+      <el-form-item label="科室编号" prop="departmentId">
         <el-input v-model="dataForm.departmentId" placeholder=""></el-input>
       </el-form-item>
     </el-form>
