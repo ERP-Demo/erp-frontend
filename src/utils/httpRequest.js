@@ -29,6 +29,11 @@ http.interceptors.request.use(config => {
  * 响应拦截
  */
 http.interceptors.response.use(response => {
+  if (response.data && response.data.code === 1002) { // 401 token失效
+    this.$message.error(response.data.msg)
+    clearLoginInfo()
+    router.push({ name: 'login' })
+  }
   if (response.data && response.data.code === 403) { // 401 token失效
     clearLoginInfo()
     router.push({ name: 'login' })
