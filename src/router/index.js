@@ -32,7 +32,6 @@ const mainRoutes = {
   ],
   beforeEnter (to, from, next) {
     let token = Vue.cookie.get('token')
-    console.log(!token || !/\S/.test(token))
     if (!token || !/\S/.test(token)) { // 正则：非空白就匹配
       clearLoginInfo()
       next({ name: 'login' })
