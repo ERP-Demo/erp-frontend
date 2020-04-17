@@ -22,11 +22,17 @@
         align="center"
         width="50">
       </el-table-column>
+      <el-table-column
+              prop="supplierId"
+              header-align="center"
+              align="center"
+              label="供应商编号">
+      </el-table-column>
     <el-table-column
         prop="supplierName"
         header-align="center"
         align="center"
-        label="供应商名称，非空">
+        label="供应商名称">
     </el-table-column>
     <el-table-column
         prop="supplierCartPhone"
@@ -77,8 +83,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.supplierId)">修改</el-button>
+          <el-button type="text" size="small" @click="deleteHandle(scope.row.supplierId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -167,6 +173,7 @@ export default {
     // 删除
     deleteHandle (id) {
       var ids = id ? [id] : this.dataListSelections.map(item => {
+        console.log(id);
         return item.id
       })
       this.$confirm(`确定对这${ids.length}条数据进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {

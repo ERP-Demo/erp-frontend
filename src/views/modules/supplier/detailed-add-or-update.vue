@@ -10,8 +10,9 @@
       <el-form-item label="联系电话" prop="supplierCartPhone">
         <el-input v-model="dataForm.supplierCartPhone" placeholder="联系电话"></el-input>
       </el-form-item>
-      <el-form-item label="供应商类型：1.自营，2.平台" prop="supplierType">
-        <el-input v-model="dataForm.supplierType" placeholder="供应商类型：1.自营，2.平台"></el-input>
+      <el-form-item label="供应商类型：" prop="supplierType">
+        <el-radio v-model="radio" label="1">自营</el-radio>
+        <el-radio v-model="radio" label="2">平台</el-radio>
       </el-form-item>
       <el-form-item label="供应商联系人" prop="supplierMan">
         <el-input v-model="dataForm.supplierMan" placeholder="供应商联系人"></el-input>
@@ -25,8 +26,9 @@
       <el-form-item label="供应商地址" prop="supplierAddress">
         <el-input v-model="dataForm.supplierAddress" placeholder="供应商地址"></el-input>
       </el-form-item>
-      <el-form-item label="状态：0禁止，1启用" prop="supplierStatus">
-        <el-input v-model="dataForm.supplierStatus" placeholder="状态：0禁止，1启用"></el-input>
+      <el-form-item label="状态：" prop="supplierStatus">
+        <el-radio v-model="radio" label="0">禁用</el-radio>
+        <el-radio v-model="radio" label="1">启用</el-radio>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
