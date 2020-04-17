@@ -34,14 +34,14 @@ export default {
   },
   methods: {
     init (id) {
-      this.dataForm.id = id || ''
+      this.dataForm.testId = id || ''
       this.visible = true
       this.confirmButtonDisabled = false
       this.$nextTick(() => {
         this.$refs['dataForm'].resetFields()
-        if (this.dataForm.id) {
+        if (this.dataForm.testId) {
           this.$http({
-            url: this.$http.adornUrl(`Test_projects/projects/info/${this.dataForm.id}`),
+            url: this.$http.adornUrl(`Test_projects/projects/info/${this.dataForm.testId}`),
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
@@ -59,8 +59,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.$http({
-            url: this.$http.adornUrl(`Test_projects/projects/${!this.dataForm.id ? 'save' : 'update'}`),
-            method: !this.dataForm.id ? 'post' : 'put',
+            url: this.$http.adornUrl(`Test_projects/projects/${!this.dataForm.testId ? 'save' : 'update'}`),
+            method: !this.dataForm.testId ? 'post' : 'put',
             data: this.$http.adornData(this.dataForm)
           }).then(({data}) => {
             this.confirmButtonDisabled = true

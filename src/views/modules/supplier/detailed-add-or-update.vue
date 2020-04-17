@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="!dataForm.id ? '新增' : '修改'"
+    :title="!dataForm.supplierId ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
@@ -60,14 +60,14 @@ export default {
   },
   methods: {
     init (id) {
-      this.dataForm.id = id || ''
+      this.dataForm.supplierId = id || ''
       this.visible = true
       this.confirmButtonDisabled = false
       this.$nextTick(() => {
         this.$refs['dataForm'].resetFields()
-        if (this.dataForm.id) {
+        if (this.dataForm.supplierId) {
           this.$http({
-            url: this.$http.adornUrl(`/supplier/detailed/info/${this.dataForm.id}`),
+            url: this.$http.adornUrl(`/supplier/detailed/info/${this.dataForm.supplierId}`),
             // supplierType:${this.dataForm.supplierType},
             // supplierStatus:0,
             method: 'get',
@@ -87,8 +87,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.$http({
-            url: this.$http.adornUrl(`/supplier/detailed/${!this.dataForm.id ? 'save' : 'update'}`),
-            method: !this.dataForm.id ? 'post' : 'put',
+            url: this.$http.adornUrl(`/supplier/detailed/${!this.dataForm.supplierId ? 'save' : 'update'}`),
+            method: !this.dataForm.supplierId ? 'post' : 'put',
             data: this.$http.adornData(this.dataForm)
           }).then(({data}) => {
             this.confirmButtonDisabled = true

@@ -50,7 +50,7 @@
         prop="supplierBankName"
         header-align="center"
         align="center"
-        label="供应商开户银行名称">
+        label="开户银行名称">
     </el-table-column>
     <el-table-column
         prop="supplierBankAccount"
