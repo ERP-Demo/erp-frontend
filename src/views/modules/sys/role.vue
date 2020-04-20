@@ -1,13 +1,13 @@
 <template>
-  <div class="mod-config">
+  <div class="mod-role">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.roleName" placeholder="角色名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('supplier:detailed:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('supplier:detailed:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('sys:role:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('sys:role:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -22,58 +22,32 @@
         align="center"
         width="50">
       </el-table-column>
-    <el-table-column
-        prop="supplierName"
+      <el-table-column
+        prop="roleId"
         header-align="center"
         align="center"
-        label="供应商名称，非空">
-    </el-table-column>
-    <el-table-column
-        prop="supplierCartPhone"
+        width="80"
+        label="ID">
+      </el-table-column>
+      <el-table-column
+        prop="roleName"
         header-align="center"
         align="center"
-        label="联系电话">
-    </el-table-column>
-    <el-table-column
-        prop="supplierType"
+        label="角色名称">
+      </el-table-column>
+      <el-table-column
+        prop="remark"
         header-align="center"
         align="center"
-        label="供应商类型：1.自营，2.平台">
-    </el-table-column>
-    <el-table-column
-        prop="supplierMan"
+        label="备注">
+      </el-table-column>
+      <el-table-column
+        prop="createTime"
         header-align="center"
         align="center"
-        label="供应商联系人">
-    </el-table-column>
-    <el-table-column
-        prop="supplierBankName"
-        header-align="center"
-        align="center"
-        label="开户银行名称">
-    </el-table-column>
-    <el-table-column
-        prop="supplierBankAccount"
-        header-align="center"
-        align="center"
-        label="银行账号">
-    </el-table-column>
-    <el-table-column
-        prop="supplierAddress"
-        header-align="center"
-        align="center"
-        label="供应商地址">
-    </el-table-column>
-    <el-table-column
-        prop="supplierStatus"
-        header-align="center"
-        align="center"
-        label="状态：0禁止，1启用">
-      <template slot-scope="scope">
-        <el-tag :type="scope.row.supplierStatus === 0 ? 'primary' : 'dangers'"
-                disable-transitions>{{scope.row.supplierStatus===0 ? '正常' : '禁用'}}</el-tag>
-      </template>
-    </el-table-column>
+        width="180"
+        label="创建时间">
+      </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"
@@ -81,8 +55,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.supplierId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.supplierId)">删除</el-button>
+          <el-button v-if="isAuth('sys:role:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.roleId)">修改</el-button>
+          <el-button v-if="isAuth('sys:role:delete')" type="text" size="small" @click="deleteHandle(scope.row.roleId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -101,12 +75,12 @@
 </template>
 
 <script>
-import AddOrUpdate from './detailed-add-or-update'
+import AddOrUpdate from './role-add-or-update'
 export default {
   data () {
     return {
       dataForm: {
-        key: ''
+        roleName: ''
       },
       dataList: [],
       pageIndex: 1,
@@ -128,12 +102,12 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/supplier/detailed/list'),
+        url: this.$http.adornUrl('/ucenter/role/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
           'limit': this.pageSize,
-          'key': this.dataForm.key
+          'roleName': this.dataForm.roleName
         })
       }).then(({data}) => {
         if (data && data.code === 200) {
@@ -171,15 +145,15 @@ export default {
     // 删除
     deleteHandle (id) {
       var ids = id ? [id] : this.dataListSelections.map(item => {
-        return item.id
+        return item.roleId
       })
-      this.$confirm(`确定对这${ids.length}条数据进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+      this.$confirm(`确定对[id=${ids.join(',')}]进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/supplier/detailed/delete'),
+          url: this.$http.adornUrl('/ucenter/role/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
@@ -187,7 +161,7 @@ export default {
             this.$message({
               message: '操作成功',
               type: 'success',
-              duration: 1000,
+              duration: 1500,
               onClose: () => {
                 this.getDataList()
               }
@@ -196,7 +170,7 @@ export default {
             this.$message.error(data.msg)
           }
         })
-      })
+      }).catch(() => {})
     }
   }
 }

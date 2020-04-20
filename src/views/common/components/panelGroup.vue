@@ -65,39 +65,6 @@ export default {
     handleSetLineChartData (type) {
       this.$emit('handleSetLineChartData', type)
     }
-  },
-  created () {
-    this.$http({
-      url: this.$http.adornUrl('/admin/customer/customer/getCount'),
-      method: 'get'
-    }).then(({data}) => {
-      if (data && data.code === 200) {
-        this.customer = data.customer
-      } else {
-        this.$message.error(data.msg)
-      }
-    })
-    this.$http({
-      url: this.$http.adornUrl('/admin/customer/orders/getCount'),
-      method: 'get'
-    }).then(({data}) => {
-      if (data && data.code === 200) {
-        this.orders = data.count
-      } else {
-        this.$message.error(data.msg)
-      }
-    })
-    this.$http({
-      url: this.$http.adornUrl('/admin/supplier/supplier/getCount'),
-      method: 'get'
-    }).then(({data}) => {
-      if (data && data.code === 200) {
-        this.supplier = data.supplier
-        console.log(this.supplier)
-      } else {
-        this.$message.error(data.msg)
-      }
-    })
   }
 }
 </script>

@@ -10,10 +10,6 @@
       <el-form-item label="联系电话" prop="supplierCartPhone">
         <el-input v-model="dataForm.supplierCartPhone" placeholder="供应商联系电话"></el-input>
       </el-form-item>
-<!--      <el-form-item label="供应商类型：" prop="supplierType">-->
-<!--        <el-radio v-model="radio1" label="1">自营</el-radio>-->
-<!--        <el-radio v-model="radio1" label="2">平台</el-radio>-->
-<!--      </el-form-item>-->
       <el-form-item label="联系人名称" prop="supplierMan">
         <el-input v-model="dataForm.supplierMan" placeholder="供应商联系人名称"></el-input>
       </el-form-item>
