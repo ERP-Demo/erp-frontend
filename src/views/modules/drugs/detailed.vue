@@ -79,6 +79,7 @@
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.drugsId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.drugsId)">删除</el-button>
+            <el-button type="text" size="small" @click="selectHandle(scope.row.drugsId)">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -164,6 +165,28 @@ export default {
         this.$refs.addOrUpdate.init(id)
       })
     },
+      selectHandle(id){
+        alert(id)
+          this.$http({
+              url: this.$http.adornUrl('/drugsp/all'),
+              method: 'get',
+              data: this.$http.adornData()
+          }).then(({data}) => {
+              if (data && data.code === 200) {
+                  this.$message({
+                      message: '操作成功',
+                      type: 'success',
+                      duration: 1000,
+                      onClose: () => {
+                          this.getDataList()
+                      }
+                  })
+              } else {
+                  this.$message.error(data.msg)
+              }
+          })
+      },
+
     // 删除
     deleteHandle (id) {
       var ids = id ? [id] : this.dataListSelections.map(item => {
