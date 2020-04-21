@@ -6,8 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('supplier:detailed:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('supplier:detailed:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('electronic_case:case:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('electronic_case:case:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -23,56 +23,46 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="supplierName"
+        prop="uid"
         header-align="center"
         align="center"
-        label="供应商名称，非空">
+        label="医生id">
     </el-table-column>
     <el-table-column
-        prop="supplierCartPhone"
+        prop="patientDetailed.patientName"
         header-align="center"
         align="center"
-        label="联系电话">
+        label="病人id">
     </el-table-column>
     <el-table-column
-        prop="supplierType"
+        prop="department.departmentName"
         header-align="center"
         align="center"
-        label="供应商类型：1.自营，2.平台">
+        label="科室id">
     </el-table-column>
     <el-table-column
-        prop="supplierMan"
+        prop="enterHospital"
         header-align="center"
         align="center"
-        label="供应商联系人">
+        label="入院时间">
     </el-table-column>
     <el-table-column
-        prop="supplierBankName"
+        prop="leaveHospital"
         header-align="center"
         align="center"
-        label="开户银行名称">
+        label="出院时间">
     </el-table-column>
     <el-table-column
-        prop="supplierBankAccount"
+        prop="patientSymptom"
         header-align="center"
         align="center"
-        label="银行账号">
+        label="症状">
     </el-table-column>
     <el-table-column
-        prop="supplierAddress"
+        prop="doctorAdvice"
         header-align="center"
         align="center"
-        label="供应商地址">
-    </el-table-column>
-    <el-table-column
-        prop="supplierStatus"
-        header-align="center"
-        align="center"
-        label="状态：0禁止，1启用">
-      <template slot-scope="scope">
-        <el-tag :type="scope.row.supplierStatus === 0 ? 'primary' : 'dangers'"
-                disable-transitions>{{scope.row.supplierStatus===0 ? '正常' : '禁用'}}</el-tag>
-      </template>
+        label="医嘱">
     </el-table-column>
       <el-table-column
         fixed="right"
@@ -81,8 +71,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.supplierId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.supplierId)">删除</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+          <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -101,7 +91,7 @@
 </template>
 
 <script>
-import AddOrUpdate from './detailed-add-or-update'
+import AddOrUpdate from './case-add-or-update'
 export default {
   data () {
     return {
@@ -128,7 +118,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/supplier/detailed/list'),
+        url: this.$http.adornUrl('/electronic_case/case/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -179,7 +169,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/supplier/detailed/delete'),
+          url: this.$http.adornUrl('/electronic_case/case/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {

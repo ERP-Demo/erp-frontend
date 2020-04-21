@@ -26,25 +26,25 @@
         prop="patientName"
         header-align="center"
         align="center"
-        label="">
+        label="患者名称">
     </el-table-column>
     <el-table-column
         prop="isBack"
         header-align="center"
         align="center"
-        label="">
+        label="是否退号">
     </el-table-column>
     <el-table-column
         prop="registerCost"
         header-align="center"
         align="center"
-        label="">
+        label="挂号费用">
     </el-table-column>
     <el-table-column
         prop="departmentId"
         header-align="center"
         align="center"
-        label="">
+        label="科室编号">
     </el-table-column>
       <el-table-column
         fixed="right"
@@ -53,8 +53,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.registerId)">修改</el-button>
+          <el-button type="text" size="small" @click="deleteHandle(scope.row.registerId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

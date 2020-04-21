@@ -20,18 +20,6 @@ export default {
     return {
       lineChartData: []
     }
-  },
-  created () {
-    this.$http({
-      url: this.$http.adornUrl('/admin/customer/orders/getMoney'),
-      method: 'get'
-    }).then(({data}) => {
-      if (data && data.code === 200) {
-        this.lineChartData = data.money
-      } else {
-        this.$message.error(data.msg)
-      }
-    })
   }
 }
 </script>
