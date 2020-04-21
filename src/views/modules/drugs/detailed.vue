@@ -26,7 +26,7 @@
         prop="drugsName"
         header-align="center"
         align="center"
-        label="药品名称，非空">
+        label="药品名称，非空" >
     </el-table-column>
     <el-table-column
         prop="drugsPrice"
