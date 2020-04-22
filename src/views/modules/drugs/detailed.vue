@@ -5,7 +5,7 @@
         <el-input v-model="dataForm.key" placeholder="药品" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getlike()">查询</el-button>
+        <el-button @click="getDataList()">查询</el-button>
         <el-button v-if="isAuth('drugs:detailed:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <el-button v-if="isAuth('drugs:detailed:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
@@ -26,7 +26,7 @@
         prop="drugsName"
         header-align="center"
         align="center"
-        label="药品名称，非空" >
+        label="药品名称" >
     </el-table-column>
     <el-table-column
         prop="drugsPrice"
@@ -129,7 +129,7 @@ export default {
         params: this.$http.adornParams({
           'page': this.pageIndex,
           'limit': this.pageSize,
-          'key': this.dataForm.key
+          'name': this.dataForm.key
         })
       }).then(({data}) => {
         if (data && data.code === 200) {
@@ -164,19 +164,6 @@ export default {
         this.$refs.addOrUpdate.init(id)
       })
     },
-      //模糊查询
-      getlike(){
-          this.$http({
-              url: this.$http.adornUrl('/drugs/detailed/like/'+this.dataForm.key),
-              method: 'get',
-              data: this.$http.adornData()
-          }).then(({data}) => {
-              if (data && data.code === 200) {
-                  this.dataList = data.list
-              } else {
-                  this.dataList = []
-              }
-          })
       },
 
     // 删除
@@ -209,6 +196,5 @@ export default {
         })
       })
     }
-  }
 }
 </script>

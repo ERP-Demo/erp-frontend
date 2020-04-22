@@ -310,7 +310,7 @@ export default {
         params: this.$http.adornParams({
           'page': this.pageIndex,
           'limit': this.pageSize,
-          'key': this.dataForm.key
+          'name': this.dataForm.key
         })
       }).then(({data}) => {
         if (data && data.code === 200) {
@@ -327,19 +327,6 @@ export default {
     addHandle(id){
       this.pid=id;
     },
-      getlike(){
-          this.$http({
-              url: this.$http.adornUrl('/supplier/detailed/like/'+this.dataForm.key),
-              method: 'get',
-              data: this.$http.adornData()
-          }).then(({data}) => {
-              if (data && data.code === 200) {
-                  this.dataList = data.list
-              } else {
-                this.dataList = []
-              }
-          })
-      },
     //多表数据
     toviwe(id){
       this.did=id
