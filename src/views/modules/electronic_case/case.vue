@@ -2,12 +2,10 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="请输入患者名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('electronic_case:case:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('electronic_case:case:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -29,13 +27,13 @@
         label="医生id">
     </el-table-column>
     <el-table-column
-        prop="patientDetailed.patientName"
+        prop="patientName"
         header-align="center"
         align="center"
         label="病人id">
     </el-table-column>
     <el-table-column
-        prop="department.departmentName"
+        prop="departmentName"
         header-align="center"
         align="center"
         label="科室id">
