@@ -40,6 +40,12 @@
         align="center"
         label="患者性别">
     </el-table-column>
+      <el-table-column
+              prop="patientCartnum"
+              header-align="center"
+              align="center"
+              label="患者身份证">
+      </el-table-column>
     <el-table-column
         prop="patientPhone"
         header-align="center"
@@ -58,12 +64,7 @@
         align="center"
         label="患者入院时间">
     </el-table-column>
-    <el-table-column
-        prop="patientDoctor"
-        header-align="center"
-        align="center"
-        label="诊断医生">
-    </el-table-column>
+
     <el-table-column
         prop="patientNote"
         header-align="center"
