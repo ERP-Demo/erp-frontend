@@ -2,10 +2,10 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="供应商" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="getlike()">查询</el-button>
         <el-button v-if="isAuth('supplier:detailed:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <el-button v-if="isAuth('supplier:detailed:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
@@ -78,12 +78,13 @@
         fixed="right"
         header-align="center"
         align="center"
-        width="150"
+        width="160"
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="dialogVisible = true,addHandle(scope.row.supplierId)">新增</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.supplierId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.supplierId)">删除</el-button>
+          <el-button type="text" size="small" @click="dialogVisible1 = true,toviwe(scope.row.supplierId)">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -165,6 +166,92 @@
     <el-button type="primary" @click="dialogVisible = false,confirmf()">确 定</el-button>
   </span>
     </el-dialog>
+    <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible1"
+            width="66%"
+            :before-close="handleClose">
+      <el-table
+              ref="multipleTable"
+              :data="drugsData"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+        <el-table-column
+                type="selection"
+                width="55">
+        </el-table-column>
+        <el-table-column
+                prop="drugsId"
+                header-align="center"
+                align="center"
+                label="药品编号">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsName"
+                header-align="center"
+                align="center"
+                label="药品名称">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsPrice"
+                header-align="center"
+                align="center"
+                label="药品单价">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsNorms"
+                header-align="center"
+                align="center"
+                label="药品规格">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsUsage"
+                header-align="center"
+                align="center"
+                label="药品用法">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsDosage"
+                header-align="center"
+                align="center"
+                label="药品用量">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsTaboo"
+                header-align="center"
+                align="center"
+                label="禁忌">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsProducer"
+                header-align="center"
+                align="center"
+                label="生产厂商">
+        </el-table-column>
+        <el-table-column
+                prop="drugsDetailed.drugsApprovalNumber"
+                header-align="center"
+                align="center"
+                label="批准文号">
+        </el-table-column>
+        <el-table-column
+                fixed="right"
+                header-align="center"
+                align="center"
+                width="160"
+                label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" size="small" @click="delHandle(scope.row.drugsId)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible1 = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
+  </span>
+    </el-dialog>
+
     <el-pagination
       @size-change="sizeChangeHandle"
       @current-change="currentChangeHandle"
@@ -187,7 +274,9 @@ export default {
       dataForm: {
         key: ''
       },
+      did:0,
       checkBoxData: [],
+      drugsData:[],
       dataList: [],
       dialogVisible: false,
       pageIndex: 1,
@@ -198,7 +287,8 @@ export default {
       dataListSelections: [],
       addOrUpdateVisible: false,
       tableData: [],
-      multipleSelection: []
+      multipleSelection: [],
+      dialogVisible1: false
     }
   },
   components: {
@@ -232,9 +322,65 @@ export default {
         }
         this.dataListLoading = false
       })
+
     },
     addHandle(id){
       this.pid=id;
+    },
+      getlike(){
+          this.$http({
+              url: this.$http.adornUrl('/supplier/detailed/like/'+this.dataForm.key),
+              method: 'get',
+              data: this.$http.adornData()
+          }).then(({data}) => {
+              if (data && data.code === 200) {
+                  this.dataList = data.list
+              } else {
+                this.dataList = []
+              }
+          })
+      },
+    //多表数据
+    toviwe(id){
+      this.did=id
+      this.$http({
+        url: this.$http.adornUrl('/drugsSupplier/drugsp/all/'+id),
+        method: 'get',
+        data: this.$http.adornData()
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+           this.drugsData = data.list
+        } else {
+          this.drugsData = []
+        }
+      })
+    },
+    //删除多表
+    delHandle(id){
+      this.$confirm(`确定要删除！`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http({
+          url: this.$http.adornUrl('/drugsSupplier/drugsp/deletebyid/'+id+"/"+this.did),
+          method: 'get',
+          data: this.$http.adornData()
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.getDataList()
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      })
     },
     //取消全选
     toggleSelection(rows) {
@@ -250,8 +396,7 @@ export default {
     confirmf(){
       var ids=this.multipleSelection.map(item =>{return item.drugsId}).join(",")
       this.$http({
-        // url: this.$http.adornUrl('/supplier/detailed/add/'+this.pid+"/"+ids),
-        url: this.$http.adornUrl('/drugs/all'),
+        url: this.$http.adornUrl('/supplier/detailed/add/'+this.pid+"/"+ids),
         method: 'get',
       }).then(({data}) => {
         if (data && data.code === 200) {

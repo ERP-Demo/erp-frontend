@@ -2,10 +2,10 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="药品" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button @click="getlike()">查询</el-button>
         <el-button v-if="isAuth('drugs:detailed:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <el-button v-if="isAuth('drugs:detailed:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
@@ -79,7 +79,6 @@
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.drugsId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.drugsId)">删除</el-button>
-            <el-button type="text" size="small" @click="selectHandle(scope.row.drugsId)">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -165,24 +164,17 @@ export default {
         this.$refs.addOrUpdate.init(id)
       })
     },
-      selectHandle(id){
-        alert(id)
+      //模糊查询
+      getlike(){
           this.$http({
-              url: this.$http.adornUrl('/drugsp/all'),
+              url: this.$http.adornUrl('/drugs/detailed/like/'+this.dataForm.key),
               method: 'get',
               data: this.$http.adornData()
           }).then(({data}) => {
               if (data && data.code === 200) {
-                  this.$message({
-                      message: '操作成功',
-                      type: 'success',
-                      duration: 1000,
-                      onClose: () => {
-                          this.getDataList()
-                      }
-                  })
+                  this.dataList = data.list
               } else {
-                  this.$message.error(data.msg)
+                  this.dataList = []
               }
           })
       },
