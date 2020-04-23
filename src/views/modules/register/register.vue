@@ -23,25 +23,29 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="patientName"
+        prop="register.patientName"
         header-align="center"
         align="center"
         label="患者名称">
     </el-table-column>
     <el-table-column
-        prop="isBack"
+        prop="register.isBack"
         header-align="center"
         align="center"
         label="是否退号">
+      <template slot-scope="scope">
+        <el-tag :type="scope.row.register.isBack === 0 ? 'primary' : 'dangers'"
+                disable-transitions>{{scope.row.register.isBack===0 ? '退号' : '正常'}}</el-tag>
+      </template>
     </el-table-column>
     <el-table-column
-        prop="registerCost"
+        prop="register.registerCost"
         header-align="center"
         align="center"
         label="挂号费用">
     </el-table-column>
     <el-table-column
-        prop="departmentId"
+        prop="department.departmentName"
         header-align="center"
         align="center"
         label="科室编号">
@@ -94,6 +98,7 @@ export default {
   },
   activated () {
     this.getDataList()
+    this.getDataList1()
   },
   methods: {
     // 获取数据列表
@@ -116,6 +121,20 @@ export default {
           this.totalPage = 0
         }
         this.dataListLoading = false
+      })
+    },
+    //关联数据
+    getDataList1 () {
+      this.$http({
+        url: this.$http.adornUrl('/register/register/all'),
+        method: 'get',
+        params: this.$http.adornParams({})
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.dataList = data.list
+        } else {
+          this.dataList = []
+        }
       })
     },
     // 每页数
