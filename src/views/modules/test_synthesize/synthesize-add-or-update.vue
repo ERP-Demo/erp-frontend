@@ -4,11 +4,8 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
-      <el-form-item label="化验项目的简称" prop="testAbbreviation">
-        <el-input v-model="dataForm.testAbbreviation" placeholder="化验项目的简称"></el-input>
-      </el-form-item>
-      <el-form-item label="化验项目的全称" prop="testName">
-        <el-input v-model="dataForm.testName" placeholder="化验项目的全称"></el-input>
+      <el-form-item label="" prop="testSynthesizeName">
+        <el-input v-model="dataForm.testSynthesizeName" placeholder=""></el-input>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -26,9 +23,8 @@ export default {
       confirmButtonDisabled: false,
       dataForm: {},
       dataRule: {
-        testProjectsId: [{ required: true, message: '化验项目的id不能为空', trigger: 'blur' }],
-        testAbbreviation: [{ required: true, message: '化验项目的简称不能为空', trigger: 'blur' }],
-        testName: [{ required: true, message: '化验项目的全称不能为空', trigger: 'blur' }]
+        testSynthesizeId: [{ required: true, message: '综合化验的id不能为空', trigger: 'blur' }],
+        testSynthesizeName: [{ required: true, message: '不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -41,12 +37,12 @@ export default {
         this.$refs['dataForm'].resetFields()
         if (this.dataForm.id) {
           this.$http({
-            url: this.$http.adornUrl(`test_projects/projects/info/${this.dataForm.id}`),
+            url: this.$http.adornUrl(`test_synthesize/synthesize/info/${this.dataForm.id}`),
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
             if (data && data.code === 200) {
-              this.dataForm = data.projects
+              this.dataForm = data.synthesize
             }
           })
         } else {
@@ -59,7 +55,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.$http({
-            url: this.$http.adornUrl(`test_projects/projects/${!this.dataForm.id ? 'save' : 'update'}`),
+            url: this.$http.adornUrl(`test_synthesize/synthesize/${!this.dataForm.id ? 'save' : 'update'}`),
             method: !this.dataForm.id ? 'post' : 'put',
             data: this.$http.adornData(this.dataForm)
           }).then(({data}) => {

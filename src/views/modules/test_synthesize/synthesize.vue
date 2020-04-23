@@ -6,8 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('test_projects:projects:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('test_projects:projects:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('test_synthesize:synthesize:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('test_synthesize:synthesize:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -23,16 +23,10 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="testAbbreviation"
+        prop="testSynthesizeName"
         header-align="center"
         align="center"
-        label="化验项目的简称">
-    </el-table-column>
-    <el-table-column
-        prop="testName"
-        header-align="center"
-        align="center"
-        label="化验项目的全称">
+        label="">
     </el-table-column>
       <el-table-column
         fixed="right"
@@ -61,7 +55,7 @@
 </template>
 
 <script>
-import AddOrUpdate from './projects-add-or-update'
+import AddOrUpdate from './synthesize-add-or-update'
 export default {
   data () {
     return {
@@ -88,7 +82,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('test_projects/projects/list'),
+        url: this.$http.adornUrl('test_synthesize/synthesize/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -139,7 +133,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('test_projects/projects/delete'),
+          url: this.$http.adornUrl('test_synthesize/synthesize/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
