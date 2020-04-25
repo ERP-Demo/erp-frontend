@@ -16,11 +16,18 @@
             },
             width: {
                 type: String,
-                default: '100%'
+                default: '890px'
             },
             height: {
                 type: String,
                 default: '350px'
+            },
+            grid: {
+                left: 10,
+                right: 10,
+                bottom: 20,
+                top: 100,
+                containLabel: true
             },
             autoResize: {
                 type: Boolean,

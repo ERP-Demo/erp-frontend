@@ -35,12 +35,6 @@
         label="联系电话">
     </el-table-column>
     <el-table-column
-        prop="supplierType"
-        header-align="center"
-        align="center"
-        label="供应商类型：1.自营，2.平台">
-    </el-table-column>
-    <el-table-column
         prop="supplierMan"
         header-align="center"
         align="center"
@@ -64,16 +58,6 @@
         align="center"
         label="供应商地址">
     </el-table-column>
-    <el-table-column
-        prop="supplierStatus"
-        header-align="center"
-        align="center"
-        label="状态：0禁止，1启用">
-      <template slot-scope="scope">
-        <el-tag :type="scope.row.supplierStatus === 0 ? 'primary' : 'dangers'"
-                disable-transitions>{{scope.row.supplierStatus===0 ? '正常' : '禁用'}}</el-tag>
-      </template>
-    </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"
@@ -81,7 +65,7 @@
         width="160"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="dialogVisible = true,addHandle(scope.row.supplierId)">新增</el-button>
+          <el-button type="text" size="small" @click="dialogVisible = true,addHandle(scope.row.supplierId),getData()">新增</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.supplierId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.supplierId)">删除</el-button>
           <el-button type="text" size="small" @click="dialogVisible1 = true,toviwe(scope.row.supplierId)">查看</el-button>
@@ -113,7 +97,7 @@
                 prop="drugsName"
                 header-align="center"
                 align="center"
-                label="药品名称">
+                label="药品名称" >
         </el-table-column>
         <el-table-column
                 prop="drugsPrice"
@@ -297,9 +281,6 @@ export default {
   activated () {
     this.getDataList()
   },
-  created(){
-    this.getData()
-  },
   methods: {
     // 获取数据列表
     getDataList () {
@@ -360,7 +341,7 @@ export default {
               type: 'success',
               duration: 1000,
               onClose: () => {
-                this.getDataList()
+                this.drugsData
               }
             })
           } else {
@@ -436,7 +417,11 @@ export default {
       this.$http({
         url: this.$http.adornUrl('/drugs/detailed/list'),
         method: 'get',
-        params: this.$http.adornParams({})
+        params: this.$http.adornParams({
+          'page': this.pageIndex,
+          'limit': this.pageSize,
+          'name': this.dataForm.key
+        })
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.tableData = data.page.list

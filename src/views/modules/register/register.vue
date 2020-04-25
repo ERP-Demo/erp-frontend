@@ -6,8 +6,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('register:register:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('register:register:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+<!--        <el-button v-if="isAuth('register:register:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
       </el-form-item>
     </el-form>
     <el-table
@@ -23,7 +22,7 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="register.patientName"
+        prop="patientName"
         header-align="center"
         align="center"
         label="患者名称">
@@ -39,13 +38,13 @@
       </template>
     </el-table-column>
     <el-table-column
-        prop="register.registerCost"
+        prop="registerCost"
         header-align="center"
         align="center"
         label="挂号费用">
     </el-table-column>
     <el-table-column
-        prop="department.departmentName"
+        prop="departmentId"
         header-align="center"
         align="center"
         label="科室编号">
@@ -98,7 +97,6 @@ export default {
   },
   activated () {
     this.getDataList()
-    this.getDataList1()
   },
   methods: {
     // 获取数据列表
