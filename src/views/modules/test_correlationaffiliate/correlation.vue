@@ -6,8 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('test_correlation:correlation:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('test_correlation:correlation:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('test_correlationaffiliate:correlation:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('test_correlationaffiliate:correlation:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -22,12 +22,6 @@
         align="center"
         width="50">
       </el-table-column>
-    <el-table-column
-        prop="testSynthesize.testSynthesizeName"
-        header-align="center"
-        align="center"
-        label="综合（父级）化验项目名">
-    </el-table-column>
     <el-table-column
         prop="testProjects.testName"
         header-align="center"
@@ -58,18 +52,6 @@
         align="center"
         label="计量单位">
     </el-table-column>
-    <el-table-column
-        prop="createtime"
-        header-align="center"
-        align="center"
-        label="创建时间">
-    </el-table-column>
-    <el-table-column
-        prop="uid"
-        header-align="center"
-        align="center"
-        label="创建者">
-    </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"
@@ -77,7 +59,6 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -124,7 +105,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/test_correlation/correlation/list'),
+        url: this.$http.adornUrl('/test_correlationaffiliate/correlation/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -175,7 +156,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/test_correlation/correlation/delete'),
+          url: this.$http.adornUrl('/test_correlationaffiliate/correlation/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
