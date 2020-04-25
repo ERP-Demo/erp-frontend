@@ -68,11 +68,13 @@
         fixed="right"
         header-align="center"
         align="center"
-        width="150"
+        width="170"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="dialogVisible = true,addHandle(scope.row.userId)">新增</el-button>
           <el-button v-if="isAuth('sys:user:update')" type="text" size="small" @click="addOrUpdateHandle(scope.row.userId)">修改</el-button>
           <el-button v-if="isAuth('sys:user:delete')" type="text" size="small" @click="deleteHandle(scope.row.userId)">删除</el-button>
+          <el-button type="text" size="small" @click="dialogVisible1 = true,toviwe(scope.row.userId)">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -87,6 +89,86 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+
+    <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible"
+            width="66%"
+            :before-close="handleClose">
+      <el-table
+              ref="multipleTable"
+              :data="tableData"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+        <el-table-column
+                type="selection"
+                width="55">
+        </el-table-column>
+        <el-table-column
+                prop="departmentId"
+                header-align="center"
+                align="center"
+                label="部门编号">
+        </el-table-column>
+        <el-table-column
+                prop="departmentName"
+                header-align="center"
+                align="center"
+                label="部门名称">
+        </el-table-column>
+      </el-table>
+      <div style="margin-top: 20px">
+        <el-button @click="toggleSelection()">取消选择</el-button>
+      </div>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible = false,confirmf()">确 定</el-button>
+  </span>
+    </el-dialog>
+    <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible1"
+            width="66%"
+            :before-close="handleClose">
+      <el-table
+              ref="multipleTable"
+              :data="departmentData"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+        <el-table-column
+                type="selection"
+                width="55">
+        </el-table-column>
+        <el-table-column
+                prop="departmentId"
+                header-align="center"
+                align="center"
+                label="部门编号">
+        </el-table-column>
+        <el-table-column
+                prop="departmentName"
+                header-align="center"
+                align="center"
+                label="部门名称">
+        </el-table-column>
+        <el-table-column
+                fixed="right"
+                header-align="center"
+                align="center"
+                width="160"
+                label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" size="small" @click="delHandle(scope.row.departmentId)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible1 = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -98,20 +180,28 @@ export default {
       dataForm: {
         userName: ''
       },
+      departmentData:[],
       dataList: [],
+      tableData:[],
+      dialogVisible: false,
+      dialogVisible1: false,
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
       dataListLoading: false,
       dataListSelections: [],
-      addOrUpdateVisible: false
+      addOrUpdateVisible: false,
+      uid:0,
+      departmentId:0,
+      userId:0
     }
   },
   components: {
     AddOrUpdate
   },
   activated () {
-    this.getDataList()
+    this.getDataList(),
+    this.getData()
   },
   methods: {
     // 获取数据列表
@@ -136,12 +226,100 @@ export default {
         this.dataListLoading = false
       })
     },
+    addHandle(id){
+      this.uid=id;
+    },
+    //多表数据
+    toviwe(id){
+      this.userId=id
+      this.$http({
+        url: this.$http.adornUrl('/users_department/Department/all/'+id),
+        method: 'get',
+        data: this.$http.adornData()
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+            this.departmentData = data.list
+          console.log("数据"+data.list)
+        } else {
+          this.departmentData = []
+        }
+      })
+    },
+    //删除多表
+    delHandle(id){
+      this.$confirm(`确定要删除！`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$http({
+          url: this.$http.adornUrl('/users_department/Department/deletebyid/'+id+"/"+this.userId),
+          method: 'get',
+          data: this.$http.adornData()
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.toviwe(this.userId)
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      })
+    },
+    //取消全选
+    toggleSelection(rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row);
+        });
+      } else {
+        this.$refs.multipleTable.clearSelection();
+      }
+    },
+    //提交
+    confirmf(){
+      var ids=this.multipleSelection.map(item =>{return item.departmentId}).join(",")
+      this.$http({
+        url: this.$http.adornUrl('/users_department/Department/add/'+this.uid+"/"+ids),
+        method: 'get',
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1000,
+            onClose: () => {
+              this.visible = false
+              this.$emit('refreshDataList')
+            }
+          })
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
+    },
+    //获取复选框
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
     // 每页数
     sizeChangeHandle (val) {
       this.pageSize = val
       this.pageIndex = 1
       this.getDataList()
     },
+
+    //关闭
+    handleClose(done) {
+      done();
+    },
+
     // 当前页
     currentChangeHandle (val) {
       this.pageIndex = val
@@ -156,6 +334,22 @@ export default {
       this.addOrUpdateVisible = true
       this.$nextTick(() => {
         this.$refs.addOrUpdate.init(id)
+      })
+    },
+    //获取部门
+    getData () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/department/Department/list'),
+        method: 'get',
+        params: this.$http.adornParams({})
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.tableData = data.page.list
+        } else {
+          this.tableData = []
+        }
+        this.dataListLoading = false
       })
     },
     // 删除

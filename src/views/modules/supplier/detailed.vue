@@ -35,12 +35,6 @@
         label="联系电话">
     </el-table-column>
     <el-table-column
-        prop="supplierType"
-        header-align="center"
-        align="center"
-        label="供应商类型：1.自营，2.平台">
-    </el-table-column>
-    <el-table-column
         prop="supplierMan"
         header-align="center"
         align="center"
@@ -63,16 +57,6 @@
         header-align="center"
         align="center"
         label="供应商地址">
-    </el-table-column>
-    <el-table-column
-        prop="supplierStatus"
-        header-align="center"
-        align="center"
-        label="状态：0禁止，1启用">
-      <template slot-scope="scope">
-        <el-tag :type="scope.row.supplierStatus === 0 ? 'primary' : 'dangers'"
-                disable-transitions>{{scope.row.supplierStatus===0 ? '正常' : '禁用'}}</el-tag>
-      </template>
     </el-table-column>
       <el-table-column
         fixed="right"
