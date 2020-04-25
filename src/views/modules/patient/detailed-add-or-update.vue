@@ -13,6 +13,9 @@
       <el-form-item label="患者性别" prop="patientSex">
         <el-input v-model="dataForm.patientSex" placeholder="患者性别"></el-input>
       </el-form-item>
+      <el-form-item label="身份证号码" prop="patientCartnum">
+        <el-input v-model="dataForm.patientCartnum" placeholder="身份证号码"></el-input>
+      </el-form-item>
       <el-form-item label="患者联系电话" prop="patientPhone">
         <el-input v-model="dataForm.patientPhone" placeholder="患者联系电话"></el-input>
       </el-form-item>
@@ -21,9 +24,6 @@
       </el-form-item>
       <el-form-item label="患者入院时间" prop="patientAdmission">
         <el-input v-model="dataForm.patientAdmission" placeholder="患者入院时间"></el-input>
-      </el-form-item>
-      <el-form-item label="诊断医生" prop="patientDoctor">
-        <el-input v-model="dataForm.patientDoctor" placeholder="诊断医生"></el-input>
       </el-form-item>
       <el-form-item label="备注" prop="patientNote">
         <el-input v-model="dataForm.patientNote" placeholder="备注"></el-input>
@@ -51,7 +51,7 @@ export default {
         patientPhone: [{ required: true, message: '患者联系电话不能为空', trigger: 'blur' }],
         patientAddress: [{ required: true, message: '患者联系地址不能为空', trigger: 'blur' }],
         patientAdmission: [{ required: true, message: '患者入院时间不能为空', trigger: 'blur' }],
-        patientDoctor: [{ required: true, message: '诊断医生不能为空', trigger: 'blur' }],
+        patientCartnum: [{ required: true, message: '患者身份证不能为空', trigger: 'blur' }],
         patientNote: [{ required: true, message: '备注不能为空', trigger: 'blur' }]
       }
     }

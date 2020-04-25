@@ -2,7 +2,7 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="药品" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
@@ -26,7 +26,7 @@
         prop="drugsName"
         header-align="center"
         align="center"
-        label="药品名称，非空" >
+        label="药品名称" >
     </el-table-column>
     <el-table-column
         prop="drugsPrice"
@@ -79,7 +79,6 @@
         <template slot-scope="scope">
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.drugsId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.drugsId)">删除</el-button>
-            <el-button type="text" size="small" @click="selectHandle(scope.row.drugsId)">查看</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -130,7 +129,7 @@ export default {
         params: this.$http.adornParams({
           'page': this.pageIndex,
           'limit': this.pageSize,
-          'key': this.dataForm.key
+          'name': this.dataForm.key
         })
       }).then(({data}) => {
         if (data && data.code === 200) {
@@ -165,26 +164,6 @@ export default {
         this.$refs.addOrUpdate.init(id)
       })
     },
-      selectHandle(id){
-        alert(id)
-          this.$http({
-              url: this.$http.adornUrl('/drugsp/all'),
-              method: 'get',
-              data: this.$http.adornData()
-          }).then(({data}) => {
-              if (data && data.code === 200) {
-                  this.$message({
-                      message: '操作成功',
-                      type: 'success',
-                      duration: 1000,
-                      onClose: () => {
-                          this.getDataList()
-                      }
-                  })
-              } else {
-                  this.$message.error(data.msg)
-              }
-          })
       },
 
     // 删除
@@ -217,6 +196,5 @@ export default {
         })
       })
     }
-  }
 }
 </script>

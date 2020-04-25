@@ -10,7 +10,7 @@
         class="site-navbar__menu"
         mode="horizontal">
         <el-menu-item class="site-navbar__switch" index="0" @click="sidebarFold = !sidebarFold">
-          <icon-svg name="zhedie"></icon-svg>
+          <svg aria-hidden="true" class="site-sidebar__menu-icon icon-svg icon-svg__goods"><use xlink:href="#icon-list"></use></svg>
         </el-menu-item>
       </el-menu>
       <el-menu
