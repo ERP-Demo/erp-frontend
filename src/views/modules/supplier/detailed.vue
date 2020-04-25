@@ -65,7 +65,7 @@
         width="160"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="dialogVisible = true,addHandle(scope.row.supplierId)">新增</el-button>
+          <el-button type="text" size="small" @click="dialogVisible = true,addHandle(scope.row.supplierId),getData()">新增</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.supplierId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.supplierId)">删除</el-button>
           <el-button type="text" size="small" @click="dialogVisible1 = true,toviwe(scope.row.supplierId)">查看</el-button>
@@ -97,7 +97,7 @@
                 prop="drugsName"
                 header-align="center"
                 align="center"
-                label="药品名称">
+                label="药品名称" >
         </el-table-column>
         <el-table-column
                 prop="drugsPrice"
@@ -281,9 +281,6 @@ export default {
   activated () {
     this.getDataList()
   },
-  created(){
-    this.getData()
-  },
   methods: {
     // 获取数据列表
     getDataList () {
@@ -344,7 +341,7 @@ export default {
               type: 'success',
               duration: 1000,
               onClose: () => {
-                this.getDataList()
+                this.drugsData
               }
             })
           } else {
@@ -420,7 +417,11 @@ export default {
       this.$http({
         url: this.$http.adornUrl('/drugs/detailed/list'),
         method: 'get',
-        params: this.$http.adornParams({})
+        params: this.$http.adornParams({
+          'page': this.pageIndex,
+          'limit': this.pageSize,
+          'name': this.dataForm.key
+        })
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.tableData = data.page.list

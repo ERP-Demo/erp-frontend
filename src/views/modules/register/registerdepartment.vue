@@ -79,7 +79,6 @@
         }).then(({data}) => {
           if (data && data.code === 200) {
             this.dlist = data.list
-            console.log(this.dlist)
           } else {
             this.$message.error(data.msg)
           }

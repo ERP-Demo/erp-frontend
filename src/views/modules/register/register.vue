@@ -15,23 +15,27 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%;">
-<!--      <el-table-column-->
-<!--        type="selection"-->
-<!--        header-align="center"-->
-<!--        align="center"-->
-<!--        width="50">-->
-<!--      </el-table-column>-->
-    <el-table-column
-            prop="patientId"
+      <el-table-column
+        type="selection"
         header-align="center"
         align="center"
-        label="患者编号">
+        width="50">
+      </el-table-column>
+    <el-table-column
+        prop="patientName"
+        header-align="center"
+        align="center"
+        label="患者名称">
     </el-table-column>
     <el-table-column
-        prop="isBack"
+        prop="register.isBack"
         header-align="center"
         align="center"
         label="是否退号">
+      <template slot-scope="scope">
+        <el-tag :type="scope.row.register.isBack === 0 ? 'primary' : 'dangers'"
+                disable-transitions>{{scope.row.register.isBack===0 ? '退号' : '正常'}}</el-tag>
+      </template>
     </el-table-column>
     <el-table-column
         prop="registerCost"
@@ -115,6 +119,20 @@ export default {
           this.totalPage = 0
         }
         this.dataListLoading = false
+      })
+    },
+    //关联数据
+    getDataList1 () {
+      this.$http({
+        url: this.$http.adornUrl('/register/register/all'),
+        method: 'get',
+        params: this.$http.adornParams({})
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.dataList = data.list
+        } else {
+          this.dataList = []
+        }
       })
     },
     // 每页数
