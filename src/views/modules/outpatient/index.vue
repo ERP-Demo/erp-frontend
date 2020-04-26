@@ -16,73 +16,73 @@
       <el-table @row-click="handleCurrentChange" highlight-current-row stripe :data="personalWaitList.filter(data => !search || data.patientName.toLowerCase().includes(search.toLowerCase())||data.patientMedicalRecordNo.toLowerCase().includes(search.toLowerCase()))" height="255">
         <el-table-column align="center" label="病历号" width="150px">
           <template slot-scope="scope">
-            {{scope.row.patientMedicalRecordNo}}
+            {{scope.row.registerId}}
           </template>
         </el-table-column>
         <el-table-column align="center" label="名字" width="90px">
           <template slot-scope="scope">
-            {{scope.row.patientName}}
+            {{scope.row.patient.patientName}}
           </template>
         </el-table-column>
         <el-table-column align="center" label="年龄" width="65px">
           <template slot-scope="scope">
-            {{scope.row.patientAge}}
+            {{scope.row.patient.patientAge}}
           </template>
         </el-table-column>
       </el-table>
       <el-tag type="success" style="width:100%">诊中患者</el-tag>
-      <el-table @row-click="continuing" highlight-current-row stripe :data="personalDuringList.filter(data => !search || data.patientName.toLowerCase().includes(search.toLowerCase())||data.patientMedicalRecordNo.toLowerCase().includes(search.toLowerCase()))" height="255">
+      <el-table @row-click="continuing" highlight-current-row stripe :data="personalDuringList === null ? personalDuringList:personalDuringList.filter(data => !search || data.patient.patientName.toLowerCase().includes(search.toLowerCase())||data.registerId.toLowerCase().includes(search.toLowerCase()))" height="255">
         <el-table-column align="center" label="病历号" width="150px">
           <template slot-scope="scope">
-            {{scope.row.patientMedicalRecordNo}}
+            {{scope.row.registerId}}
           </template>
         </el-table-column>
         <el-table-column align="center" label="名字" width="90px">
           <template slot-scope="scope">
-            {{scope.row.patientName}}
+            {{scope.row.patient.patientName}}
           </template>
         </el-table-column>
         <el-table-column align="center" label="年龄" width="65px">
           <template slot-scope="scope">
-            {{scope.row.patientAge}}
+            {{scope.row.patient.patientAge}}
           </template>
         </el-table-column>
       </el-table>
       <el-tag type="warning" style="width:100%">已诊患者</el-tag>
-      <el-table stripe :data="personalEndList.filter(data => !search || data.patientName.toLowerCase().includes(search.toLowerCase())||data.patientMedicalRecordNo.toLowerCase().includes(search.toLowerCase()))" height="255">
+      <el-table stripe :data="personalEndList === null ? personalEndList:personalEndList.filter(data => !search || data.patient.patientName.toLowerCase().includes(search.toLowerCase())||data.registerId.toLowerCase().includes(search.toLowerCase()))" height="255">
         <el-table-column align="center" label="病历号" width="150px">
           <template slot-scope="scope">
-            {{scope.row.patientMedicalRecordNo}}
+            {{scope.row.registerId}}
           </template>
         </el-table-column>
         <el-table-column align="center" label="名字" width="90px">
           <template slot-scope="scope">
-            {{scope.row.patientName}}
+            {{scope.row.patient.patientName}}
           </template>
         </el-table-column>
         <el-table-column align="center" label="年龄" width="65px">
           <template slot-scope="scope">
-            {{scope.row.patientAge}}
+            {{scope.row.patient.patientAge}}
           </template>
         </el-table-column>
       </el-table>
       </el-tab-pane>
       <el-tab-pane label="科室" name="second">
         <el-tag style="width:100%">待诊患者</el-tag>
-        <el-table v-loading="loaddepp" @row-click="bindPatient" highlight-current-row stripe :data="deptWaitList.filter(data => !search || data.patientName.toLowerCase().includes(search.toLowerCase())||data.patientMedicalRecordNo.toLowerCase().includes(search.toLowerCase()))" height="820">
+        <el-table v-loading="loaddepp" @row-click="bindPatient" highlight-current-row stripe :data="deptWaitList === null ? deptWaitList:deptWaitList.filter(data => !search || data.patient.patientName.toLowerCase().includes(search.toLowerCase())||data.registerId.toLowerCase().includes(search.toLowerCase()))" height="820">
           <el-table-column align="center" label="病历号" width="150px">
             <template slot-scope="scope">
-              {{scope.row.patientMedicalRecordNo}}
+              {{scope.row.registerId}}
             </template>
           </el-table-column>
           <el-table-column align="center" label="名字" width="90px">
             <template slot-scope="scope">
-              {{scope.row.patientName}}
+              {{scope.row.patient.patientName}}
             </template>
           </el-table-column>
           <el-table-column align="center" label="年龄" width="65px">
             <template slot-scope="scope">
-              {{scope.row.patientAge}}
+              {{scope.row.patient.patientAge}}
             </template>
           </el-table-column>
         </el-table>
@@ -175,7 +175,7 @@ import { truncate } from 'fs';
               this.activeName2 = 'fiveth'
             }
             this.firstdisabled = false
-            
+
           }
           else{
             this.firstdisabled = true
@@ -231,7 +231,7 @@ import { truncate } from 'fs';
                   this.activeName2 = 'fiveth'
                 }
                 this.firstdisabled = false
-                
+
               }
               else{
                 this.firstdisabled = true
@@ -242,7 +242,7 @@ import { truncate } from 'fs';
               this.$refs.record.controlfast()
             })
           })
-        
+
       },
       bindPatient(val){
           this.$confirm('确认绑定患者 '+val.patientName+'?', '就诊', {
@@ -250,7 +250,7 @@ import { truncate } from 'fs';
           cancelButtonText: '取消',
           type: 'success'
         }).then(()=>{
-          
+
           bindPatient(val.registrationId,this.$store.getters.id).then(res=>{
             this.getPatientList()
             this.$notify({
@@ -279,20 +279,25 @@ import { truncate } from 'fs';
             this.showaside()
             this.$refs.record.controlfast()
           })
-          
+
         })
-        
+
       },
       async getPatientList(){
         this.loaddepp = true
-        await getPatientList(this.$store.getters.id).then(res=>{
+        this.$http({
+          url: this.$http.adornUrl('/register/register/refreshPatient'),
+          method: 'get'
+        }).then(res=>{
           this.deptWaitList = res.data.deptWaitList
           this.personalDuringList = res.data.personalDuringList
-          this.personalEndList = res.data.personalEndList
+          // this.personalEndList = res.data.personalEndList
+          console.log(this.personalWaitList);
           this.personalWaitList = res.data.personalWaitList
           this.loaddepp = false
         }).catch(err=>{
           this.loaddepp = false
+          this.$message.error(err)
         })
       },
       showaside(){
@@ -366,4 +371,3 @@ import { truncate } from 'fs';
 </style>
 
 
-  
