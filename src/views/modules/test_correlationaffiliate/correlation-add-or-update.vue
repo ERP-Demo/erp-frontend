@@ -4,27 +4,31 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
-      <el-form-item label="综合（父级）化验项目名" prop="testSynthesizeId">
-        <el-input v-model="dataForm.testSynthesizeId" placeholder="综合（父级）化验项目名"></el-input>
-      </el-form-item>
-      <el-form-item label="父级化验项目下的化验内容" prop="testProjectsId">
-        <el-input v-model="dataForm.testProjectsId" placeholder="父级化验项目下的化验内容"></el-input>
-      </el-form-item>
-      <el-form-item label="下限" prop="floor">
-        <el-input v-model="dataForm.floor" placeholder="下限"></el-input>
-      </el-form-item>
-      <el-form-item label="上限" prop="ceiling">
-        <el-input v-model="dataForm.ceiling" placeholder="上限"></el-input>
-      </el-form-item>
-      <el-form-item label="计量单位" prop="unit">
-        <el-input v-model="dataForm.unit" placeholder="计量单位"></el-input>
-      </el-form-item>
-      <el-form-item label="创建时间" prop="createtime">
-        <el-input v-model="dataForm.createtime" placeholder="创建时间"></el-input>
-      </el-form-item>
-      <el-form-item label="创建者" prop="uid">
-        <el-input v-model="dataForm.uid" placeholder="创建者"></el-input>
-      </el-form-item>
+      <el-table
+              :data="dataList"
+              border
+              v-loading="dataListLoading"
+              @selection-change="selectionChangeHandle"
+              style="width: 100%;">
+        <el-table-column
+                type="selection"
+                header-align="center"
+                align="center"
+                width="50">
+        </el-table-column>
+        <el-table-column
+                prop="testSynthesizeName"
+                header-align="center"
+                align="center"
+                label="子项目全称">
+        </el-table-column>
+        <el-table-column
+                prop="testProjects.testAbbreviation"
+                header-align="center"
+                align="center"
+                label="子项目简称">
+        </el-table-column>
+      </el-table>
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
