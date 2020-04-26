@@ -100,6 +100,7 @@
                   type: 'success',
                   duration: 1000,
                 })
+                this.dataForm={brand_right:0};
               } else {
                 this.$message.error(data.msg)
               }

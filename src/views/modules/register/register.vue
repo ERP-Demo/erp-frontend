@@ -22,7 +22,7 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="patientName"
+        prop="patientDetailed.patientName"
         header-align="center"
         align="center"
         label="患者名称">
@@ -44,7 +44,7 @@
         label="挂号费用">
     </el-table-column>
     <el-table-column
-        prop="departmentId"
+        prop="department.departmentName"
         header-align="center"
         align="center"
         label="科室编号">
@@ -97,6 +97,7 @@ export default {
   },
   activated () {
     this.getDataList()
+    this.getDataList1 ()
   },
   methods: {
     // 获取数据列表
