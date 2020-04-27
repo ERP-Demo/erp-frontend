@@ -2,7 +2,7 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="供应商" clearable></el-input>
+        <el-input v-model="dataForm.supplierName" placeholder="供应商" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getlike()">查询</el-button>
@@ -314,7 +314,11 @@ export default {
       this.$http({
         url: this.$http.adornUrl('/drugsSupplier/drugsp/all/'+id),
         method: 'get',
-        data: this.$http.adornData()
+        data: this.$http.adornData({
+          'page': this.pageIndex,
+          'limit': this.pageSize,
+          'name': this.dataForm.key
+        })
       }).then(({data}) => {
         if (data && data.code === 200) {
            this.drugsData = data.list
