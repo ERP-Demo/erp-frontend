@@ -1,22 +1,22 @@
 <template>
     <div class="mod-config">
         <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="getDataList()" label-width="90px" style="margin-top: 40px">
-            <el-form-item label="药品:" prop="drugsId">
-                <el-select v-model="dataForm.drugsId" placeholder="请选择药品" style="width: 250px;line-height: 50px">
-                    <el-option v-for="item in drugsList" :key="item.drugsId" :label="item.drugsName" :value="item.drugsId"></el-option>
+            <el-form-item label="子化验项目项目:" prop="testProjectsId">
+                <el-select v-model="dataForm.testProjectsId" placeholder="请选择" style="width: 250px;line-height: 50px">
+                    <el-option v-for="item in testProjectsList" :key="item.testProjectsId" :label="item.testName" :value="item.testProjectsId"></el-option>
                 </el-select>
             </el-form-item>
-            <el-form-item label="数量" prop="reportedLossCount">
-                <el-input v-model="dataForm.reportedLossCount" placeholder="数量" style="width: 250px;line-height: 50px"></el-input>
+            <el-form-item label="上限" prop="floor">
+                <el-input v-model="dataForm.floor" placeholder="上限" style="width: 250px;line-height: 50px"></el-input>
             </el-form-item>
-            <el-form-item label="报损原因" prop="reportedLossWhy">
-                <el-input v-model="dataForm.reportedLossWhy" placeholder="报损原因" style="width: 250px;line-height: 50px"></el-input>
+            <el-form-item label="下限" prop="ceiling">
+                <el-input v-model="dataForm.ceiling" placeholder="下限" style="width: 250px;line-height: 50px"></el-input>
             </el-form-item>
-            <el-form-item label="备注" prop="reportedLossNote">
-                <el-input v-model="dataForm.reportedLossNote" placeholder="备注" style="width: 250px;line-height: 50px"></el-input>
+            <el-form-item label="计量单位" prop="unit">
+                <el-input v-model="dataForm.unit" placeholder="单位" style="width: 250px;line-height: 50px"></el-input>
             </el-form-item>
-            <el-form-item label="操作人" prop="reportedLossOperationOf">
-                <el-input v-model="dataForm.reportedLossOperationOf" placeholder="操作人" style="width: 250px;line-height: 50px"></el-input>
+            <el-form-item label="操作人" prop="uid">
+                <el-input v-model="dataForm.uid" placeholder="操作人" style="width: 250px;line-height: 50px"></el-input>
             </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer" style="margin-left: 40px">
@@ -35,20 +35,20 @@
             return {
                 confirmButtonDisabled: false,
                 dataForm: {
-                    drugsId: '',
-                    reportedLossCount: '',
-                    reportedLossWhy: '',
-                    reportedLossNote: '',
-                    reportedLossOperationOf: ''
+                    testProjectsId: '',
+                    floor: '',
+                    ceiling: '',
+                    unit: '',
+                    uid: ''
                 },
                 dataRule: {
-                    drugsId: [{ required: true, message: '药品编号，主键ID，主键，非空不能为空', trigger: 'blur' }],
-                    reportedLossCount: [{ required: true, message: '数量，非空不能为空', trigger: 'blur' }],
-                    reportedLossWhy: [{ required: true, message: '报损原因不能为空', trigger: 'blur' }],
-                    reportedLossNote: [{ required: true, message: '备注不能为空', trigger: 'blur' }],
-                    reportedLossOperationOf: [{ required: true, message: '操作人不能为空', trigger: 'blur' }]
+                    testProjectsId: [{ required: true, message: '编号，主键ID，主键，非空不能为空', trigger: 'blur' }],
+                    floor: [{ required: true, message: '上限，非空不能为空', trigger: 'blur' }],
+                    ceiling: [{ required: true, message: '下限，不能为空', trigger: 'blur' }],
+                    unit: [{ required: true, message: '单位', trigger: 'blur' }],
+                    uid: [{ required: true, message: '操作人不能为空', trigger: 'blur' }]
                 },
-                drugsList: []
+                testProjectsList: []
             }
         },
         activated () {
@@ -59,12 +59,12 @@
             getDataList () {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/drugs/reports/selectDrugsId'),
+                    url: this.$http.adornUrl('/test_correlationaffiliate/correlation/selectTestCorrelationId'),
                     method: 'get'
                 }).then(({data}) => {
                     if (data && data.code === 200) {
-                        this.drugsList = data.list
-                        console.log("aaa"+this.drugsList)
+                        this.testProjectsList = data.list
+                        console.log("aaa"+this.testProjectsList)
                     } else {
                         this.$message.error(data.msg)
                     }
@@ -72,7 +72,7 @@
             },
             dataFormSubmit(){
                 this.$http({
-                    url: this.$http.adornUrl('/drugs/reports/addStorageReport'),
+                    url: this.$http.adornUrl('/test_correlationaffiliate/correlation/addTestCorrelation'),
                     method: 'post',
                     data: this.$http.adornData(this.dataForm)
                 }).then(({data}) => {
@@ -84,11 +84,11 @@
                             duration: 1000
                         })
                         /*刷新页面*/
-                        this.dataForm.drugsId="",
-                            this.dataForm.reportedLossCount="",
-                            this.dataForm.reportedLossWhy="",
-                            this.dataForm.reportedLossNote="",
-                            this.dataForm.reportedLossOperationOf=""
+                        this.dataForm.testProjectsId="",
+                            this.dataForm.floor="",
+                            this.dataForm.ceiling="",
+                            this.dataForm.unit="",
+                            this.dataForm.uid=""
                         /*跳转页面*/
                         this.$router.replace({ name: 'drugs-all-storage-report' })
                     } else {
