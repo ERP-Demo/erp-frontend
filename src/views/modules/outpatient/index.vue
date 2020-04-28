@@ -13,7 +13,7 @@
       <el-tabs type="card" v-model="activeName" style="margin-top:15px">
       <el-tab-pane  label="本人" name="first">
       <el-tag style="width:100%">待诊患者</el-tag>
-      <el-table @row-click="handleCurrentChange" highlight-current-row stripe :data="personalWaitList.filter(data => !search || data.patientName.toLowerCase().includes(search.toLowerCase())||data.patientMedicalRecordNo.toLowerCase().includes(search.toLowerCase()))" height="255">
+      <el-table @row-click="handleCurrentChange" highlight-current-row stripe :data="personalWaitList === null ? personalWaitList : personalWaitList.filter(data => !search || data.patientName.toLowerCase().includes(search.toLowerCase())||data.patientMedicalRecordNo.toLowerCase().includes(search.toLowerCase()))" height="255">
         <el-table-column align="center" label="病历号" width="150px">
           <template slot-scope="scope">
             {{scope.row.registerId}}
@@ -99,8 +99,8 @@
         <el-button size="mini" circle type="primary" @click="showaside"><i v-show="isaside" class="el-icon-arrow-left" /><i v-show="!isaside" class="el-icon-arrow-right" /></el-button>
         <span style="margin-left:15px;font-size:14px;font-family: '微软雅黑';">当前病人：</span>
         <el-tag class="painfo" color="white" style="width:15%;font-size:15px">姓名: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientName}}</span></el-tag>
-        <el-tag class="painfo" color="white" style="width:20%;font-size:15px">就诊号: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientMedicalRecordNo}}</span></el-tag>
-        <el-tag class="painfo" color="white" style="width:10%;font-size:15px">性别: <span style="color:black;font-size: 14px;font-family:'微软雅黑';" v-if="patient.patientGender===1">女</span><span style="color:black" v-if="patient.patientGender===0">男</span></el-tag>
+        <el-tag class="painfo" color="white" style="width:20%;font-size:15px">就诊号: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{registerId}}</span></el-tag>
+        <el-tag class="painfo" color="white" style="width:10%;font-size:15px">性别: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientSex}}</span></el-tag>
         <el-tag class="painfo" color="white" style="width:10%;font-size:15px">年龄: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientAge}}</span></el-tag>
         <el-button type="text" style="margin-left:30px;letter-spacing: 5px;" @click="endDiagnosis"><i class="el-icon-success" />诊毕</el-button>
       </div>
@@ -159,6 +159,7 @@ import { truncate } from 'fs';
         isaside: true,
         activeName: 'first',
         activeName2: 'first',
+        registerId: '',
       };
     },
     created(){
@@ -200,7 +201,7 @@ import { truncate } from 'fs';
             this.firstdisabled = true
             this.activeName2 = 'first'
           }
-          this.patient = val
+          this.patient = val.patient
           this.$refs.record.controlfast()
         })
       },
@@ -217,35 +218,35 @@ import { truncate } from 'fs';
         })
       },
       continuing(val){
-          this.$confirm('确认继续诊断患者 '+val.patientName+'?', '就诊', {
+          this.$confirm('确认继续诊断患者 '+val.patient.patientName+'?', '就诊', {
             confirmButtonText: '确认',
             cancelButtonText: '取消',
             type: 'success'
           }).then(()=>{
-            getnonend(val.registrationId).then(res=>{
-              this.comfirmdisabled = true
-              if(res.data.dmsCaseHistoryList.length!==0){
-                this.activeName2 = 'second'
-                if(res.data.dmsCaseHistoryList[0].status===2){
-                  this.comfirmdisabled = false
-                  this.activeName2 = 'fiveth'
-                }
-                this.firstdisabled = false
-
-              }
-              else{
-                this.firstdisabled = true
-                this.activeName2 = 'first'
-              }
-              this.patient = val
-              this.showaside()
+            // getnonend(val.registrationId).then(res=>{
+            //   this.comfirmdisabled = true
+            //   if(res.data.dmsCaseHistoryList.length!==0){
+            //     this.activeName2 = 'second'
+            //     if(res.data.dmsCaseHistoryList[0].status===2){
+            //       this.comfirmdisabled = false
+            //       this.activeName2 = 'fiveth'
+            //     }
+            //     this.firstdisabled = false
+            //
+            //   }
+            //   else{
+            //     this.firstdisabled = true
+            //     this.activeName2 = 'first'
+            //   }
+              this.patient = val.patient
+              this.registerId=val.registerId
               this.$refs.record.controlfast()
             })
-          })
+          // })
 
       },
       bindPatient(val){
-          this.$confirm('确认绑定患者 '+val.patientName+'?', '就诊', {
+          this.$confirm('确认绑定患者 '+val.patient.patientName+'?', '就诊', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
@@ -263,22 +264,33 @@ import { truncate } from 'fs';
         })
       },
       async handleCurrentChange(val){
-        this.$confirm('确认开始诊断患者 '+val.patientName+'?', '就诊', {
+        this.$confirm('确认开始诊断患者 '+val.patient.patientName+'?', '就诊', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
         }).then(()=>{
-          startDiagnosis(val.registrationId).then(res=>{
-             this.$notify({
-              title: '成功',
-              message: '开始诊断',
-              type: 'success',
-              duration: 2000
-            })
-            this.patient = val
-            this.showaside()
-            this.$refs.record.controlfast()
+          this.$http({
+            url: this.$http.adornUrl('/activiti/startDiagnosis'),
+            method: 'post',
+            params: this.$http.adornParams({'processInstanceId':val.processInstanceId},false)
+          }).then(({data}) => {
+            if (data && data.code === 200) {
+              this.$message.success("开始诊断")
+              this.patient = val
+              this.getPatientList()
+            } else {
+              this.$message.error(data.msg)
+            }
           })
+          // startDiagnosis(val.registrationId).then(res=>{
+          //    this.$notify({
+          //     title: '成功',
+          //     message: '开始诊断',
+          //     type: 'success',
+          //     duration: 2000
+          //   })
+
+          // })
 
         })
 
