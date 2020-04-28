@@ -6,8 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('test_correlation:correlation:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('test_correlation:correlation:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('scheduling:scheduling:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('scheduling:scheduling:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -23,52 +23,16 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="testSynthesize.testSynthesizeName"
+        prop="starttime"
         header-align="center"
         align="center"
-        label="综合（父级）化验项目名">
+        label="开始时间">
     </el-table-column>
     <el-table-column
-        prop="testProjects.testName"
+        prop="endtime"
         header-align="center"
         align="center"
-        label="父级化验项目下的化验内容">
-    </el-table-column>
-      <el-table-column
-              prop="testProjects.testAbbreviation"
-              header-align="center"
-              align="center"
-              label="父级化验项目下的化验内容的简称">
-      </el-table-column>
-    <el-table-column
-        prop="floor"
-        header-align="center"
-        align="center"
-        label="下限">
-    </el-table-column>
-    <el-table-column
-        prop="ceiling"
-        header-align="center"
-        align="center"
-        label="上限">
-    </el-table-column>
-    <el-table-column
-        prop="unit"
-        header-align="center"
-        align="center"
-        label="计量单位">
-    </el-table-column>
-    <el-table-column
-        prop="createtime"
-        header-align="center"
-        align="center"
-        label="创建时间">
-    </el-table-column>
-    <el-table-column
-        prop="uid"
-        header-align="center"
-        align="center"
-        label="创建者">
+        label="结束时间">
     </el-table-column>
       <el-table-column
         fixed="right"
@@ -77,7 +41,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">此化验项目详细信息</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -97,7 +61,7 @@
 </template>
 
 <script>
-import AddOrUpdate from './correlation-add-or-update'
+import AddOrUpdate from './scheduling-add-or-update'
 export default {
   data () {
     return {
@@ -124,7 +88,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/test_correlation/correlation/list'),
+        url: this.$http.adornUrl('/ucenter/scheduling/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -175,7 +139,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/test_correlation/correlation/delete'),
+          url: this.$http.adornUrl('/ucenter/scheduling/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {

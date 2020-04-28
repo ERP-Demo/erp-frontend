@@ -314,7 +314,11 @@ export default {
       this.$http({
         url: this.$http.adornUrl('/drugsSupplier/drugsp/all/'+id),
         method: 'get',
-        data: this.$http.adornData()
+        data: this.$http.adornData({
+          'page': this.pageIndex,
+          'limit': this.pageSize,
+          'name': this.dataForm.key
+        })
       }).then(({data}) => {
         if (data && data.code === 200) {
            this.drugsData = data.list
