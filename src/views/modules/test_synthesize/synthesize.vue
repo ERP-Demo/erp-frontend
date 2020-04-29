@@ -6,8 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('test_correlation:correlation:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('test_correlation:correlation:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+        <el-button v-if="isAuth('test_synthesize:synthesize:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('test_synthesize:synthesize:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -23,46 +23,10 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="testSynthesizeId"
+        prop="testSynthesizeName"
         header-align="center"
         align="center"
-        label="综合（父级）化验项目名">
-    </el-table-column>
-    <el-table-column
-        prop="testProjectsId"
-        header-align="center"
-        align="center"
-        label="父级化验项目下的化验内容">
-    </el-table-column>
-    <el-table-column
-        prop="floor"
-        header-align="center"
-        align="center"
-        label="下限">
-    </el-table-column>
-    <el-table-column
-        prop="ceiling"
-        header-align="center"
-        align="center"
-        label="上限">
-    </el-table-column>
-    <el-table-column
-        prop="unit"
-        header-align="center"
-        align="center"
-        label="计量单位">
-    </el-table-column>
-    <el-table-column
-        prop="createtime"
-        header-align="center"
-        align="center"
-        label="创建时间">
-    </el-table-column>
-    <el-table-column
-        prop="uid"
-        header-align="center"
-        align="center"
-        label="创建者">
+        label="">
     </el-table-column>
       <el-table-column
         fixed="right"
@@ -71,6 +35,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="showChilren(scope.row.testSynthesizeId)">详细</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -87,11 +52,13 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <chilren v-if="childrenVisible" ref="chilren" @refreshDataList="getDataList"></chilren>
   </div>
 </template>
 
 <script>
-import AddOrUpdate from './correlation-add-or-update'
+import AddOrUpdate from './synthesize-add-or-update'
+import chilren from './testChilren'
 export default {
   data () {
     return {
@@ -104,11 +71,13 @@ export default {
       totalPage: 0,
       dataListLoading: false,
       dataListSelections: [],
-      addOrUpdateVisible: false
+      addOrUpdateVisible: false,
+      childrenVisible: false
     }
   },
   components: {
-    AddOrUpdate
+    AddOrUpdate,
+    chilren
   },
   activated () {
     this.getDataList()
@@ -118,7 +87,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('test_correlation/correlation/list'),
+        url: this.$http.adornUrl('/test_synthesize/synthesize/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -169,7 +138,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('test_correlation/correlation/delete'),
+          url: this.$http.adornUrl('/test_synthesize/synthesize/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
@@ -186,6 +155,12 @@ export default {
             this.$message.error(data.msg)
           }
         })
+      })
+    },
+    showChilren(id){
+      this.childrenVisible = true
+      this.$nextTick(() => {
+        this.$refs.chilren.init(id)
       })
     }
   }
