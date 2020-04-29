@@ -33,8 +33,8 @@
         align="center"
         label="是否退号">
       <template slot-scope="scope">
-        <el-tag :type="scope.row.register.isBack === 0 ? 'primary' : 'dangers'"
-                disable-transitions>{{scope.row.register.isBack===0 ? '退号' : '正常'}}</el-tag>
+        <el-tag :type="scope.row.status === 0 ? 'primary' : 'dangers'"
+                disable-transitions>{{scope.row.status===0 ? '退号' : '正常'}}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
