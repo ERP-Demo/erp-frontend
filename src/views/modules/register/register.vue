@@ -22,7 +22,7 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="patientDetailed.patientName"
+        prop="patient.patientName"
         header-align="center"
         align="center"
         label="患者名称">
