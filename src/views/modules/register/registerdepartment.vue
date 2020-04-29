@@ -1,7 +1,7 @@
 <template>
   <div class="mod-config">
     <h2>挂号登记</h2>
-    <el-form :model="dataForm" :inline="true" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="85px" style="margin-top: 40px;">
+    <el-form :model="dataForm" :inline="true" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()"  style="margin-top: 2%;margin-left: 3%">
       <el-form-item label="患者名称" prop="patientName">
         <el-input placeholder="患者名称" v-model="dataForm.patientName" style="width: 250px;line-height: 50px;"></el-input>
       </el-form-item>
@@ -14,7 +14,7 @@
       <el-form-item label="患者年龄" prop="patientAge">
         <el-input placeholder="患者年龄" v-model="dataForm.patientAge" style="width: 250px;line-height: 50px;"></el-input>
       </el-form-item>
-      <el-form-item label="身份证" prop="patientCartnum">
+      <el-form-item label="身份证" prop="patientCartnum" style="margin-left: 1%">
         <el-input placeholder="身份证" v-model="dataForm.patientCartnum" style="width: 250px;line-height: 50px;"></el-input>
       </el-form-item>
       <el-form-item label="患者电话" prop="patientPhone">
@@ -23,7 +23,7 @@
       <el-form-item label="患者地址" prop="patientAddress">
         <el-input placeholder="患者地址" v-model="dataForm.patientAddress" style="width: 250px;line-height: 50px;"></el-input>
       </el-form-item>
-      <el-form-item label="科室" prop="departmentId">
+      <el-form-item label="科室" prop="departmentId" style="margin-left: 2.3%">
         <el-select placeholder="请选择" v-model="dataForm.departmentId" style="width: 250px;line-height: 50px;">
           <el-option
                   v-for="item in dlist"
@@ -33,7 +33,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="患者备注" prop="patientNote">
+      <el-form-item label="患者备注" prop="patientNote" style="margin-left: 1%">
         <el-input placeholder="患者备注" v-model="dataForm.patientNote" style="width: 250px;line-height: 50px;"></el-input>
       </el-form-item>
       <el-form-item label="挂号费用" prop="registerCost">
@@ -105,7 +105,7 @@
                 this.$message.error(data.msg)
               }
             })
-          this.confirmButtonDisabled=false
+
           }
        // })
       //}

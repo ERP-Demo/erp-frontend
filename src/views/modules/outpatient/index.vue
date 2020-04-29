@@ -98,7 +98,7 @@
       <div style="border-style: dotted;border-width: 0px 0px 1px 0px;border-color:#C0C0C0;padding: 0 0 10px 0;margin-bottom:-10px">
         <el-button size="mini" circle type="primary" @click="showaside"><i v-show="isaside" class="el-icon-arrow-left" /><i v-show="!isaside" class="el-icon-arrow-right" /></el-button>
         <span style="margin-left:15px;font-size:14px;font-family: '微软雅黑';">当前病人：</span>
-        <el-tag class="painfo" color="white" style="width:15%;font-size:15px">姓名: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientName}}</span></el-tag>
+        <el-tag class="painfo" color="white" style="width:15%;font-size:15px">姓名: <span style="olor:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientName}}</span></el-tag>
         <el-tag class="painfo" color="white" style="width:20%;font-size:15px">就诊号: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{registerId}}</span></el-tag>
         <el-tag class="painfo" color="white" style="width:10%;font-size:15px">性别: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientSex}}</span></el-tag>
         <el-tag class="painfo" color="white" style="width:10%;font-size:15px">年龄: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientAge}}</span></el-tag>
@@ -251,16 +251,28 @@ import { truncate } from 'fs';
           cancelButtonText: '取消',
           type: 'success'
         }).then(()=>{
-
-          bindPatient(val.registrationId,this.$store.getters.id).then(res=>{
-            this.getPatientList()
-            this.$notify({
-              title: '成功',
-              message: '成功绑定该患者!',
-              type: 'success',
-              duration: 2000
+//activiti/consultation
+//           bindPatient(val.registrationId,this.$store.getters.id).then(res=>{
+//             this.getPatientList()
+//             this.$notify({
+//               title: '成功',
+//               message: '成功绑定该患者!',
+//               type: 'success',
+//               duration: 2000
+//             })
+//           })
+            this.$http({
+              url: this.$http.adornUrl('/activiti/consultation'),
+              method: 'post',
+              params: this.$http.adornParams({'processInstanceId':val.processInstanceId},false)
+            }).then(({data}) => {
+              if (data && data.code === 200) {
+                this.$message.success("成功绑定该患者")
+                this.getPatientList()
+              } else {
+                this.$message.error(data.msg)
+              }
             })
-          })
         })
       },
       async handleCurrentChange(val){

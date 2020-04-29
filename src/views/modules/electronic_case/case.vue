@@ -21,47 +21,59 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="uid"
+        prop="username"
         header-align="center"
         align="center"
-        label="医生id">
+        label="医生">
     </el-table-column>
     <el-table-column
         prop="patientName"
         header-align="center"
         align="center"
-        label="病人id">
+        label="患者">
     </el-table-column>
-    <el-table-column
-        prop="departmentName"
-        header-align="center"
-        align="center"
-        label="科室id">
+      <el-table-column
+            prop="complain"
+            header-align="center"
+            align="center"
+            label="主诉">
     </el-table-column>
-    <el-table-column
-        prop="enterHospital"
-        header-align="center"
-        align="center"
-        label="入院时间">
-    </el-table-column>
-    <el-table-column
-        prop="leaveHospital"
-        header-align="center"
-        align="center"
-        label="出院时间">
-    </el-table-column>
-    <el-table-column
-        prop="patientSymptom"
-        header-align="center"
-        align="center"
-        label="症状">
-    </el-table-column>
-    <el-table-column
-        prop="doctorAdvice"
-        header-align="center"
-        align="center"
-        label="医嘱">
-    </el-table-column>
+      <el-table-column
+              prop="onsetTime"
+              header-align="center"
+              align="center"
+              label="发病时间">
+      </el-table-column>
+      <el-table-column
+              prop="patientSymptom"
+              header-align="center"
+              align="center"
+              label="症状">
+      </el-table-column>
+      <el-table-column
+              prop="medicalHistory"
+              header-align="center"
+              align="center"
+              label="既往病史">
+      </el-table-column>
+      <el-table-column
+              prop="allergyHistory"
+              header-align="center"
+              align="center"
+              label="过敏史">
+      </el-table-column>
+      <el-table-column
+              prop="healthCheckup"
+              header-align="center"
+              align="center"
+              label="体格检查">
+      </el-table-column>
+      <el-table-column
+              prop="treatment"
+              header-align="center"
+              align="center"
+              label="治疗情况">
+      </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"

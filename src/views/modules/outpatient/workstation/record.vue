@@ -8,15 +8,15 @@
     <el-button type="text" style="margin-left:30px" @click="getCasePage"><i class="el-icon-download" />取出暂存病历</el-button>
     <el-button style="float:right" @click="controlfast"><i v-show="!isclose" class="el-icon-caret-right" /><i v-show="isclose" class="el-icon-caret-left" />  快捷操作</el-button>
     <el-form :model="record" label-width="100px">
-      <el-form-item label="主诉"><el-input v-model="priliminaryDise.chiefComplaint" type="textarea" :autosize="{ minRows: 2, maxRows: 3}" placeholder="主述" style="width:80%"></el-input></el-form-item>
-      <el-form-item label="现病史"><el-input v-model="priliminaryDise.historyOfPresentIllness" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病史" style="width:80%" ></el-input></el-form-item>
-      <el-form-item label="现病治疗情况"><el-input v-model="priliminaryDise.historyOfTreatment" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病治疗情况" style="width:80%"></el-input></el-form-item>
-      <el-form-item label="既往史"><el-input v-model="priliminaryDise.pastHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="既往史" style="width:80%"></el-input></el-form-item>
-      <el-form-item label="过敏史"><el-input v-model="priliminaryDise.allergies" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="过敏史" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="主诉"><el-input v-model="priliminaryDise.complain" type="textarea" :autosize="{ minRows: 2, maxRows: 3}" placeholder="主述" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="现病史"><el-input v-model="priliminaryDise.patientSymptom" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病史" style="width:80%" ></el-input></el-form-item>
+      <el-form-item label="现病治疗情况"><el-input v-model="priliminaryDise.treatment" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病治疗情况" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="既往史"><el-input v-model="priliminaryDise.medicalHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="既往史" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="过敏史"><el-input v-model="priliminaryDise.allergyHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="过敏史" style="width:80%"></el-input></el-form-item>
       <el-form-item label="体格检查"><el-input v-model="priliminaryDise.healthCheckup" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="体格检查" style="width:80%"></el-input></el-form-item>
       <el-form-item label="发病时间">
            <el-date-picker
-            v-model="priliminaryDise.startDate"
+            v-model="priliminaryDise.onsetTime"
             align="right"
             type="date"
             placeholder="选择日期"
@@ -173,19 +173,20 @@ export default {
       dialogTableVisible:false,
       activeName:'first',
       isclose:false,
-      record:[],
+      record:{},
       medicineDiseIdList:[],//常用诊断
       priliminaryDise:{
-        chiefComplaint:'',//主述
-        historyOfPresentIllness:'',//现病史
-        historyOfTreatment:'',//现治疗情况
-        pastHistory:'',//既往史
-        allergies:'',//过敏史
+        complain:'',//主述
+        patientSymptom:'',//现病史
+        treatment:'',//现治疗情况
+        medicalHistory:'',//既往史
+        allergyHistory:'',//过敏史
         healthCheckup:'',//体格检查
         registrationId:'',//
+        patientId:'',
         priliminaryDiseStrList:'',
         priliminaryDiseIdList:'',
-        startDate:'',
+        onsetTime:'',//发病时间
         name:'',
         gender:'',
         ageStr:''
@@ -266,6 +267,7 @@ export default {
     saveCasePage(){
       let data  =this.priliminaryDise
       data.registrationId = this.patient.registrationId
+
       saveCasePage(this.priliminaryDise).then(res=>{
         this.$notify({
           title: '成功',
@@ -306,26 +308,70 @@ export default {
       })
     },
     submitPriliminaryDise(){
-      this.priliminaryDise.registrationId = this.patient.registrationId
-      this.record.forEach(item=>{
-        this.priliminaryDise.priliminaryDiseStrList+=(item.name+',')
-        this.priliminaryDise.priliminaryDiseIdList+=(item.id+',')
-      })
-      this.priliminaryDise.priliminaryDiseStrList = this.priliminaryDise.priliminaryDiseStrList.substr(0, this.priliminaryDise.priliminaryDiseStrList.length - 1);
-      this.priliminaryDise.priliminaryDiseIdList = this.priliminaryDise.priliminaryDiseIdList.substr(0, this.priliminaryDise.priliminaryDiseIdList.length - 1);
-      this.priliminaryDise.name = this.patient.patientName
-      this.priliminaryDise.gender = this.patient.patientGender
-      this.priliminaryDise.startDate = parseTime(this.priliminaryDise.startDate).substr(0,10)
-      this.priliminaryDise.ageStr = this.patient.patientAge
-      submitPriliminaryDise(this.priliminaryDise).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: '成功提交初诊病历',
-            type: 'success',
-            duration: 2000
+      // this.$refs['record'].validate((valid) => {
+      //   if (valid) {
+          this.priliminaryDise.patientId=this.patient.patientId
+          // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
+          this.$http({
+            url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
+            method: !this.record.id ? 'post' : 'put',
+            data: this.$http.adornData(this.priliminaryDise)
+          }).then(({data}) => {
+            this.confirmButtonDisabled = true
+            if (data && data.code === 200) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.visible = false
+                  this.$emit('refreshDataList')
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
           })
-          this.$emit('priliminary')
-        })
+      //   }
+      // })
+      // this.priliminaryDise.registrationId = this.patient.registrationId
+      // this.record.forEach(item=>{
+      //   this.priliminaryDise.priliminaryDiseStrList+=(item.name+',')
+      //   this.priliminaryDise.priliminaryDiseIdList+=(item.id+',')
+      // })
+      // this.priliminaryDise.priliminaryDiseStrList = this.priliminaryDise.priliminaryDiseStrList.substr(0, this.priliminaryDise.priliminaryDiseStrList.length - 1);
+      // this.priliminaryDise.priliminaryDiseIdList = this.priliminaryDise.priliminaryDiseIdList.substr(0, this.priliminaryDise.priliminaryDiseIdList.length - 1);
+      // this.priliminaryDise.name = this.patient.patientName
+      // this.priliminaryDise.gender = this.patient.patientSex
+      // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
+      // this.priliminaryDise.ageStr = this.patient.patientAge
+      // this.priliminaryDise.patientId=this.patient.patientId
+      // submitPriliminaryDise(this.priliminaryDise).then(res=>{
+      //     this.$http({
+      //       url: this.$http.adornUrl(`/electronic_case/case/save`),
+      //       method: 'post',
+      //       data: this.$http.adornData(this.priliminaryDise)
+      //       // title: '成功',
+      //       // message: '成功提交初诊病历',
+      //       // type: 'success',
+      //       // duration: 2000
+      //     }).then(({data}) => {
+      //       this.confirmButtonDisabled = true
+      //       if (data && data.code === 200) {
+      //         this.$message({
+      //           message: '操作成功',
+      //           type: 'success',
+      //           duration: 1000,
+      //           onClose: () => {
+      //             this.visible = false
+      //             this.$emit('refreshDataList')
+      //           }
+      //         })
+      //       } else {
+      //         this.$message.error(data.msg)
+      //       }
+      //     })
+      //   })
     },
     deleteDis(row){
       this.record=this.record.filter(item=>{
