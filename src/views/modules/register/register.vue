@@ -47,7 +47,7 @@
         prop="department.departmentName"
         header-align="center"
         align="center"
-        label="科室编号">
+        label="科室名称">
     </el-table-column>
       <el-table-column
         fixed="right"
