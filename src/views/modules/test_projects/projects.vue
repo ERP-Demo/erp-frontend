@@ -88,7 +88,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('test_projects/projects/list'),
+        url: this.$http.adornUrl('/test_projects/projects/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -139,7 +139,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('test_projects/projects/delete'),
+          url: this.$http.adornUrl('/test_projects/projects/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
