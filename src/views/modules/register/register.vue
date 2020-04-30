@@ -6,8 +6,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('register:register:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button v-if="isAuth('register:register:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
+<!--        <el-button v-if="isAuth('register:register:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
       </el-form-item>
     </el-form>
     <el-table
@@ -23,7 +22,7 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="register.patientName"
+        prop="patient.patientName"
         header-align="center"
         align="center"
         label="患者名称">
@@ -34,12 +33,12 @@
         align="center"
         label="是否退号">
       <template slot-scope="scope">
-        <el-tag :type="scope.row.register.isBack === 0 ? 'primary' : 'dangers'"
-                disable-transitions>{{scope.row.register.isBack===0 ? '退号' : '正常'}}</el-tag>
+        <el-tag :type="scope.row.status === 0 ? 'primary' : 'dangers'"
+                disable-transitions>{{scope.row.status===0 ? '退号' : '正常'}}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
-        prop="register.registerCost"
+        prop="registerCost"
         header-align="center"
         align="center"
         label="挂号费用">
@@ -48,7 +47,7 @@
         prop="department.departmentName"
         header-align="center"
         align="center"
-        label="科室编号">
+        label="科室名称">
     </el-table-column>
       <el-table-column
         fixed="right"
@@ -57,6 +56,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="back(scope.row.registerId)">退号</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.registerId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.registerId)">删除</el-button>
         </template>
@@ -98,7 +98,7 @@ export default {
   },
   activated () {
     this.getDataList()
-    this.getDataList1()
+    this.getDataList1 ()
   },
   methods: {
     // 获取数据列表
@@ -115,6 +115,7 @@ export default {
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.page.list
+          console.log(this.dataList);
           this.totalPage = data.page.totalCount
         } else {
           this.dataList = []
@@ -187,6 +188,19 @@ export default {
             this.$message.error(data.msg)
           }
         })
+      })
+    },
+    back(id){
+      this.$http({
+        url: this.$http.adornUrl('/register/register/back'),
+        method: 'post',
+        params: this.$http.adornParams({'id': id})
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.$message.success("退号成功")
+        } else {
+          this.$message.error(data.msg)
+        }
       })
     }
   }

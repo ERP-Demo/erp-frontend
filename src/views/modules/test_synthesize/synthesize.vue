@@ -2,10 +2,12 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="请输入患者名称" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
+        <el-button v-if="isAuth('test_synthesize:synthesize:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('test_synthesize:synthesize:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -21,59 +23,11 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="username"
+        prop="testSynthesizeName"
         header-align="center"
         align="center"
-        label="医生">
+        label="">
     </el-table-column>
-    <el-table-column
-        prop="patientName"
-        header-align="center"
-        align="center"
-        label="患者">
-    </el-table-column>
-      <el-table-column
-            prop="complain"
-            header-align="center"
-            align="center"
-            label="主诉">
-    </el-table-column>
-      <el-table-column
-              prop="onsetTime"
-              header-align="center"
-              align="center"
-              label="发病时间">
-      </el-table-column>
-      <el-table-column
-              prop="patientSymptom"
-              header-align="center"
-              align="center"
-              label="症状">
-      </el-table-column>
-      <el-table-column
-              prop="medicalHistory"
-              header-align="center"
-              align="center"
-              label="既往病史">
-      </el-table-column>
-      <el-table-column
-              prop="allergyHistory"
-              header-align="center"
-              align="center"
-              label="过敏史">
-      </el-table-column>
-      <el-table-column
-              prop="healthCheckup"
-              header-align="center"
-              align="center"
-              label="体格检查">
-      </el-table-column>
-      <el-table-column
-              prop="treatment"
-              header-align="center"
-              align="center"
-              label="治疗情况">
-      </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"
@@ -81,6 +35,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="showChilren(scope.row.testSynthesizeId)">详细</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
@@ -97,11 +52,13 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <chilren v-if="childrenVisible" ref="chilren" @refreshDataList="getDataList"></chilren>
   </div>
 </template>
 
 <script>
-import AddOrUpdate from './case-add-or-update'
+import AddOrUpdate from './synthesize-add-or-update'
+import chilren from './testChilren'
 export default {
   data () {
     return {
@@ -114,11 +71,13 @@ export default {
       totalPage: 0,
       dataListLoading: false,
       dataListSelections: [],
-      addOrUpdateVisible: false
+      addOrUpdateVisible: false,
+      childrenVisible: false
     }
   },
   components: {
-    AddOrUpdate
+    AddOrUpdate,
+    chilren
   },
   activated () {
     this.getDataList()
@@ -128,7 +87,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/electronic_case/case/list'),
+        url: this.$http.adornUrl('/test_synthesize/synthesize/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -179,7 +138,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/electronic_case/case/delete'),
+          url: this.$http.adornUrl('/test_synthesize/synthesize/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
@@ -196,6 +155,12 @@ export default {
             this.$message.error(data.msg)
           }
         })
+      })
+    },
+    showChilren(id){
+      this.childrenVisible = true
+      this.$nextTick(() => {
+        this.$refs.chilren.init(id)
       })
     }
   }

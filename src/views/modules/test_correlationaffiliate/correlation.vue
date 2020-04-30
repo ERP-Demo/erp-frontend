@@ -2,10 +2,10 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="请输入患者名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="getDataList()">查询</el-button>
+        <el-button v-if="isAuth('test_correlationaffiliate:correlation:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('test_correlationaffiliate:correlation:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -21,59 +21,35 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="username"
+        prop="testSynthesizeName"
         header-align="center"
         align="center"
-        label="医生">
+        label="综合（父级）化验项目名">
     </el-table-column>
     <el-table-column
-        prop="patientName"
+        prop="testName"
         header-align="center"
         align="center"
-        label="患者">
+        label="父级化验项目下的化验内容">
     </el-table-column>
-      <el-table-column
-            prop="complain"
-            header-align="center"
-            align="center"
-            label="主诉">
+    <el-table-column
+        prop="floor"
+        header-align="center"
+        align="center"
+        label="下限">
     </el-table-column>
-      <el-table-column
-              prop="onsetTime"
-              header-align="center"
-              align="center"
-              label="发病时间">
-      </el-table-column>
-      <el-table-column
-              prop="patientSymptom"
-              header-align="center"
-              align="center"
-              label="症状">
-      </el-table-column>
-      <el-table-column
-              prop="medicalHistory"
-              header-align="center"
-              align="center"
-              label="既往病史">
-      </el-table-column>
-      <el-table-column
-              prop="allergyHistory"
-              header-align="center"
-              align="center"
-              label="过敏史">
-      </el-table-column>
-      <el-table-column
-              prop="healthCheckup"
-              header-align="center"
-              align="center"
-              label="体格检查">
-      </el-table-column>
-      <el-table-column
-              prop="treatment"
-              header-align="center"
-              align="center"
-              label="治疗情况">
-      </el-table-column>
+    <el-table-column
+        prop="ceiling"
+        header-align="center"
+        align="center"
+        label="上限">
+    </el-table-column>
+    <el-table-column
+        prop="unit"
+        header-align="center"
+        align="center"
+        label="计量单位">
+    </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"
@@ -81,7 +57,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -101,7 +77,7 @@
 </template>
 
 <script>
-import AddOrUpdate from './case-add-or-update'
+import AddOrUpdate from './correlation-add-or-update'
 export default {
   data () {
     return {
@@ -128,7 +104,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/electronic_case/case/list'),
+        url: this.$http.adornUrl('/test_correlationaffiliate/correlation/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -163,10 +139,7 @@ export default {
     },
     // 新增 / 修改
     addOrUpdateHandle (id) {
-      this.addOrUpdateVisible = true
-      this.$nextTick(() => {
-        this.$refs.addOrUpdate.init(id)
-      })
+      this.$router.push('',{id:id})
     },
     // 删除
     deleteHandle (id) {
@@ -179,7 +152,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/electronic_case/case/delete'),
+          url: this.$http.adornUrl('/test_correlationaffiliate/correlation/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {

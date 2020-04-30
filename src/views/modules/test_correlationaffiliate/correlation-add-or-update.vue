@@ -3,29 +3,31 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible">
-    <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
-      <el-form-item label="综合（父级）化验项目名" prop="testSynthesizeId">
-        <el-input v-model="dataForm.testSynthesizeId" placeholder="综合（父级）化验项目名"></el-input>
-      </el-form-item>
-      <el-form-item label="父级化验项目下的化验内容" prop="testProjectsId">
-        <el-input v-model="dataForm.testProjectsId" placeholder="父级化验项目下的化验内容"></el-input>
-      </el-form-item>
-      <el-form-item label="下限" prop="floor">
-        <el-input v-model="dataForm.floor" placeholder="下限"></el-input>
-      </el-form-item>
-      <el-form-item label="上限" prop="ceiling">
-        <el-input v-model="dataForm.ceiling" placeholder="上限"></el-input>
-      </el-form-item>
-      <el-form-item label="计量单位" prop="unit">
-        <el-input v-model="dataForm.unit" placeholder="计量单位"></el-input>
-      </el-form-item>
-      <el-form-item label="创建时间" prop="createtime">
-        <el-input v-model="dataForm.createtime" placeholder="创建时间"></el-input>
-      </el-form-item>
-      <el-form-item label="创建者" prop="uid">
-        <el-input v-model="dataForm.uid" placeholder="创建者"></el-input>
-      </el-form-item>
-    </el-form>
+      <el-table
+              :data="dataList"
+              border
+              v-loading="dataListLoading"
+              @selection-change="selectionChangeHandle"
+              style="width: 100%;">
+        <el-table-column
+                type="selection"
+                header-align="center"
+                align="center"
+                width="50">
+        </el-table-column>
+        <el-table-column
+                prop="testSynthesizeName"
+                header-align="center"
+                align="center"
+                label="子项目全称">
+        </el-table-column>
+        <el-table-column
+                prop="testProjects.testAbbreviation"
+                header-align="center"
+                align="center"
+                label="子项目简称">
+        </el-table-column>
+      </el-table>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">取消</el-button>
       <el-button type="primary" @click="dataFormSubmit()" :disabled="confirmButtonDisabled">确定</el-button>
@@ -60,7 +62,7 @@ export default {
         this.$refs['dataForm'].resetFields()
         if (this.dataForm.id) {
           this.$http({
-            url: this.$http.adornUrl(`test_correlation/correlation/info/${this.dataForm.id}`),
+            url: this.$http.adornUrl(`/test_correlationaffiliate/correlation/info/${this.dataForm.id}`),
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
@@ -78,7 +80,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.$http({
-            url: this.$http.adornUrl(`test_correlation/correlation/${!this.dataForm.id ? 'save' : 'update'}`),
+            url: this.$http.adornUrl(`/test_correlationaffiliate/correlation/${!this.dataForm.id ? 'save' : 'update'}`),
             method: !this.dataForm.id ? 'post' : 'put',
             data: this.$http.adornData(this.dataForm)
           }).then(({data}) => {
@@ -99,6 +101,43 @@ export default {
           })
         }
       })
+    },
+    // 获取数据列表
+    getDataList () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/test_correlationaffiliate/correlation/listwindows'),
+        method: 'get',
+        params: this.$http.adornParams({
+          'page': this.pageIndex,
+          'limit': this.pageSize,
+          'key': this.dataForm.key
+        })
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.dataList = data.page.list
+          this.totalPage = data.page.totalCount
+        } else {
+          this.dataList = []
+          this.totalPage = 0
+        }
+        this.dataListLoading = false
+      })
+    },
+    // 每页数
+    sizeChangeHandle (val) {
+      this.pageSize = val
+      this.pageIndex = 1
+      this.getDataList()
+    },
+    //当前页
+    currentChangeHandle (val) {
+      this.pageIndex = val
+      this.getDataList()
+    },
+    // 多选
+    selectionChangeHandle (val) {
+      this.dataListSelections = val
     }
   }
 }

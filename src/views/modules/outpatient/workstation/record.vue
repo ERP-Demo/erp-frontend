@@ -8,15 +8,15 @@
     <el-button type="text" style="margin-left:30px" @click="getCasePage"><i class="el-icon-download" />取出暂存病历</el-button>
     <el-button style="float:right" @click="controlfast"><i v-show="!isclose" class="el-icon-caret-right" /><i v-show="isclose" class="el-icon-caret-left" />  快捷操作</el-button>
     <el-form :model="record" label-width="100px">
-      <el-form-item label="主诉"><el-input v-model="priliminaryDise.chiefComplaint" type="textarea" :autosize="{ minRows: 2, maxRows: 3}" placeholder="主述" style="width:80%"></el-input></el-form-item>
-      <el-form-item label="现病史"><el-input v-model="priliminaryDise.historyOfPresentIllness" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病史" style="width:80%" ></el-input></el-form-item>
-      <el-form-item label="现病治疗情况"><el-input v-model="priliminaryDise.historyOfTreatment" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病治疗情况" style="width:80%"></el-input></el-form-item>
-      <el-form-item label="既往史"><el-input v-model="priliminaryDise.pastHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="既往史" style="width:80%"></el-input></el-form-item>
-      <el-form-item label="过敏史"><el-input v-model="priliminaryDise.allergies" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="过敏史" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="主诉"><el-input v-model="priliminaryDise.complain" type="textarea" :autosize="{ minRows: 2, maxRows: 3}" placeholder="主述" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="现病史"><el-input v-model="priliminaryDise.patientSymptom" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病史" style="width:80%" ></el-input></el-form-item>
+      <el-form-item label="现病治疗情况"><el-input v-model="priliminaryDise.treatment" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病治疗情况" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="既往史"><el-input v-model="priliminaryDise.medicalHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="既往史" style="width:80%"></el-input></el-form-item>
+      <el-form-item label="过敏史"><el-input v-model="priliminaryDise.allergyHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="过敏史" style="width:80%"></el-input></el-form-item>
       <el-form-item label="体格检查"><el-input v-model="priliminaryDise.healthCheckup" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="体格检查" style="width:80%"></el-input></el-form-item>
       <el-form-item label="发病时间">
            <el-date-picker
-            v-model="priliminaryDise.startDate"
+            v-model="priliminaryDise.onsetTime"
             align="right"
             type="date"
             placeholder="选择日期"
@@ -27,16 +27,15 @@
       <el-tag style="margin-bottom: 15px;">评估诊断:</el-tag>
       <el-card style="width:85%">
         <el-button type="text" style="float:right" @click="addDis">添加诊断</el-button>
-        <el-table :data="record">
+        <el-table :data="icdZd">
+          <el-table-column label="ID" prop="icdId"></el-table-column>
+          <el-table-column label="名称" prop="icdName"></el-table-column>
+          <el-table-column label="编码" prop="icdCode" ></el-table-column>
           <el-table-column width="80">
             <template slot-scope="scope">
-              <el-button type="text" @click="deleteDis(scope.row)">删除</el-button>
+              <el-button type="text" @click="deleteZd(scope.row)">删除</el-button>
             </template>
           </el-table-column>
-          <el-table-column label="ICD编码" prop="icd"></el-table-column>
-          <el-table-column label="名称" prop="name"></el-table-column>
-          <el-table-column label="编码" prop="code" ></el-table-column>
-          
         </el-table>
       </el-card>
       <div style="float:right;width:25%;margin-top:40px;margin-right: 20px;">
@@ -118,13 +117,21 @@
   <el-dialog title="诊断目录" :visible.sync="dialogTableVisible" top="50px">
     <div style="height:520px">
     <span>搜索诊断</span>
-    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getDis"></el-input>
-    <el-table highlight-current-row @row-click="selectDis" :data="disList " style="margin-top:20px">
-      <el-table-column property="icd" label="ICD编码" width="150"></el-table-column>
-      <el-table-column property="name" label="名称" width="350"></el-table-column>
-      <el-table-column property="code" label="编码" width="200"></el-table-column>
+    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getIcd"></el-input>
+    <el-table highlight-current-row @row-click="selectDis" :data="icd " style="margin-top:20px;width: 800px;margin-left: 40px" >
+      <el-table-column property="icdId" label="ID"></el-table-column>
+      <el-table-column property="icdName" label="名称"></el-table-column>
+      <el-table-column property="icdCode" label="编码"></el-table-column>
     </el-table>
-    <pagination :auto-scroll="false" style="margin-top:0px" v-show="total>0" :total="total" page-sizes="[]" :page.sync="disQuery.pageNum" :limit.sync="disQuery.pageSize" @pagination="getDis" />
+      <el-pagination
+        @size-change="sizeChangeHandle"
+        @current-change="currentChangeHandle"
+        :current-page="icdPage.pageIndex"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="icdPage.pageSize"
+        :total="icdPage.totalPage"
+        layout="total, sizes, prev, pager, next, jumper"
+        style="text-align: center;height: 60px"></el-pagination>
     </div>
   </el-dialog>
   </div>
@@ -173,19 +180,20 @@ export default {
       dialogTableVisible:false,
       activeName:'first',
       isclose:false,
-      record:[],
+      record:{},
       medicineDiseIdList:[],//常用诊断
       priliminaryDise:{
-        chiefComplaint:'',//主述
-        historyOfPresentIllness:'',//现病史
-        historyOfTreatment:'',//现治疗情况
-        pastHistory:'',//既往史
-        allergies:'',//过敏史
+        complain:'',//主述
+        patientSymptom:'',//现病史
+        treatment:'',//现治疗情况
+        medicalHistory:'',//既往史
+        allergyHistory:'',//过敏史
         healthCheckup:'',//体格检查
         registrationId:'',//
+        patientId:'',
         priliminaryDiseStrList:'',
         priliminaryDiseIdList:'',
-        startDate:'',
+        onsetTime:'',//发病时间
         name:'',
         gender:'',
         ageStr:''
@@ -216,7 +224,20 @@ export default {
       },
       models:[],
       model:{},
-      disList:[]
+      disList:[],
+      icd:[],
+      icdZd:[],
+      icdPage:{
+        dataForm: {
+          key: ''
+        },
+        pageIndex: 1,
+        pageSize: 10,
+        totalPage: 0,
+        dataListLoading: false,
+        dataListSelections: [],
+        addOrUpdateVisible: false
+      }
     };
   },
   created(){
@@ -231,6 +252,37 @@ export default {
     },
   },
   methods:{
+    getIcd () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/icd/icd/list'),
+        method: 'get',
+        params: this.$http.adornParams({
+          'page': this.icdPage.pageIndex,
+          'limit': this.icdPage.pageSize,
+          'key': this.icdPage.dataForm.key
+        })
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.icd = data.page.list
+          this.icdPage.totalPage = data.page.totalCount
+        } else {
+          this.icd = []
+          this.icdPage.totalPage = 0
+        }
+        this.icdPage.dataListLoading = false
+      })
+    },
+    sizeChangeHandle (val) {
+      this.icdPage.pageSize = val
+      this.icdPage.pageIndex = 1
+      this.getDataList()
+    },
+    // 当前页
+    currentChangeHandle (val) {
+      this.icdPage.pageIndex = val
+      this.getDataList()
+    },
     addmodel(val){
       this.$confirm('是否加载病历模板 '+val.name+' ?', '加载病历模板', {
           confirmButtonText: '确认',
@@ -266,6 +318,7 @@ export default {
     saveCasePage(){
       let data  =this.priliminaryDise
       data.registrationId = this.patient.registrationId
+
       saveCasePage(this.priliminaryDise).then(res=>{
         this.$notify({
           title: '成功',
@@ -306,48 +359,92 @@ export default {
       })
     },
     submitPriliminaryDise(){
-      this.priliminaryDise.registrationId = this.patient.registrationId
-      this.record.forEach(item=>{
-        this.priliminaryDise.priliminaryDiseStrList+=(item.name+',')
-        this.priliminaryDise.priliminaryDiseIdList+=(item.id+',')
-      })
-      this.priliminaryDise.priliminaryDiseStrList = this.priliminaryDise.priliminaryDiseStrList.substr(0, this.priliminaryDise.priliminaryDiseStrList.length - 1);
-      this.priliminaryDise.priliminaryDiseIdList = this.priliminaryDise.priliminaryDiseIdList.substr(0, this.priliminaryDise.priliminaryDiseIdList.length - 1);
-      this.priliminaryDise.name = this.patient.patientName
-      this.priliminaryDise.gender = this.patient.patientGender
-      this.priliminaryDise.startDate = parseTime(this.priliminaryDise.startDate).substr(0,10)
-      this.priliminaryDise.ageStr = this.patient.patientAge
-      submitPriliminaryDise(this.priliminaryDise).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: '成功提交初诊病历',
-            type: 'success',
-            duration: 2000
+      // this.$refs['record'].validate((valid) => {
+      //   if (valid) {
+          this.priliminaryDise.patientId=this.patient.patientId
+          // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
+          this.$http({
+            url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
+            method: !this.record.id ? 'post' : 'put',
+            data: this.$http.adornData(this.priliminaryDise)
+          }).then(({data}) => {
+            this.confirmButtonDisabled = true
+            if (data && data.code === 200) {
+              this.$message({
+                message: '操作成功',
+                type: 'success',
+                duration: 1000,
+                onClose: () => {
+                  this.visible = false
+                  this.$emit('refreshDataList')
+                }
+              })
+            } else {
+              this.$message.error(data.msg)
+            }
           })
-          this.$emit('priliminary')
-        })
+      //   }
+      // })
+      // this.priliminaryDise.registrationId = this.patient.registrationId
+      // this.record.forEach(item=>{
+      //   this.priliminaryDise.priliminaryDiseStrList+=(item.name+',')
+      //   this.priliminaryDise.priliminaryDiseIdList+=(item.id+',')
+      // })
+      // this.priliminaryDise.priliminaryDiseStrList = this.priliminaryDise.priliminaryDiseStrList.substr(0, this.priliminaryDise.priliminaryDiseStrList.length - 1);
+      // this.priliminaryDise.priliminaryDiseIdList = this.priliminaryDise.priliminaryDiseIdList.substr(0, this.priliminaryDise.priliminaryDiseIdList.length - 1);
+      // this.priliminaryDise.name = this.patient.patientName
+      // this.priliminaryDise.gender = this.patient.patientSex
+      // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
+      // this.priliminaryDise.ageStr = this.patient.patientAge
+      // this.priliminaryDise.patientId=this.patient.patientId
+      // submitPriliminaryDise(this.priliminaryDise).then(res=>{
+      //     this.$http({
+      //       url: this.$http.adornUrl(`/electronic_case/case/save`),
+      //       method: 'post',
+      //       data: this.$http.adornData(this.priliminaryDise)
+      //       // title: '成功',
+      //       // message: '成功提交初诊病历',
+      //       // type: 'success',
+      //       // duration: 2000
+      //     }).then(({data}) => {
+      //       this.confirmButtonDisabled = true
+      //       if (data && data.code === 200) {
+      //         this.$message({
+      //           message: '操作成功',
+      //           type: 'success',
+      //           duration: 1000,
+      //           onClose: () => {
+      //             this.visible = false
+      //             this.$emit('refreshDataList')
+      //           }
+      //         })
+      //       } else {
+      //         this.$message.error(data.msg)
+      //       }
+      //     })
+      //   })
     },
-    deleteDis(row){
-      this.record=this.record.filter(item=>{
-        if(item.id===row.id)
+    deleteZd(row){
+      this.icdZd=this.icdZd.filter(item=>{
+        if(item.icdId===row.icdId)
           return false
         return true
       })
     },
     selectDis(val){
-      this.$confirm('是否添加 '+val.name+' 到该患者?', '添加诊断', {
+      this.$confirm('是否添加 '+val.icdName+' 到该患者?', '添加诊断', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
         }).then(()=>{
           let flag = 1
           this.record.forEach(item=>{
-            if(item.icd===val.icd){
+            if(item.icdId===val.icdId){
               flag=0
             }
           })
           if(flag)
-            this.record.push(val)
+            this.icdZd.push(val)
           else
             alert('已存在该诊断！')
           this.dialogTableVisible = false
@@ -360,9 +457,9 @@ export default {
     },
     loadpatient(){
     },
-    addDis(){
+    addIcd(){
       this.dialogTableVisible=true
-      this.getDis()
+      this.getIcd()
     },
     controlfast(){
       this.isclose=!this.isclose

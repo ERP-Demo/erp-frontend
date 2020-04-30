@@ -52,7 +52,7 @@
       show-overflow-tooltip>
       <template slot-scope="scope">
         <el-button type="text" v-if="scope.row.status===-1" @click="showDetail(scope.row)">编辑</el-button>
-      </template> 
+      </template>
     </el-table-column>
   </el-table>
   </el-aside>
@@ -98,11 +98,11 @@
           </el-table>
         </div>
           <el-tag type="primary" style="width:100%;height:30px">药品目录
-          
+
           <el-button type="primary" size="mini"  style="width: 20px;;float:right"><svg-icon icon-class="search" style="margin-left:-6px"/></el-button>
           <el-input  size="mini" placeholder="药品名称" v-model="searchdrug" style="width:60%;float:right" @change="getdrugList"></el-input>
           </el-tag>
-         
+
           <el-table :data="drugList" height="300px" @row-click="choosedrug">
             <el-table-column label="药品名" prop="name"></el-table-column>
             <el-table-column label="价格(元)" prop="price" width="100px"></el-table-column>
@@ -126,7 +126,7 @@
         <el-table-column property="name" label="药品名" width="150"></el-table-column>
         <el-table-column property="format" label="规格" width="200"></el-table-column>
         <el-table-column property="price" label="单价"></el-table-column>
-        <el-table-column label="数量" width="130px"> 
+        <el-table-column label="数量" width="130px">
           <template slot-scope="scope">
             <el-input-number controls-position="right" style="width:100px" :min="1" :max="100" size="mini" @change="changenum(scope.row)" v-model="scope.row.num"></el-input-number>
           </template>
@@ -136,7 +136,7 @@
         <el-table-column label="使用方法" width="130">
           <template slot-scope="scope">
             <el-input placeholder="用法" v-model="scope.row.medicalAdvice"></el-input>
-          </template>  
+          </template>
         </el-table-column>
         <el-table-column label="频次" width="130px">
           <template slot-scope="scope">
@@ -168,7 +168,7 @@
     </el-dialog>
   </div>
 </template>
-<script>  
+<script>
 import {getdrugList,selectById} from '@/api/drug'
 import Pagination from '@/components/Pagination'
 import {apply,listByReg,invalid} from '@/api/outpatient/prescription'
@@ -236,7 +236,7 @@ export default {
     'patient' : function(newVal, oldVal){
       this.patient = newVal
       this.listByReg()
-      
+
     },
   },
   created(){
@@ -426,10 +426,10 @@ export default {
       this.total = response.data.total
     },
     addpre(){
-      this.getfreqList()
-      this.edit = false
-      this.oneprescription = deepClone(defaultpre)
-      this.getdrugList()  
+      // this.getfreqList()
+      // this.edit = false
+      // this.oneprescription = deepClone(defaultpre)
+      // this.getdrugList()
       this.dialogTableVisible = true
     },
     showDetail(row){
