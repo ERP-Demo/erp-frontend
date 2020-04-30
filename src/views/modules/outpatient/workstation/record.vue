@@ -27,16 +27,15 @@
       <el-tag style="margin-bottom: 15px;">评估诊断:</el-tag>
       <el-card style="width:85%">
         <el-button type="text" style="float:right" @click="addDis">添加诊断</el-button>
-        <el-table :data="record">
+        <el-table :data="icdZd">
+          <el-table-column label="ID" prop="icdId"></el-table-column>
+          <el-table-column label="名称" prop="icdName"></el-table-column>
+          <el-table-column label="编码" prop="icdCode" ></el-table-column>
           <el-table-column width="80">
             <template slot-scope="scope">
-              <el-button type="text" @click="deleteDis(scope.row)">删除</el-button>
+              <el-button type="text" @click="deleteZd(scope.row)">删除</el-button>
             </template>
           </el-table-column>
-          <el-table-column label="ICD编码" prop="icd"></el-table-column>
-          <el-table-column label="名称" prop="name"></el-table-column>
-          <el-table-column label="编码" prop="code" ></el-table-column>
-          
         </el-table>
       </el-card>
       <div style="float:right;width:25%;margin-top:40px;margin-right: 20px;">
@@ -118,13 +117,21 @@
   <el-dialog title="诊断目录" :visible.sync="dialogTableVisible" top="50px">
     <div style="height:520px">
     <span>搜索诊断</span>
-    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getDis"></el-input>
-    <el-table highlight-current-row @row-click="selectDis" :data="disList " style="margin-top:20px">
-      <el-table-column property="icd" label="ICD编码" width="150"></el-table-column>
-      <el-table-column property="name" label="名称" width="350"></el-table-column>
-      <el-table-column property="code" label="编码" width="200"></el-table-column>
+    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getIcd"></el-input>
+    <el-table highlight-current-row @row-click="selectDis" :data="icd " style="margin-top:20px;width: 800px;margin-left: 40px" >
+      <el-table-column property="icdId" label="ID"></el-table-column>
+      <el-table-column property="icdName" label="名称"></el-table-column>
+      <el-table-column property="icdCode" label="编码"></el-table-column>
     </el-table>
-    <pagination :auto-scroll="false" style="margin-top:0px" v-show="total>0" :total="total" page-sizes="[]" :page.sync="disQuery.pageNum" :limit.sync="disQuery.pageSize" @pagination="getDis" />
+      <el-pagination
+        @size-change="sizeChangeHandle"
+        @current-change="currentChangeHandle"
+        :current-page="icdPage.pageIndex"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="icdPage.pageSize"
+        :total="icdPage.totalPage"
+        layout="total, sizes, prev, pager, next, jumper"
+        style="text-align: center;height: 60px"></el-pagination>
     </div>
   </el-dialog>
   </div>
@@ -217,7 +224,20 @@ export default {
       },
       models:[],
       model:{},
-      disList:[]
+      disList:[],
+      icd:[],
+      icdZd:[],
+      icdPage:{
+        dataForm: {
+          key: ''
+        },
+        pageIndex: 1,
+        pageSize: 10,
+        totalPage: 0,
+        dataListLoading: false,
+        dataListSelections: [],
+        addOrUpdateVisible: false
+      }
     };
   },
   created(){
@@ -232,6 +252,37 @@ export default {
     },
   },
   methods:{
+    getIcd () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/icd/icd/list'),
+        method: 'get',
+        params: this.$http.adornParams({
+          'page': this.icdPage.pageIndex,
+          'limit': this.icdPage.pageSize,
+          'key': this.icdPage.dataForm.key
+        })
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.icd = data.page.list
+          this.icdPage.totalPage = data.page.totalCount
+        } else {
+          this.icd = []
+          this.icdPage.totalPage = 0
+        }
+        this.icdPage.dataListLoading = false
+      })
+    },
+    sizeChangeHandle (val) {
+      this.icdPage.pageSize = val
+      this.icdPage.pageIndex = 1
+      this.getDataList()
+    },
+    // 当前页
+    currentChangeHandle (val) {
+      this.icdPage.pageIndex = val
+      this.getDataList()
+    },
     addmodel(val){
       this.$confirm('是否加载病历模板 '+val.name+' ?', '加载病历模板', {
           confirmButtonText: '确认',
@@ -373,27 +424,27 @@ export default {
       //     })
       //   })
     },
-    deleteDis(row){
-      this.record=this.record.filter(item=>{
-        if(item.id===row.id)
+    deleteZd(row){
+      this.icdZd=this.icdZd.filter(item=>{
+        if(item.icdId===row.icdId)
           return false
         return true
       })
     },
     selectDis(val){
-      this.$confirm('是否添加 '+val.name+' 到该患者?', '添加诊断', {
+      this.$confirm('是否添加 '+val.icdName+' 到该患者?', '添加诊断', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
         }).then(()=>{
           let flag = 1
           this.record.forEach(item=>{
-            if(item.icd===val.icd){
+            if(item.icdId===val.icdId){
               flag=0
             }
           })
           if(flag)
-            this.record.push(val)
+            this.icdZd.push(val)
           else
             alert('已存在该诊断！')
           this.dialogTableVisible = false
@@ -406,9 +457,9 @@ export default {
     },
     loadpatient(){
     },
-    addDis(){
+    addIcd(){
       this.dialogTableVisible=true
-      this.getDis()
+      this.getIcd()
     },
     controlfast(){
       this.isclose=!this.isclose
