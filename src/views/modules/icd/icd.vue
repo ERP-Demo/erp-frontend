@@ -6,7 +6,8 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-<!--        <el-button v-if="isAuth('register:register:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
+        <el-button v-if="isAuth('icd:icd:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('icd:icd:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -22,32 +23,16 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="patient.patientName"
+        prop="icdName"
         header-align="center"
         align="center"
-        label="患者名称">
+        label="中文名称">
     </el-table-column>
     <el-table-column
-        prop="register.isBack"
+        prop="icdCode"
         header-align="center"
         align="center"
-        label="是否退号">
-      <template slot-scope="scope">
-        <el-tag :type="scope.row.status === 0 ? 'primary' : 'dangers'"
-                disable-transitions>{{scope.row.status===0 ? '退号' : '正常'}}</el-tag>
-      </template>
-    </el-table-column>
-    <el-table-column
-        prop="registerCost"
-        header-align="center"
-        align="center"
-        label="挂号费用">
-    </el-table-column>
-    <el-table-column
-        prop="department.departmentName"
-        header-align="center"
-        align="center"
-        label="科室名称">
+        label="疾病编码">
     </el-table-column>
       <el-table-column
         fixed="right"
@@ -56,9 +41,8 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="back(scope.row.registerId)">退号</el-button>
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.registerId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.registerId)">删除</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.icd_id)">修改</el-button>
+          <el-button type="text" size="small" @click="deleteHandle(scope.row.icd_id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -77,7 +61,7 @@
 </template>
 
 <script>
-import AddOrUpdate from './register-add-or-update'
+import AddOrUpdate from './icd-add-or-update'
 export default {
   data () {
     return {
@@ -98,14 +82,13 @@ export default {
   },
   activated () {
     this.getDataList()
-    this.getDataList1 ()
   },
   methods: {
     // 获取数据列表
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/register/register/list'),
+        url: this.$http.adornUrl('/icd/icd/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -115,27 +98,12 @@ export default {
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.page.list
-          console.log(this.dataList);
           this.totalPage = data.page.totalCount
         } else {
           this.dataList = []
           this.totalPage = 0
         }
         this.dataListLoading = false
-      })
-    },
-    //关联数据
-    getDataList1 () {
-      this.$http({
-        url: this.$http.adornUrl('/register/register/all'),
-        method: 'get',
-        params: this.$http.adornParams({})
-      }).then(({data}) => {
-        if (data && data.code === 200) {
-          this.dataList = data.list
-        } else {
-          this.dataList = []
-        }
       })
     },
     // 每页数
@@ -171,7 +139,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/register/register/delete'),
+          url: this.$http.adornUrl('/icd/icd/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
@@ -188,19 +156,6 @@ export default {
             this.$message.error(data.msg)
           }
         })
-      })
-    },
-    back(id){
-      this.$http({
-        url: this.$http.adornUrl('/register/register/back'),
-        method: 'post',
-        params: this.$http.adornParams({'id': id})
-      }).then(({data}) => {
-        if (data && data.code === 200) {
-          this.$message.success("退号成功")
-        } else {
-          this.$message.error(data.msg)
-        }
       })
     }
   }
