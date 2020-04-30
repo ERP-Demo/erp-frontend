@@ -6,9 +6,6 @@
             </el-form-item>
             <el-form-item>
                 <el-button @click="getDataList()">查询</el-button>
-                <el-button v-if="isAuth('drugs_purchase:purchase:delete')" type="danger" @click="deleteHandle()"
-                           :disabled="dataListSelections.length <= 0">批量删除
-                </el-button>
             </el-form-item>
         </el-form>
         <el-table
@@ -30,10 +27,10 @@
                     label="单号">
             </el-table-column>
             <el-table-column
-                    prop="supplierId"
+                    prop="supplierName"
                     header-align="center"
                     align="center"
-                    label="供应商id">
+                    label="供应商">
             </el-table-column>
             <el-table-column
                     prop="purchaseAmountPayable"
@@ -47,26 +44,7 @@
                     align="center"
                     label="购入实付金额">
             </el-table-column>
-            <el-table-column
-                    prop="purchaseState"
-                    header-align="center"
-                    align="center"
-                    label="状态">
-                <template slot-scope="scope">
-                    <el-popover v-if="scope.row.purchaseState == 0" placement="top">
-                        <div slot="reference">
-                            <el-tag type="danger" size="medium">未审核</el-tag>
-                        </div>
-                    </el-popover>
-                    <el-tag type="success" v-if="scope.row.purchaseState == 1">审核通过</el-tag>
-                    <el-popover v-if="scope.row.purchaseState == 2" trigger="hover" placement="top">
-                        <p>未通过原因: {{ scope.row.purchaseFailure }}</p>
-                        <div slot="reference">
-                            <el-tag type="danger" size="medium">审核未通过</el-tag>
-                        </div>
-                    </el-popover>
-                </template>
-            </el-table-column>
+
             <el-table-column
                     prop="purchaseTime"
                     header-align="center"
@@ -81,7 +59,6 @@
                     label="操作">
                 <template slot-scope="scope">
                     <el-button type="text" size="small" @click="pDetailed = true,addHandle(scope.row.purchaseId)">查看详情</el-button>
-                    <el-button type="text" size="small" @click="deleteHandle(scope.row.purchaseId)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -114,9 +91,6 @@
                         label="数量">
                 </el-table-column>
             </el-table>
-            <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="pDetailed = false">确 定</el-button>
-            </span>
         </el-dialog>
         <el-pagination
                 @size-change="sizeChangeHandle"
@@ -168,11 +142,12 @@
                     params: this.$http.adornParams({
                         'page': this.pageIndex,
                         'limit': this.pageSize,
-                        'key': this.dataForm.key
+                        'purchaseId': this.dataForm.key
                     })
                 }).then(({data}) => {
                     if (data && data.code === 200) {
                         this.dataList = data.page.list
+                        console.log(this.dataList)
                         this.totalPage = data.page.totalCount
                     } else {
                         this.dataList = []
@@ -234,36 +209,6 @@
                         this.dataList = []
                     }
                     this.dataListLoading = false
-                })
-            },
-            // 删除
-            deleteHandle(id) {
-                var ids = id ? [id] : this.dataListSelections.map(item => {
-                    return item.id
-                })
-                this.$confirm(`确定对这${ids.length}条数据进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.$http({
-                        url: this.$http.adornUrl('/drugs_purchase/purchase/delete'),
-                        method: 'delete',
-                        data: this.$http.adornData(ids, false)
-                    }).then(({data}) => {
-                        if (data && data.code === 200) {
-                            this.$message({
-                                message: '操作成功',
-                                type: 'success',
-                                duration: 1000,
-                                onClose: () => {
-                                    this.getDataList()
-                                }
-                            })
-                        } else {
-                            this.$message.error(data.msg)
-                        }
-                    })
                 })
             }
         }
