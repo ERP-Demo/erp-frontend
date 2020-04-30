@@ -26,7 +26,7 @@
     </el-form>
       <el-tag style="margin-bottom: 15px;">评估诊断:</el-tag>
       <el-card style="width:85%">
-        <el-button type="text" style="float:right" @click="addDis">添加诊断</el-button>
+        <el-button type="text" style="float:right" @click="addIcd()">添加诊断</el-button>
         <el-table :data="icdZd">
           <el-table-column label="ID" prop="icdId"></el-table-column>
           <el-table-column label="名称" prop="icdName"></el-table-column>
