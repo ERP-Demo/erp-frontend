@@ -22,6 +22,12 @@
         align="center"
         width="50">
       </el-table-column>
+      <el-table-column
+              prop="sysuser.username"
+              header-align="center"
+              align="center"
+              label="用户">
+      </el-table-column>
     <el-table-column
         prop="starttime"
         header-align="center"
@@ -98,6 +104,7 @@ export default {
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.page.list
+          this.dataList = data.list
           this.totalPage = data.page.totalCount
         } else {
           this.dataList = []

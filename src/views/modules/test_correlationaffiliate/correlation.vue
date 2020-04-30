@@ -57,6 +57,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -138,10 +139,7 @@ export default {
     },
     // 新增 / 修改
     addOrUpdateHandle (id) {
-      this.addOrUpdateVisible = true
-      this.$nextTick(() => {
-        this.$refs.addOrUpdate.init(id)
-      })
+      this.$router.push('',{id:id})
     },
     // 删除
     deleteHandle (id) {

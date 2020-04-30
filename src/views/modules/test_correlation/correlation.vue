@@ -23,23 +23,17 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="testSynthesize.testSynthesizeName"
+        prop="testSynthesizeId"
         header-align="center"
         align="center"
         label="综合（父级）化验项目名">
     </el-table-column>
     <el-table-column
-        prop="testProjects.testName"
+        prop="testProjectsId"
         header-align="center"
         align="center"
         label="父级化验项目下的化验内容">
     </el-table-column>
-      <el-table-column
-              prop="testProjects.testAbbreviation"
-              header-align="center"
-              align="center"
-              label="父级化验项目下的化验内容的简称">
-      </el-table-column>
     <el-table-column
         prop="floor"
         header-align="center"
@@ -77,7 +71,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">此化验项目详细信息</el-button>
+          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
@@ -124,7 +118,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/test_correlation/correlation/list'),
+        url: this.$http.adornUrl('test_correlation/correlation/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -175,7 +169,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/test_correlation/correlation/delete'),
+          url: this.$http.adornUrl('test_correlation/correlation/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {
