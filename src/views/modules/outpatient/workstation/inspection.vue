@@ -31,29 +31,17 @@
     align="center"
       label="项目编码"
       width="120">
-      <template slot-scope="scope">{{ scope.row.code }}</template>
+      <template slot-scope="scope">{{ scope.row.testSynthesizeId }}</template>
     </el-table-column>
     <el-table-column
     align="center"
-      prop="name"
+      prop="testSynthesizeName"
       label="项目名称"
       width="200">
     </el-table-column>
     <el-table-column
     align="center"
-      prop="deptName"
-      label="执行科室"
-      width="120">
-    </el-table-column>
-    <el-table-column
-    align="center"
-      prop="format"
-      label="单位"
-      show-overflow-tooltip>
-    </el-table-column>
-    <el-table-column
-    align="center"
-      prop="price"
+      prop="testSynthesizePrice"
       label="单价"
       show-overflow-tooltip>
     </el-table-column>
@@ -123,12 +111,19 @@
   </transition>
   <el-dialog title="检查目录" :visible.sync="dialogTableVisible" top="50px">
     <div style="height:450px">
-    <span>搜索检查</span>
-    <el-input style="width:200px" v-model="search" placeholder="搜索检查"></el-input>
-    <el-table height="400px" @row-click="selectCheck" highlight-current-row :data="checkList.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())||data.code.toLowerCase().includes(search.toLowerCase()))" style="margin-top:20px">
-      <el-table-column property="name" label="项目名"></el-table-column>
-      <el-table-column property="code" label="项目编码"></el-table-column>
-      <el-table-column property="price" label="价格"></el-table-column>
+      <el-form :inline="true" :model="listQuery" @keyup.enter.native="getDataList()">
+        <el-form-item>
+          <el-input v-model="listQuery.testSynthesizeName" placeholder="参数名" clearable></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="getDataList()">查询</el-button>
+        </el-form-item>
+      </el-form>
+<!--    <el-table height="400px" @row-click="selectCheck" highlight-current-row :data="checkList.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())||data.code.toLowerCase().includes(search.toLowerCase()))" style="margin-top:20px">-->
+    <el-table height="400px" @row-click="selectCheck" highlight-current-row :data="checkList" style="margin-top:20px">
+      <el-table-column property="testSynthesizeId" label="项目编码"></el-table-column>
+      <el-table-column property="testSynthesizeName" label="项目名"></el-table-column>
+      <el-table-column property="testSynthesizePrice" label="价格"></el-table-column>
     </el-table>
     </div>
   </el-dialog>
@@ -192,10 +187,10 @@ export default {
       total:0,
       search:'',
       listQuery: {
-        code:null,
-        name:null,
+        testSynthesizeId:null,
+        testSynthesizeName:null,
         format:null,
-        price:null,
+        testSynthesizePrice:null,
         expClassId: null,
         deptId: null,
         mnemonicCode:null,
@@ -221,9 +216,29 @@ export default {
       })
     ])
     this.getfreqList()
-
+  },
+  activated () {
+    this.getDataList()
   },
   methods:{
+    // 获取数据列表
+    getDataList () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/test_synthesize/synthesize/list'),
+        method: 'get',
+        params: this.$http.adornParams({
+          'testSynthesizeName': this.listQuery.testSynthesizeName
+        })
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.checkList = data.page.list
+        } else {
+          this.checkList = []
+        }
+        this.dataListLoading = false
+      })
+    },
     saveNonDrug(){
       let data = {}
       data.dmsNonDrugItemRecordParamList = this.ref
@@ -426,7 +441,7 @@ export default {
       this.dialogTableVisible = false
     },
     selectCheck(val){
-      this.$confirm('是否添加 '+val.name+' 到该患者?', '添加检查', {
+      this.$confirm('是否添加 '+val.testSynthesizeName+' 到该患者?', '添加检查', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'

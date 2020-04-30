@@ -26,7 +26,7 @@
     </el-form>
       <el-tag style="margin-bottom: 15px;">评估诊断:</el-tag>
       <el-card style="width:85%">
-        <el-button type="text" style="float:right" @click="addDis">添加诊断</el-button>
+        <el-button type="text" style="float:right" @click="addIcd()">添加诊断</el-button>
         <el-table :data="icdZd">
           <el-table-column label="ID" prop="icdId"></el-table-column>
           <el-table-column label="名称" prop="icdName"></el-table-column>
@@ -145,7 +145,7 @@ import {selectByType,addfre,delfre} from '@/api/outpatient/frequentuse'
 import {parseTime,deepClone} from '@/utils'
 import {saveCasePage,getCasePage} from '@/api/outpatient/save'
 export default {
-  props:['patient'],
+  props:['patient','registerId'],
   name:'Record',
   components: {Pagination},
   data(){
@@ -191,12 +191,16 @@ export default {
         healthCheckup:'',//体格检查
         registrationId:'',//
         patientId:'',
+        registerId:'',
         priliminaryDiseStrList:'',
         priliminaryDiseIdList:'',
         onsetTime:'',//发病时间
         name:'',
         gender:'',
-        ageStr:''
+        ageStr:'',
+        icdId:'',
+        icdName:'',
+        icdCode:''
       },
       mainwidth:"80%",
       activeNames: ['1'],
@@ -362,6 +366,12 @@ export default {
       // this.$refs['record'].validate((valid) => {
       //   if (valid) {
           this.priliminaryDise.patientId=this.patient.patientId
+          this.priliminaryDise.registerId=this.registerId
+          this.icdZd=this.icdZd.filter(item=>{
+            this.priliminaryDise.icdId=item.icdId
+            this.priliminaryDise.icdName=item.icdName
+            this.priliminaryDise.icdCode=item.icdCode
+          })
           // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
           this.$http({
             url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
@@ -379,6 +389,7 @@ export default {
                   this.$emit('refreshDataList')
                 }
               })
+              this.record={brand_right:0};
             } else {
               this.$message.error(data.msg)
             }
@@ -438,7 +449,7 @@ export default {
           type: 'success'
         }).then(()=>{
           let flag = 1
-          this.record.forEach(item=>{
+          this.icdZd.forEach(item=>{
             if(item.icdId===val.icdId){
               flag=0
             }
