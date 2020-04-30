@@ -86,6 +86,7 @@
       },
       // 表单提交
       dataFormSubmit () {
+        this.confirmButtonDisabled = true
         // this.$refs['dataForm'].validate((valid) => {
         //     if (valid) {
             this.$http({
@@ -93,7 +94,6 @@
               method: !this.dataForm.registerId ? 'post' : 'put',
               data: this.$http.adornData(this.dataForm)
             }).then(({data}) => {
-              this.confirmButtonDisabled = true
               if (data && data.code === 200) {
                 this.$message({
                   message: '操作成功',
@@ -104,6 +104,7 @@
               } else {
                 this.$message.error(data.msg)
               }
+              this.confirmButtonDisabled = false
             })
 
           }

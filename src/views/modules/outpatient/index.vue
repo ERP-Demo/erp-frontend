@@ -14,11 +14,6 @@
       <el-tab-pane  label="本人" name="first">
       <el-tag style="width:100%">待诊患者</el-tag>
       <el-table @row-click="handleCurrentChange" highlight-current-row stripe :data="personalWaitList === null ? personalWaitList : personalWaitList.filter(data => !search || data.patientName.toLowerCase().includes(search.toLowerCase())||data.patientMedicalRecordNo.toLowerCase().includes(search.toLowerCase()))" height="255">
-        <el-table-column align="center" label="病历号" width="150px">
-          <template slot-scope="scope">
-            {{scope.row.registerId}}
-          </template>
-        </el-table-column>
         <el-table-column align="center" label="名字" width="90px">
           <template slot-scope="scope">
             {{scope.row.patient.patientName}}
@@ -28,6 +23,12 @@
           <template slot-scope="scope">
             {{scope.row.patient.patientAge}}
           </template>
+        </el-table-column>
+        <el-table-column align="center" label="操作" width="150px">
+          <template slot-scope="scope">
+            <el-button type="text" @click.stop="removePatien(scope.row)">解绑</el-button>
+          </template>
+
         </el-table-column>
       </el-table>
       <el-tag type="success" style="width:100%">诊中患者</el-tag>
@@ -107,13 +108,13 @@
     <div style="margin-top=-30px">
       <el-tabs v-model="activeName2" type="card" @tab-click="handleClick" style="margin-top:20px">
         <el-tab-pane label="病历首页" :disabled="!firstdisabled" name="first"><Record @priliminary="priliminary" ref="record" v-bind:patient="patient"></Record></el-tab-pane>
-        <el-tab-pane label="检查申请" :disabled="firstdisabled" name="second"><Inspection ref="inspection" v-bind:patient="patient"></Inspection></el-tab-pane>
-        <el-tab-pane label="检验申请" :disabled="firstdisabled" name="third"><Examine ref="examine" v-bind:patient="patient"></Examine></el-tab-pane>
-        <el-tab-pane label="门诊确诊" :disabled="firstdisabled||!comfirmdisabled" name="fourth"><Comfirm @comfirmdms="comfirmdms" ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
-        <el-tab-pane label="成药处方" :disabled="firstdisabled||comfirmdisabled" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient"></Prescription></el-tab-pane>
-        <el-tab-pane label="草药处方" :disabled="firstdisabled||comfirmdisabled" name="eightth"><Cprescription ref="cprescription" v-bind:patient="patient"></Cprescription></el-tab-pane>
-        <el-tab-pane label="处置申请" :disabled="firstdisabled||comfirmdisabled" name="sixth"><Handle ref="cprescription" v-bind:patient="patient"></Handle></el-tab-pane>
-        <el-tab-pane label="患者账单" :disabled="firstdisabled" name="seventh"><Bill ref="bill" v-bind:patient="patient"></Bill></el-tab-pane>
+        <el-tab-pane label="检查申请" :disabled="!firstdisabled" name="second"><Inspection ref="inspection" v-bind:patient="patient"></Inspection></el-tab-pane>
+        <el-tab-pane label="检验申请" :disabled="!firstdisabled" name="third"><Examine ref="examine" v-bind:patient="patient"></Examine></el-tab-pane>
+        <el-tab-pane label="门诊确诊" :disabled="!firstdisabled||!comfirmdisabled" name="fourth"><Comfirm @comfirmdms="comfirmdms" ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
+        <el-tab-pane label="成药处方" :disabled="!firstdisabled||!comfirmdisabled" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient"></Prescription></el-tab-pane>
+        <el-tab-pane label="草药处方" :disabled="!firstdisabled||!comfirmdisabled" name="eightth"><Cprescription ref="cprescription" v-bind:patient="patient"></Cprescription></el-tab-pane>
+        <el-tab-pane label="处置申请" :disabled="!firstdisabled||!comfirmdisabled" name="sixth"><Handle ref="cprescription" v-bind:patient="patient"></Handle></el-tab-pane>
+        <el-tab-pane label="患者账单" :disabled="!firstdisabled" name="seventh"><Bill ref="bill" v-bind:patient="patient"></Bill></el-tab-pane>
       </el-tabs>
     </div>
     </el-main>
@@ -336,6 +337,26 @@ import { truncate } from 'fs';
       },
       storeRecord(){
         this.dialog1=true;
+      },
+      removePatien(val){
+        this.$confirm('确认解除绑定患者 '+val.patient.patientName+'?', '解除绑定', {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'success'
+        }).then(()=>{
+          this.$http({
+            url: this.$http.adornUrl('/activiti/unconsultation'),
+            method: 'post',
+            params: this.$http.adornParams({'processInstanceId':val.processInstanceId},false)
+          }).then(({data}) => {
+            if (data && data.code === 200) {
+              this.$message.success("成功解除绑定该患者")
+              this.getPatientList()
+            } else {
+              this.$message.error(data.msg)
+            }
+          })
+        })
       }
   }
 }

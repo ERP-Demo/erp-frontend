@@ -56,6 +56,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
+          <el-button type="text" size="small" @click="back(scope.row.registerId)">退号</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.registerId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.registerId)">删除</el-button>
         </template>
@@ -114,6 +115,7 @@ export default {
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.page.list
+          console.log(this.dataList);
           this.totalPage = data.page.totalCount
         } else {
           this.dataList = []
@@ -186,6 +188,19 @@ export default {
             this.$message.error(data.msg)
           }
         })
+      })
+    },
+    back(id){
+      this.$http({
+        url: this.$http.adornUrl('/register/register/back'),
+        method: 'post',
+        params: this.$http.adornParams({'id': id})
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.$message.success("退号成功")
+        } else {
+          this.$message.error(data.msg)
+        }
       })
     }
   }
