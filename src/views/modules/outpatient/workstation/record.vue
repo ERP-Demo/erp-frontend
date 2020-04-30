@@ -438,7 +438,7 @@ export default {
           type: 'success'
         }).then(()=>{
           let flag = 1
-          this.record.forEach(item=>{
+          this.icdZd.forEach(item=>{
             if(item.icdId===val.icdId){
               flag=0
             }
