@@ -107,9 +107,6 @@
         activated() {
             this.getDataList()
         },
-        components: {
-            dialogProject
-        },
         methods: {
             // 获取数据列表
             getDataList() {
