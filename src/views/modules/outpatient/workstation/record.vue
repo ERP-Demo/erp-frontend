@@ -7,8 +7,8 @@
     <el-button type="text" style="margin-left:30px" @click="saveCasePage"><i class="el-icon-upload2" />暂存</el-button>
     <el-button type="text" style="margin-left:30px" @click="getCasePage"><i class="el-icon-download" />取出暂存病历</el-button>
     <el-button style="float:right" @click="controlfast"><i v-show="!isclose" class="el-icon-caret-right" /><i v-show="isclose" class="el-icon-caret-left" />  快捷操作</el-button>
-    <el-form :model="record" label-width="100px">
-      <el-form-item label="主诉"><el-input v-model="priliminaryDise.complain" type="textarea" :autosize="{ minRows: 2, maxRows: 3}" placeholder="主述" style="width:80%"></el-input></el-form-item>
+    <el-form :model="priliminaryDise" label-width="100px">
+      <el-form-item label="主诉"><el-input   v-model="priliminaryDise.complain"  type="textarea" :autosize="{ minRows: 2, maxRows: 3}" placeholder="主述" style="width:80%"></el-input></el-form-item>
       <el-form-item label="现病史"><el-input v-model="priliminaryDise.patientSymptom" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病史" style="width:80%" ></el-input></el-form-item>
       <el-form-item label="现病治疗情况"><el-input v-model="priliminaryDise.treatment" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="现病治疗情况" style="width:80%"></el-input></el-form-item>
       <el-form-item label="既往史"><el-input v-model="priliminaryDise.medicalHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="既往史" style="width:80%"></el-input></el-form-item>
@@ -26,7 +26,7 @@
     </el-form>
       <el-tag style="margin-bottom: 15px;">评估诊断:</el-tag>
       <el-card style="width:85%">
-        <el-button type="text" style="float:right" @click="addIcd()">添加诊断</el-button>
+        <el-button type="text" style="float:right" @click="addDis">添加诊断</el-button>
         <el-table :data="icdZd">
           <el-table-column label="ID" prop="icdId"></el-table-column>
           <el-table-column label="名称" prop="icdName"></el-table-column>
@@ -145,11 +145,12 @@ import {selectByType,addfre,delfre} from '@/api/outpatient/frequentuse'
 import {parseTime,deepClone} from '@/utils'
 import {saveCasePage,getCasePage} from '@/api/outpatient/save'
 export default {
-  props:['patient','registerId'],
+  props:['patient'],
   name:'Record',
   components: {Pagination},
   data(){
     return{
+      datetable:[],
       history:[],
       historyitem:{},
       pickerOptions: {
@@ -182,26 +183,26 @@ export default {
       isclose:false,
       record:{},
       medicineDiseIdList:[],//常用诊断
-      priliminaryDise:{
-        complain:'',//主述
-        patientSymptom:'',//现病史
-        treatment:'',//现治疗情况
-        medicalHistory:'',//既往史
-        allergyHistory:'',//过敏史
-        healthCheckup:'',//体格检查
-        registrationId:'',//
-        patientId:'',
-        registerId:'',
-        priliminaryDiseStrList:'',
-        priliminaryDiseIdList:'',
-        onsetTime:'',//发病时间
-        name:'',
-        gender:'',
-        ageStr:'',
-        icdId:'',
-        icdName:'',
-        icdCode:''
-      },
+      priliminaryDise:[],
+        // caseNo:'',
+        // uid:'',
+        // complain:'',//主述
+        // patientSymptom:'',//现病史
+        // treatment:'',//现治疗情况
+        // medicalHistory:'',//既往史
+        // allergyHistory:'',//过敏史
+        // healthCheckup:'',//体格检查
+        // registrationId:'',//
+        // patientId:'',
+        // priliminaryDiseStrList:'',
+        // priliminaryDiseIdList:'',
+        // onsetTime:'',//发病时间
+        // name:'',
+        // enterHospital:'',
+        // gender:'',
+        // ageStr:'',
+        // leaveHospital:'',
+        // doctorAdvice:'',
       mainwidth:"80%",
       activeNames: ['1'],
       data2:[
@@ -322,26 +323,55 @@ export default {
     saveCasePage(){
       let data  =this.priliminaryDise
       data.registrationId = this.patient.registrationId
-
-      saveCasePage(this.priliminaryDise).then(res=>{
-        this.$notify({
-          title: '成功',
-          message: '已暂存病历首页',
-          type: 'success',
-          duration: 2000
-        })
+      this.priliminaryDise.patientId=this.patient.patientId
+      this.$http({
+        url: this.$http.adornUrl(`/electronic_case/case/saveRidis`),
+        method: 'post',
+        data: this.$http.adornData(this.priliminaryDise)
+      }).then(({data}) => {
+        this.confirmButtonDisabled = true
+        if (data && data.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1000,
+            onClose: () => {
+              this.visible = false
+              this.$emit('refreshDataList')
+            }
+          })
+        } else {
+          this.$message.error(data.msg)
+        }
       })
     },
-    getCasePage(){
-      getCasePage(this.patient.registrationId).then(res=>{
-        if(res.data!==null){
-          this.priliminaryDise = res.data
-          this.$notify({
-            title: '成功',
-            message: '已加载暂存病历首页',
+    getCasePage() {
+      let data  =this.priliminaryDise
+      data.registrationId = this.patient.registrationId
+      this.priliminaryDise.patientId=this.patient.patientId
+      this.$http({
+        url: this.$http.adornUrl(`/electronic_case/case/getRidis`),
+        method: 'post',
+        data: this.$http.adornData(this.priliminaryDise)
+      }).then(({data}) => {
+        if(this.priliminaryDise.complain!=null){
+          this.priliminaryDise=data.list
+        }else {
+          this.datetable=data.list
+        }
+        this.confirmButtonDisabled = true
+        if (data && data.code === 200) {
+          this.$message({
+            message: '操作成功',
             type: 'success',
-            duration: 2000
+            duration: 1000,
+            onClose: () => {
+              this.visible = false
+              this.$emit('refreshDataList')
+            }
           })
+        } else {
+          this.$message.error(data.msg)
         }
       })
     },
@@ -366,12 +396,6 @@ export default {
       // this.$refs['record'].validate((valid) => {
       //   if (valid) {
           this.priliminaryDise.patientId=this.patient.patientId
-          this.priliminaryDise.registerId=this.registerId
-          this.icdZd=this.icdZd.filter(item=>{
-            this.priliminaryDise.icdId=item.icdId
-            this.priliminaryDise.icdName=item.icdName
-            this.priliminaryDise.icdCode=item.icdCode
-          })
           // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
           this.$http({
             url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
@@ -389,7 +413,7 @@ export default {
                   this.$emit('refreshDataList')
                 }
               })
-              this.record={brand_right:0};
+              this.dataForm={brand_right:0};
             } else {
               this.$message.error(data.msg)
             }
@@ -449,7 +473,7 @@ export default {
           type: 'success'
         }).then(()=>{
           let flag = 1
-          this.icdZd.forEach(item=>{
+          this.record.forEach(item=>{
             if(item.icdId===val.icdId){
               flag=0
             }
