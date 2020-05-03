@@ -156,7 +156,7 @@
                     this.dataListLoading = false
                 })
             },
-            addHandle(pid){
+            addHandle (pid){
                 this.$http({
                     url: this.$http.adornUrl('/drugs_purchase/purchase/all/'+pid),
                     method: 'get'

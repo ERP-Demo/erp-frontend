@@ -10,13 +10,7 @@
                 @selection-change="selectionChangeHandle"
                 style="width: 100%;">
             <el-table-column
-                    type="selection"
-                    header-align="center"
-                    align="center"
-                    width="50">
-            </el-table-column>
-            <el-table-column
-                    prop="testProjects.testName"
+                    prop="testName"
                     header-align="center"
                     align="center"
                     label="父级化验项目下的化验内容">
@@ -39,17 +33,6 @@
                     align="center"
                     label="计量单位">
             </el-table-column>
-            <el-table-column
-                    fixed="right"
-                    header-align="center"
-                    align="center"
-                    width="150"
-                    label="操作">
-                <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="updateHandle(scope.row.testSynthesizeId)">修改</el-button>
-                    <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
-                </template>
-            </el-table-column>
         </el-table>
         <el-pagination
                 @size-change="sizeChangeHandle"
@@ -71,6 +54,8 @@
                 pageIndex: 1,
                 pageSize: 10,
                 totalPage: 0,
+                dataList: [],
+                dataListLoading: false
             }
         },
         methods: {
