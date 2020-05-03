@@ -25,7 +25,7 @@
         prop="patient.patientName"
         header-align="center"
         align="center"
-        label="患者名称">
+        label="患者名称"> 
     </el-table-column>
     <el-table-column
         prop="register.isBack"

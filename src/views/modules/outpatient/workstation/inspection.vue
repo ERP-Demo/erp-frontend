@@ -5,7 +5,7 @@
     <aside style="margin:0 0 0 0">
       <el-button type="text" size="medium" @click="addcheck"><i class="el-icon-circle-plus-outline" />新增项目</el-button>
       <el-button type="text" size="medium" @click="delcheck"><i class="el-icon-remove-outline" />删除项目</el-button>
-      <el-button type="text" size="medium" @click="apply"><i class="el-icon-circle-check" />开立项目</el-button>
+      <el-button type="text" size="medium" @click="apply()" ><i class="el-icon-circle-check" />开立项目</el-button>
       <el-button type="text" size="medium" @click="invalid"><i class="el-icon-circle-close" />作废项目</el-button>
       <el-button type="text" size="medium" @click="saveNonDrug"><i class="el-icon-upload2" />暂存</el-button>
       <el-button type="text" size="medium" @click="getNonDrug"><i class="el-icon-download" />取出暂存项</el-button>
@@ -31,29 +31,17 @@
     align="center"
       label="项目编码"
       width="120">
-      <template slot-scope="scope">{{ scope.row.code }}</template>
+      <template slot-scope="scope">{{ scope.row.testSynthesizeId }}</template>
     </el-table-column>
     <el-table-column
     align="center"
-      prop="name"
+      prop="testSynthesizeName"
       label="项目名称"
       width="200">
     </el-table-column>
     <el-table-column
     align="center"
-      prop="deptName"
-      label="执行科室"
-      width="120">
-    </el-table-column>
-    <el-table-column
-    align="center"
-      prop="format"
-      label="单位"
-      show-overflow-tooltip>
-    </el-table-column>
-    <el-table-column
-    align="center"
-      prop="price"
+      prop="testSynthesizePrice"
       label="单价"
       show-overflow-tooltip>
     </el-table-column>
@@ -123,29 +111,35 @@
   </transition>
   <el-dialog title="检查目录" :visible.sync="dialogTableVisible" top="50px">
     <div style="height:450px">
-    <span>搜索检查</span>
-    <el-input style="width:200px" v-model="search" placeholder="搜索检查"></el-input>
-    <el-table height="400px" @row-click="selectCheck" highlight-current-row :data="checkList.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())||data.code.toLowerCase().includes(search.toLowerCase()))" style="margin-top:20px">
-      <el-table-column property="name" label="项目名"></el-table-column>
-      <el-table-column property="code" label="项目编码"></el-table-column>
-      <el-table-column property="price" label="价格"></el-table-column>
+      <el-form :inline="true" :model="listQuery" @keyup.enter.native="getDataList()">
+        <el-form-item>
+          <el-input v-model="listQuery.testSynthesizeName" placeholder="参数名" clearable></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="getDataList()">查询</el-button>
+        </el-form-item>
+      </el-form>
+<!--    <el-table height="400px" @row-click="selectCheck" highlight-current-row :data="checkList.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())||data.code.toLowerCase().includes(search.toLowerCase()))" style="margin-top:20px">-->
+    <el-table height="400px" @row-click="selectCheck" highlight-current-row :data="checkList" style="margin-top:20px">
+      <el-table-column property="testSynthesizeId" label="项目编码"></el-table-column>
+      <el-table-column property="testSynthesizeName" label="项目名"></el-table-column>
+      <el-table-column property="testSynthesizePrice" label="价格"></el-table-column>
     </el-table>
     </div>
   </el-dialog>
   <el-dialog title="填写检查要求" :visible.sync="demandVisible">
     <div style="height:260px">
       <el-form inline label-width="100px" >
-        <el-form-item label="项目编码"><el-input disabled placeholder=""  v-model="check.code"></el-input></el-form-item>
-        <el-form-item label="项目名称"><el-input disabled placeholder=""  v-model="check.name"></el-input></el-form-item>
-        <el-form-item label="执行科室" ><el-input disabled placeholder="" v-model="check.deptName"></el-input></el-form-item>
-        <el-form-item label="目的" ><el-input placeholder="" v-model="check.aim"></el-input></el-form-item>
-        <el-form-item label="要求" ><el-input placeholder="" v-model="check.demand"></el-input></el-form-item>
-        <el-form-item label="临床印象"><el-input placeholder=""  v-model="check.clinicalImpression"></el-input></el-form-item>
-        <el-form-item label="临床诊断" ><el-input placeholder="" v-model="check.clinicalDiagnosis"></el-input></el-form-item>
-        <el-form-item label="检查部位"><el-input placeholder=""  v-model="check.checkParts"></el-input></el-form-item>
+        <el-form-item label="项目编码"><el-input disabled placeholder=""  v-model="check.project_id"></el-input></el-form-item>
+        <el-form-item label="项目名称"><el-input disabled placeholder=""  v-model="check.project_name"></el-input></el-form-item>
+        <el-form-item label="目的" ><el-input placeholder="" v-model="check.purpose"></el-input></el-form-item>
+        <el-form-item label="要求" ><el-input placeholder="" v-model="check.requirements"></el-input></el-form-item>
+        <el-form-item label="临床印象"><el-input placeholder=""  v-model="check.Clinical_impression"></el-input></el-form-item>
+        <el-form-item label="临床诊断" ><el-input placeholder="" v-model="check.Clinical_diagnosis"></el-input></el-form-item>
+        <el-form-item label="检查部位"><el-input placeholder=""  v-model="check.Check_the"></el-input></el-form-item>
       </el-form>
       <el-button type="danger" style="float:right" @click="demandVisible=false">取消</el-button>
-      <el-button type="primary" style="float:right;margin-right:10px" @click="submitDemand">确认</el-button>
+      <el-button type="primary" style="float:right;margin-right:10px" @click="dataFormSubmit()">确认</el-button>
     </div>
   </el-dialog>
   <el-dialog title="检查结果" :visible.sync="resultvisible" top="10px"> 
@@ -181,7 +175,15 @@ export default {
       totalprice:0.000,
       ref:[],
       checkmodels:[],
-      check:{},
+      check: {
+        project_id: '',
+        project_name:'',
+        purpose:'',
+        requirements:'',
+        Clinical_impression:'',
+        Clinical_diagnosis:'',
+        Check_the:''
+      },
       demandVisible:false,
       dialogTableVisible:false,
       activeName:'first',
@@ -192,10 +194,10 @@ export default {
       total:0,
       search:'',
       listQuery: {
-        code:null,
-        name:null,
+        testSynthesizeId:null,
+        testSynthesizeName:null,
         format:null,
-        price:null,
+        testSynthesizePrice:null,
         expClassId: null,
         deptId: null,
         mnemonicCode:null,
@@ -203,7 +205,9 @@ export default {
         createDate: null,
         status:1,
         pageSize:1000,
-        pageNum:1
+        pageNum:1,
+        ids:'',
+        name:'',
       },
       record:[]
     };
@@ -221,9 +225,29 @@ export default {
       })
     ])
     this.getfreqList()
-
+  },
+  activated () {
+    this.getDataList()
   },
   methods:{
+    // 获取数据列表
+    getDataList () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/test_synthesize/synthesize/list'),
+        method: 'get',
+        params: this.$http.adornParams({
+          'testSynthesizeName': this.listQuery.testSynthesizeName
+        })
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.checkList = data.page.list
+        } else {
+          this.checkList = []
+        }
+        this.dataListLoading = false
+      })
+    },
     saveNonDrug(){
       let data = {}
       data.dmsNonDrugItemRecordParamList = this.ref
@@ -361,6 +385,8 @@ export default {
       })
     },
     handleSelectionChange(val){
+      this.check.project_id=this.checkList.map(item =>{return item.testSynthesizeId}).join(",")
+      this.check.project_name=this.checkList.map(item =>{return item.testSynthesizeName}).join(",")
       this.ref = val
       this.totalprice = 0.00
       this.ref.forEach(item=>{
@@ -390,21 +416,19 @@ export default {
       })
     },  
     submitDemand(){
-      console.log(666)
-      this.record.forEach(item=>{
-        if(item.id===this.check.id){
-          item.aim = this.check.aim
-          item.demand = this.check.demand
-          item.clinicalImpression = this.check.clinicalImpression
-          item.clinicalDiagnosis = this.check.clinicalDiagnosis
-          item.checkParts = this.check.checkParts
-        }
-      })
+      alert("成功");
       this.demandVisible = false
     },
     demand(row){
       this.demandVisible = true
       this.check = deepClone(row)
+    },
+    apply(){
+      if(this.check.project_id!=null){
+        this.demandVisible = true
+      }else {
+        return;
+      }
     },
     async getNondrugList() {
       const response = await getNondrugList(this.listQuery)
@@ -426,7 +450,7 @@ export default {
       this.dialogTableVisible = false
     },
     selectCheck(val){
-      this.$confirm('是否添加 '+val.name+' 到该患者?', '添加检查', {
+      this.$confirm('是否添加 '+val.testSynthesizeName+' 到该患者?', '添加检查', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
@@ -464,6 +488,33 @@ export default {
       else
         this.mainwidth="65%"
     }
+  },
+  // 表单提交
+  dataFormSubmit () {
+    this.$refs['check'].validate((valid) => {
+      if (valid) {
+        this.$http({
+          url: this.$http.adornUrl(`/requirements/check/${!this.dataForm.id ? 'save' : 'update'}`),
+          method: !this.dataForm.id ? 'post' : 'put',
+          data: this.$http.adornData(this.dataForm)
+        }).then(({data}) => {
+          this.confirmButtonDisabled = true
+          if (data && data.code === 200) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.visible = false
+                this.$emit('refreshDataList')
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
+        })
+      }
+    })
   }
 }
 </script>
