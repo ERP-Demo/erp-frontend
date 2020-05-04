@@ -327,16 +327,11 @@
                             type: 'success',
                             duration: 1000
                         })
-
                         /*刷新页面*/
-                        this.dataForm.supplierId="",
-                        this.dataForm.supplierId="",
-                        this.dataForm.supplierId="",
-                        this.dataForm.detailed='',
-                        this.dataForm.payPrice='',
-                        this.totalPrice='',
-                        /*跳转页面*/
-                        this.$router.replace({ name: 'drugs_purchase-purchase' })
+                        this.dataForm.detailed=[]
+                        this.dataForm.payPrice=0
+                        this.dataForm.supplierId='
+                        this.totalPrice=''
                     } else {
                         this.$message.error(data.msg)
                     }
