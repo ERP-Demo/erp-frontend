@@ -1,10 +1,10 @@
 <template>
   <!-- 门诊医生工作台 -->
   <div class="div1">
-    <el-container>
+    <el-container class="el-container">
     <!-- 左侧患者列表 -->
     <transition name="el-zoom-in-left">
-    <el-aside width="350px" v-show="isaside" style="padding:0">
+    <el-aside v-show="isaside" style=" width:350px;padding:0" class="aside">
       <div>
       <el-card style="width:350px">
       <span style="font-family: 微软雅黑;margin-right: 4px;">选择患者：</span>
@@ -107,7 +107,7 @@
       </div>
     <div style="margin-top=-30px">
       <el-tabs v-model="activeName2" type="card" @tab-click="handleClick" style="margin-top:20px">
-        <el-tab-pane label="病历首页" :disabled="!firstdisabled" name="first"><Record @priliminary="priliminary" ref="record" v-bind:patient="patient"></Record></el-tab-pane>
+        <el-tab-pane label="病历首页" :disabled="!firstdisabled" name="first"><Record @priliminary="priliminary" ref="record" v-bind:patient="patient" v-bind:registerId="registerId"></Record></el-tab-pane>
         <el-tab-pane label="检查申请" :disabled="!firstdisabled" name="second"><Inspection ref="inspection" v-bind:patient="patient"></Inspection></el-tab-pane>
         <el-tab-pane label="检验申请" :disabled="!firstdisabled" name="third"><Examine ref="examine" v-bind:patient="patient"></Examine></el-tab-pane>
         <el-tab-pane label="门诊确诊" :disabled="!firstdisabled||!comfirmdisabled" name="fourth"><Comfirm @comfirmdms="comfirmdms" ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
@@ -239,6 +239,7 @@ import { truncate } from 'fs';
             //     this.firstdisabled = true
             //     this.activeName2 = 'first'
             //   }
+              this.showaside()
               this.patient = val.patient
               this.registerId=val.registerId
               this.$refs.record.controlfast()
@@ -317,8 +318,9 @@ import { truncate } from 'fs';
           this.deptWaitList = res.data.deptWaitList
           this.personalDuringList = res.data.personalDuringList
           // this.personalEndList = res.data.personalEndList
-          console.log(this.personalWaitList);
+          this.deptWaitList = res.data.deptWaitList
           this.personalWaitList = res.data.personalWaitList
+          console.log(this.personalWaitList);
           this.loaddepp = false
         }).catch(err=>{
           this.loaddepp = false
@@ -362,25 +364,16 @@ import { truncate } from 'fs';
 }
 </script>
 <style>
-  .box-main{
+  div.popContainer {
     position: absolute;
-    top: 25px;
-    left: 420px;
+    top: 20px;
+    left: 400px;
+    right: 35px;
+    bottom: 35px;
+    z-index: 100;
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
   }
-
-  .painfo{
-    margin-right: 10px;
-  }
-
-  div.popContainer{
-    /*position: absolute;*/
-    /*top: 0;*/
-    /*left: 350px;*/
-    /*right: 0;*/
-    /*bottom: 0;*/
-    /*z-index: 100;*/
-    /*background: rgba(0,0,0,0.3);*/
-}
 
   .div1{
     font-family:  "微软雅黑";
@@ -408,11 +401,11 @@ import { truncate } from 'fs';
     width: 8px;
     height: 8px;
     background-color: #fff;
-}
-::-webkit-scrollbar-thumb {
+  }
+  ::-webkit-scrollbar-thumb {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
     background-color:#F0F8FF
-    }
+  }
 </style>
 
 
