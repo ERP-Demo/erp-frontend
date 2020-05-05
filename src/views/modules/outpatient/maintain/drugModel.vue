@@ -99,31 +99,32 @@
         </el-form-item>
       </el-form>
       <el-button type="primary" style="margin-bottom:10px;margin-left:10px" @click="addItem">编辑项目</el-button>
-      <el-table style="margin-bottom:50px" :data="itemdrugList" stripe border highlight-current-row>
-        <el-table-column label="药品名" prop="name" width="330px"></el-table-column>
-        <el-table-column label="药品规格" prop="format" width="200px"></el-table-column>
-        <el-table-column label="药品单价(元)" prop="price" width="70px"></el-table-column>
-        <el-table-column label="药品数量" prop="num" width="70px"></el-table-column>
-        <el-table-column label="总价" prop="totalprice" width="70px"></el-table-column>
-        <el-table-column label="拼音码" prop="mnemonicCode" width="200px"></el-table-column>
-        <el-table-column label="使用建议" prop="medicalAdvice"></el-table-column>
-        <el-table-column label="频次" prop="frequency">
-          <template slot-scope="scope">
-            <span v-if="scope.row.frequency===1">一天一次</span>
-            <span v-if="scope.row.frequency===2">一天三次</span>
-          </template>
+      <el-table style="margin-bottom:50px" :data="dataList">
+        <el-table-column prop="drugModelName"  label="药品名" width="330px"></el-table-column>
+        <el-table-column label="药品规格" prop="drugModelSpecs" width="200px"></el-table-column>
+        <el-table-column label="药品单价(元)" prop="drugModelPrice" width="70px"></el-table-column>
+        <el-table-column label="药品数量" prop="drugModelNum" width="70px"></el-table-column>
+        <el-table-column label="总价" prop="drugModelPrice" width="70px"></el-table-column>
+        <el-table-column label="拼音码" prop="drugModelEnglishcode" width="200px"></el-table-column>
+        <el-table-column label="使用建议" prop="drugModelProposal"></el-table-column>
+        <el-table-column label="频次" prop="drugModelFrequency">
+<!--          <template slot-scope="scope">-->
+<!--            <span v-if="scope.row.frequency===1">一天一次</span>-->
+<!--            <span v-if="scope.row.frequency===2">一天三次</span>-->
+<!--          </template>-->
         </el-table-column>
-        <el-table-column label="天数" prop="days"></el-table-column>
-        <el-table-column label="用量" prop="usageNum"></el-table-column>
-        <el-table-column label="单位" prop="usageNumUnit">
-          <template slot-scope="scope">
-            <span v-if="scope.row.usageNumUnit===1">片</span>
-            <span v-if="scope.row.usageNumUnit===2">支</span>
-            <span v-if="scope.row.usageNumUnit===3">瓶</span>
-            <span v-if="scope.row.usageNumUnit===4">克</span>
-          </template>
+        <el-table-column label="天数" prop="drugModelDay"></el-table-column>
+        <el-table-column label="用量" prop="drugModelConsumption"></el-table-column>
+        <el-table-column label="单位" prop="drugModelCompany">
+<!--          <template slot-scope="scope">-->
+<!--            <span v-if="scope.row.usageNumUnit===1">片</span>-->
+<!--            <span v-if="scope.row.usageNumUnit===2">支</span>-->
+<!--            <span v-if="scope.row.usageNumUnit===3">瓶</span>-->
+<!--            <span v-if="scope.row.usageNumUnit===4">克</span>-->
+<!--          </template>-->
         </el-table-column>
       </el-table>
+
     </el-main>
     </el-container>
     <el-dialog title="增加药品" :visible.sync="dialogVisible" width="1500px" top="10px">
@@ -206,6 +207,7 @@ export default {
     components: {Pagination},
   data(){
     return{
+      dataList:[],
       page:{
         pageNum:1,
         pageSize:10,
@@ -254,7 +256,28 @@ export default {
   created(){
     this.getModelList()
   },
+  activated () {
+    this.getDataList()
+  },
   methods:{
+    // 获取数据列表
+    getDataList () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/drug_model/model/list'),
+        method: 'get',
+        params: this.$http.adornParams()
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.dataList = data.page.list
+         // console.log("数据"+data.list)
+        } else {
+          this.dataList = []
+        }
+        this.dataListLoading = false
+      })
+
+    },
     addDrug(){
       this.dialogVisible = false
       this.itemdrugList = this.oneprescription.druglist
