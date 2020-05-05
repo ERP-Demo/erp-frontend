@@ -330,7 +330,7 @@
                         /*刷新页面*/
                         this.dataForm.detailed=[]
                         this.dataForm.payPrice=0
-                        this.dataForm.supplierId='
+                        this.dataForm.supplierId=''
                         this.totalPrice=''
                     } else {
                         this.$message.error(data.msg)
@@ -363,10 +363,4 @@
         }
     }
 </script>
-<style>
-    /*.el-table__row td .cell{*/
-    /*    white-space:nowrap;*/
-    /*    overflow:hidden;*/
-    /*    text-overflow:ellipsis;*/
-    /*}*/
-</style>
+

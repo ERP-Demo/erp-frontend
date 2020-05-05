@@ -39,6 +39,16 @@ const mainRoutes = {
         isTab: true
       }
     },
+    {
+      path: '/drugs_purchase-update',
+      component: _import('modules/drugs_purchase/add'),
+      name: 'drugs_purchase-update',
+      meta: {
+        menuId: 'drugs_purchase-update',
+        title: '化验详细',
+        isTab: true
+      }
+    },
   ],
   beforeEnter (to, from, next) {
     let token = Vue.cookie.get('token')
