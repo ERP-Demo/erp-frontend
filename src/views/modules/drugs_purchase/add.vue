@@ -3,7 +3,7 @@
         <el-form :rules="dataRule" @keyup.enter.native="dataFormSubmit()"
                  label-width="120px">
             <el-form-item label="供货商：" style="display: inline-block;" prop="dataForm.supplierId">
-                <el-select v-model="dataForm.supplierId" filterabdataFormSubmitle placeholder="请选择供货商" @blur="btnDrugs">
+                <el-select v-model="dataForm.supplierId" clearable placeholder="请选择供货商" @blur="btnDrugs">
                     <el-option
                             v-for="item in supplier"
                             :key="item.supplierId"
@@ -13,7 +13,7 @@
                 </el-select>
             </el-form-item>
 
-            <el-button type="primary" @click="dialogVisible1=true,selectSupplierIdByDrugs()" :disabled="(btnBoolean == btnStatus)== 1 ? true : false">查看药品</el-button>
+            <el-button type="primary" @change="clearDetailed" @click="dialogVisible1=true,selectSupplierIdByDrugs()" :disabled="(btnBoolean == btnStatus)== 1 ? true : false">查看药品</el-button>
 
             <el-table
                     :data="dataForm.detailed"
@@ -23,14 +23,14 @@
                         prop="drugsName"
                         header-align="center"
                         align="center"
-                        label="商品名称">
+                        label="药品名称">
                 </el-table-column>
                 <el-table-column
                         header-align="center"
                         align="center"
                         label="进货单价">
                     <template slot-scope="scope">
-                        <el-input-number prop="pdMoney" @change="count" v-model="scope.row.price" :precision="2" :min="0.01" :step="0.1"></el-input-number>
+                        <el-input-number prop="pdMoney" @change="count" v-model="scope.row.pdMoney" :precision="2" :min="0.01" :step="0.1"></el-input-number>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -38,7 +38,7 @@
                         align="center"
                         label="进货数量">
                     <template slot-scope="scope">
-                        <el-input-number prop="pdNum" @change="count"  v-model="scope.row.num" :min="1" :precision="0"></el-input-number>
+                        <el-input-number prop="pdNum" @change="count"  v-model="scope.row.pdNum" :min="1" :precision="0"></el-input-number>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -160,7 +160,8 @@
                 dataForm: {
                     detailed:[],
                     payPrice:0,
-                    supplierId:''
+                    supplierId:'',
+                    purchaseId:''
                 },
                 totalPrice: 0,
                 visible: false,
@@ -175,8 +176,8 @@
                 supplier:[],
                 drugs:[],
                 drugsList:[],
-                price: '',
-                num:'',
+                pdMoney: '',
+                pdNum:'',
                 multipleSelection: [],
                 DrugsAndDetailedList:[],
                 dialogVisible1: false,
@@ -187,6 +188,7 @@
             }
         },
         activated() {
+            this.init()
             this.getSupplier()
             this.getDrugs()
         },
@@ -220,8 +222,8 @@
                 })
                 this.dataForm.drugs = drugs || []
                 this.dataForm.drugs.forEach(item => {
-                    this.$set(item, 'num', 1)
-                    this.$set(item, 'price', 0.01)
+                    this.$set(item, 'pdNum', 1)
+                    this.$set(item, 'pdMoney', 0.01)
                 })
             },
             //根据供应商解除按钮禁用
@@ -257,8 +259,8 @@
             addDrugs () {
                 this.multipleSelection.map(item =>{
                     this.dataForm.detailed.push({
-                        'price':1,
-                        'num':1,
+                        'pdMoney':1,
+                        'pdNum':1,
                         'drugsId':item.drugsId,
                         'drugsName':item.drugsName
                     })
@@ -281,7 +283,7 @@
             count(value){
                 this.totalPrice=0
                 for (const d of this.dataForm.detailed) {
-                    this.totalPrice=this.NumberAdd(this.totalPrice,this.NumberMul(d.num,d.price));
+                    this.totalPrice=this.NumberAdd(this.totalPrice,this.NumberMul(d.pdNum,d.pdMoney));
                 }
             },
             NumberMul(arg1, arg2) {
@@ -313,12 +315,37 @@
                 n = (r1 >= r2) ? r1 : r2;
                 return ((arg1 * m + arg2 * m) / m).toFixed(n);
             },
+            init () {
+                let id=this.$route.params.id
+                this.$nextTick(() => {
+                    if (id) {
+                        this.$http({
+                            url: this.$http.adornUrl(`/drugs_purchase/purchase/info/${id}`),
+                            method: 'get',
+                            params: this.$http.adornParams()
+                        }).then(({data}) => {
+                            if (data && data.code === 200) {
+                                this.dataForm.purchaseId = id
+                                this.dataForm.payPrice = data.purchase.purchaseActualAmountPaid //价格
+                                this.dataForm.supplierId = data.purchase.supplierId
+                                this.dataForm.detailed=data.detailed
+                                console.log(this.dataForm.payPrice)
+                                console.log(this.dataForm.supplierId)
+                                console.log(this.dataForm.detailed)
+                            }
+                        })
+                    } else {
+                        this.dataForm = {}
+                    }
+                })
+            },
+
             //添加
             dataFormSubmit () {
                 this.$http({
-                    url: this.$http.adornUrl('/drugs_purchase/purchase/addSupplierAndDrugs'),
-                    method: 'post',
-                    data: this.$http.adornData(this.dataForm,true)
+                    url: this.$http.adornUrl(`/drugs_purchase/purchase/${!this.dataForm.purchaseId ? 'addSupplierAndDrugs' : 'update'}`),
+                    method: !this.dataForm.purchaseId ? 'post' : 'put',
+                    data: this.$http.adornData(this.dataForm)
                 }).then(({data}) => {
                     this.confirmButtonDisabled = true
                     if (data && data.code === 200) {
@@ -327,15 +354,14 @@
                             type: 'success',
                             duration: 1000
                         })
-                        /*刷新页面*/
-                        this.dataForm.detailed=[]
-                        this.dataForm.payPrice=0
-                        this.dataForm.supplierId='
-                        this.totalPrice=''
                     } else {
                         this.$message.error(data.msg)
                     }
                 })
+            },
+
+            clearDetailed(){
+                this.dataForm.detailed=[]
             },
             // 每页数
             sizeChangeHandle (val) {
