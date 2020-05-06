@@ -1,6 +1,8 @@
 <template>
   <div>
     <!-- 病历模板管理 -->
+
+
     <el-container>
       <el-aside width="25%"  style="background:white;padding:0 0 0 0">
         <div class="block" style="margin:10px 10px 10px 10px">
@@ -74,11 +76,12 @@
           <el-table-column label="ICD编码" prop="icd"></el-table-column>
           <el-table-column label="名称" prop="name"></el-table-column>
           <el-table-column label="编码" prop="code" ></el-table-column>
-          
         </el-table>
       </el-card>
       </el-main>
     </el-container>
+
+
     <el-dialog title="新增模板/目录" :visible.sync="addnodevisible" width="300px">
       <el-form>
         <el-form-item label="类型">
@@ -100,6 +103,7 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+
     <el-dialog title="诊断目录" :visible.sync="dialogTableVisible" top="50px">
       <div style="height:520px">
       <span>搜索诊断</span>
@@ -112,9 +116,13 @@
       <pagination :auto-scroll="false" style="margin-top:0px" v-show="total>0" :total="total" page-sizes="[]" :page.sync="disQuery.pageNum" :limit.sync="disQuery.pageSize" @pagination="getDis" />
       </div>
   </el-dialog>
+
+
   </div>
 </template>
 <script>
+
+
   let id = 1000;
 import {getDmsDislist,parseList} from '@/api/diagnosis'
 import {listModelCatTree,createModel,deleteModel,updateModel,getModelDetail} from '@/api/outpatient/dmscasemodel'

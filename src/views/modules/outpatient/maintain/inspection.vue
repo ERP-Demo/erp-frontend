@@ -8,7 +8,7 @@
     <el-aside :width="asidewidth" style="margin-top:0;background:white;padding: 0 0 0 0">
           <aside style="height:50px;margin:0 0 0 0">
             <el-tag size="large">非药品模板</el-tag>
-            
+
           </aside>
         <div style="padding: 0 10px 0 10px">
         <el-card v-if="!isaside">
@@ -17,15 +17,10 @@
               <el-input v-model="listQuery.name" placeholder="模板名称"></el-input>
             </el-form-item>
             <el-form-item label="范围:" style="width:280px">
-              <el-select placeholder="请选择范围" v-model="listQuery.scope" clearable style="width: 130px" class="filter-item">
-               <el-option v-for="item in [{key:0,value:'个人'},{key:1,value:'科室'},{key:2,value:'全院'}]" :key="item.key" :label="item.value" :value="item.key" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="类型:" style="width:280px">
-              <el-select placeholder="请选择类型" v-model="listQuery.type" clearable style="width: 130px" class="filter-item">
-                <el-option v-for="item in [{key:0,value:'检查'},{key:1,value:'检验'},{key:2,value:'处置'}]" :key="item.key" :label="item.value" :value="item.key" />
-              </el-select>
-            </el-form-item>
+            <el-select placeholder="请选择范围" v-model="listQuery.scope" clearable style="width: 130px" class="filter-item">
+              <el-option v-for="item in [{key:0,value:'个人'},{key:1,value:'科室'},{key:2,value:'全院'}]" :key="item.key" :label="item.value" :value="item.key" />
+            </el-select>
+          </el-form-item>
             <el-form-item style="width:400px">
               <el-button type="primary" @click="searchModel" v-if="!isaside">搜索模板</el-button>
               <el-button type="primary" @click="showaside('add')" v-if="!isaside">新建模板</el-button>
@@ -98,9 +93,9 @@
         <el-form-item v-if='edit'  label="创建时间">
           <el-input placeholder="" v-model="model.createTime"  style="width:300px" disabled></el-input>
         </el-form-item>
-        <el-form-item v-if="!edit" label="记录类型">
-          <el-select placeholder="请选择类型" v-model="model.type" clearable style="width: 130px" class="filter-item">
-              <el-option v-for="item in [{key:0,value:'检查'},{key:1,value:'检验'},{key:2,value:'处置'}]" :key="item.key" :label="item.value" :value="item.key" />
+        <el-form-item label="范围:" style="width:280px">
+          <el-select placeholder="请选择范围" v-model="listQuery.scope" clearable style="width: 130px" class="filter-item">
+            <el-option v-for="item in [{key:0,value:'个人'},{key:1,value:'科室'},{key:2,value:'全院'}]" :key="item.key" :label="item.value" :value="item.key" />
           </el-select>
         </el-form-item>
       </el-form>

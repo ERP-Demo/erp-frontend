@@ -25,7 +25,7 @@
         prop="patient.patientName"
         header-align="center"
         align="center"
-        label="患者名称"> 
+        label="患者名称">
     </el-table-column>
     <el-table-column
         prop="register.isBack"
@@ -115,7 +115,6 @@ export default {
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.page.list
-          console.log(this.dataList);
           this.totalPage = data.page.totalCount
         } else {
           this.dataList = []
