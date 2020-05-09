@@ -15,24 +15,16 @@
                 @selection-change="selectionChangeHandle"
                 style="width: 100%;">
             <el-table-column
-                    prop="subName"
-                    header-align="center"
-                    align="center"
-                    label="操作人">
-            </el-table-column>
-            <purchase ref="purchase"></purchase>
-            <el-table-column
                     fixed="right"
                     header-align="center"
                     align="center"
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="agreHandle(scope.row.processInstanceId)">同意</el-button>
-                    <el-button type="text" size="small" @click="rejHandle(scope.row.processInstanceId)">驳回</el-button>
                     <el-button type="text" size="small" @click="detHandle(scope.row.purchaseId)">查看详情</el-button>
                 </template>
             </el-table-column>
+            <purchase ref="purchase"></purchase>
         </el-table>
 
         <el-pagination
@@ -49,8 +41,8 @@
 </template>
 
 <script>
-    import purchase from './purchase'
-    import pDetailed from "./pDetailed";
+    import purchase from '../drugs_purchase/purchase'
+    import pDetailed from "../drugs_purchase/pDetailed";
 
     export default {
         data() {
@@ -80,7 +72,7 @@
             getDataList() {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/drugs_purchase/purchase/checkList'),
+                    url: this.$http.adornUrl('/drugs_purchase/purchase/warehouseCheck'),
                     method: 'get',
                     params: this.$http.adornParams({
                         'page': this.pageIndex,

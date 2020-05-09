@@ -3,7 +3,7 @@
         <el-form :rules="dataRule" @keyup.enter.native="dataFormSubmit()"
                  label-width="120px">
             <el-form-item label="供货商：" style="display: inline-block;" prop="dataForm.supplierId">
-                <el-select v-model="dataForm.supplierId" clearable placeholder="请选择供货商" @blur="btnDrugs">
+                <el-select v-model="dataForm.supplierId" clearable placeholder="请选择供货商" @change="btnDrugs">
                     <el-option
                             v-for="item in supplier"
                             :key="item.supplierId"
@@ -190,7 +190,6 @@
         activated() {
             this.init()
             this.getSupplier()
-            this.getDrugs()
         },
         methods: {
             //获取供应商（下拉列表）
@@ -228,7 +227,7 @@
             },
             //根据供应商解除按钮禁用
             btnDrugs(){
-                if(this.dataForm.supplierId.selected != ''){
+                if(this.dataForm.supplierId != ''){
                     this.btnBoolean=1
                     this.btnStatus=-1
                 }
@@ -329,13 +328,8 @@
                                 this.dataForm.payPrice = data.purchase.purchaseActualAmountPaid //价格
                                 this.dataForm.supplierId = data.purchase.supplierId
                                 this.dataForm.detailed=data.detailed
-                                console.log(this.dataForm.payPrice)
-                                console.log(this.dataForm.supplierId)
-                                console.log(this.dataForm.detailed)
                             }
                         })
-                    } else {
-                        this.dataForm = {}
                     }
                 })
             },

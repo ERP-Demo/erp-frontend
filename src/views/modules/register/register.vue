@@ -33,8 +33,8 @@
         align="center"
         label="状态">
       <template slot-scope="scope">
-        <el-tag :type="scope.row.status === 0 ? 'danger' : 'primary'"
-                disable-transitions>{{scope.row.status===0 ? '退号' : scope.row.bpmName}}</el-tag>
+        <el-tag v-if="scope.row.status === 0" type="danger" disable-transitions>退号</el-tag>
+        <el-tag v-else type="primary" disable-transitions>{{scope.row.bpmName===null ? '已诊' : scope.row.bpmName==='挂号' ? '待诊': '诊中'}}</el-tag>
       </template>
     </el-table-column>
     <el-table-column
@@ -56,7 +56,7 @@
         width="150"
         label="操作">
         <template slot-scope="scope">
-          <el-button type="text" v-if="scope.row.bpmName==='待诊'" size="small" @click="back(scope.row.registerId)">退号</el-button>
+          <el-button type="text" v-if="scope.row.bpmName==='挂号'" size="small" @click="back(scope.row.registerId)">退号</el-button>
           <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.registerId)">修改</el-button>
           <el-button type="text" size="small" @click="deleteHandle(scope.row.registerId)">删除</el-button>
         </template>
@@ -98,7 +98,6 @@ export default {
   },
   activated () {
     this.getDataList()
-    this.getDataList1 ()
   },
   methods: {
     // 获取数据列表
@@ -121,20 +120,6 @@ export default {
           this.totalPage = 0
         }
         this.dataListLoading = false
-      })
-    },
-    //关联数据
-    getDataList1 () {
-      this.$http({
-        url: this.$http.adornUrl('/register/register/all'),
-        method: 'get',
-        params: this.$http.adornParams({})
-      }).then(({data}) => {
-        if (data && data.code === 200) {
-          this.dataList = data.list
-        } else {
-          this.dataList = []
-        }
       })
     },
     // 每页数

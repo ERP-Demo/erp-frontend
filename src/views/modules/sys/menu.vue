@@ -115,9 +115,9 @@ export default {
       this.$http({
         url: this.$http.adornUrl('/ucenter/menu/list'),
         method: 'get',
-        params: this.$http.adornParams()
+        params: this.$http.adornParams(),
+        timeout: 60000
       }).then(({data}) => {
-        console.log(data);
         this.dataList = treeDataTranslate(data.menuList, 'menuId')
         this.dataListLoading = false
       })
