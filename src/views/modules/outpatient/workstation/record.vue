@@ -150,6 +150,7 @@
     components: {Pagination},
     data(){
       return{
+        datetable:[],
         history:[],
         historyitem:{},
         pickerOptions: {
@@ -322,25 +323,55 @@
       saveCasePage(){
         let data  =this.priliminaryDise
         data.registrationId = this.patient.registrationId
-        saveCasePage(this.priliminaryDise).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: '已暂存病历首页',
-            type: 'success',
-            duration: 2000
-          })
+        this.priliminaryDise.patientId=this.patient.patientId
+        this.$http({
+          url: this.$http.adornUrl(`/electronic_case/case/saveRidis`),
+          method: 'post',
+          data: this.$http.adornData(this.priliminaryDise)
+        }).then(({data}) => {
+          this.confirmButtonDisabled = true
+          if (data && data.code === 200) {
+            this.$message({
+              message: '操作成功',
+              type: 'success',
+              duration: 1000,
+              onClose: () => {
+                this.visible = false
+                this.$emit('refreshDataList')
+              }
+            })
+          } else {
+            this.$message.error(data.msg)
+          }
         })
       },
       getCasePage(){
-        getCasePage(this.patient.registrationId).then(res=>{
-          if(res.data!==null){
-            this.priliminaryDise = res.data
-            this.$notify({
-              title: '成功',
-              message: '已加载暂存病历首页',
+        let data  =this.priliminaryDise
+        data.registrationId = this.patient.registrationId
+        this.priliminaryDise.patientId=this.patient.patientId
+        this.$http({
+          url: this.$http.adornUrl(`/electronic_case/case/getRidis`),
+          method: 'post',
+          data: this.$http.adornData(this.priliminaryDise)
+        }).then(({data}) => {
+          if(this.priliminaryDise.complain!=null){
+            this.priliminaryDise=data.list
+          }else {
+            this.datetable=data.list
+          }
+          this.confirmButtonDisabled = true
+          if (data && data.code === 200) {
+            this.$message({
+              message: '操作成功',
               type: 'success',
-              duration: 2000
+              duration: 1000,
+              onClose: () => {
+                this.visible = false
+                this.$emit('refreshDataList')
+              }
             })
+          } else {
+            this.$message.error(data.msg)
           }
         })
       },

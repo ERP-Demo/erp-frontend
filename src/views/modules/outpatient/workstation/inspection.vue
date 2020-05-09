@@ -270,7 +270,7 @@ export default {
       getNonDrug(data).then(res=>{
         res.data.dmsNonDrugItemRecordParamList.forEach(item=>{
           this.selectCheckred(item)
-          
+
         })
         this.$notify({
           title: '成功',
