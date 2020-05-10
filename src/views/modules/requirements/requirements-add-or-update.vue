@@ -47,7 +47,7 @@ export default {
         requirements: [{ required: true, message: '要求不能为空', trigger: 'blur' }],
         clinicalImpression: [{ required: true, message: '临床印象不能为空', trigger: 'blur' }],
         clinicalDiagnosis: [{ required: true, message: '临床诊断不能为空', trigger: 'blur' }],
-        checkThe: [{ required: true, message: '检查部位不能为空', trigger: 'blur' }]
+        checkThe: [{ required: true, message: '检查部位不能为空', trigger: 'blur' }],
       }
     }
   },

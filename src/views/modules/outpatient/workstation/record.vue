@@ -354,7 +354,10 @@
           method: 'post',
           data: this.$http.adornData(this.priliminaryDise)
         }).then(({data}) => {
-          if(this.priliminaryDise.complain!=null){
+          this.datetable=data.list
+          if(this.priliminaryDise.complain==null){
+            this.datetable=data.list
+          }else if(this.datetable!=null){
             this.priliminaryDise=data.list
           }else {
             this.datetable=data.list
