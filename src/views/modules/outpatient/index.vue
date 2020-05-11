@@ -253,16 +253,6 @@ import { truncate } from 'fs';
           cancelButtonText: '取消',
           type: 'success'
         }).then(()=>{
-//activiti/consultation
-//           bindPatient(val.registrationId,this.$store.getters.id).then(res=>{
-//             this.getPatientList()
-//             this.$notify({
-//               title: '成功',
-//               message: '成功绑定该患者!',
-//               type: 'success',
-//               duration: 2000
-//             })
-//           })
             this.$http({
               url: this.$http.adornUrl('/activiti/consultation'),
               method: 'post',

@@ -53,10 +53,10 @@
       <el-tag type="warning" v-if="scope.row.status===-1">未开立</el-tag>
       <el-tag type="danger" v-if="scope.row.status===0">已作废</el-tag>
       <el-tag type="info" v-if="scope.row.status===1">未缴费</el-tag>
-      <el-tag type="info" v-if="scope.row.status===2">未登记</el-tag> 
+      <el-tag type="info" v-if="scope.row.status===2">未登记</el-tag>
       <el-tag type="info" v-if="scope.row.status===3">已登记</el-tag>
-      <el-tag type="success" v-if="scope.row.status===4">已执行</el-tag>  
-      <el-tag type="danger" v-if="scope.row.status===5">已退费</el-tag>  
+      <el-tag type="success" v-if="scope.row.status===4">已执行</el-tag>
+      <el-tag type="danger" v-if="scope.row.status===5">已退费</el-tag>
     </template>
     </el-table-column>
     <el-table-column
@@ -69,14 +69,14 @@
       </template>
     </el-table-column>
   </el-table>
-  
-  
+
+
   </el-aside>
   <transition name="el-zoom-in-left">
   <el-main width="50%" v-show="isclose" style="border-style: dotted;border-width: 0px 0px 0px 1px;border-color:#C0C0C0;margin-top:-12px">
      <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="检查模板" name="first">
-        
+
         <el-table highlight-current-row @row-dblclick="addModel" @row-click="selectModel" stripe :data="checkmodels" height="230">
           <el-table-column label="模板名">
             <template slot-scope="scope">
@@ -142,7 +142,7 @@
       <el-button type="primary" style="float:right;margin-right:10px" @click="submitDemand()">确认</el-button>
     </div>
   </el-dialog>
-  <el-dialog title="检查结果" :visible.sync="resultvisible" top="10px"> 
+  <el-dialog title="检查结果" :visible.sync="resultvisible" top="10px">
     <div class="block" style="height:100%;width:100%">
       <span>检查结果：{{checkresult}}</span>
       <el-carousel trigger="click" height="500px" style="margin-top:30px">
@@ -154,7 +154,7 @@
   </el-dialog>
   </el-container>
 </template>
-<script>  
+<script>
 import {getNondrugList} from '@/api/non_drug'
 import {apply,list,invalid} from '@/api/outpatient/nondrugapply'
 import {getNondrugModelList} from '@/api/nondrugmodel'
@@ -416,7 +416,7 @@ export default {
             })
         this.listRecord()
       })
-    },  
+    },
     submitDemand(){
       alert("成功");
       this.dataListLoading = true
@@ -481,7 +481,7 @@ export default {
           let flag = 1
           val.status = -1
           this.record.forEach(item=>{
-            if(item.id===val.id){
+            if(item.testSynthesizeId===val.testSynthesizeId){
               flag=0
             }
           })
@@ -502,7 +502,7 @@ export default {
             return false
         return true
       })
-      
+
     },
     controlfast(){
       this.isclose=!this.isclose

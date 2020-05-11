@@ -246,14 +246,13 @@
       };
     },
     created(){
-      this.getmedicineDiseIdList()
       this.getAllStaffModel()
     },
     watch:{
       'patient' : function(newVal, oldVal){
         this.patient = newVal
         this.selectEndCaseHistoryByReg()
-        this.getCasePage()
+        this.getElectronicCase()
       },
     },
     methods:{
@@ -387,9 +386,20 @@
           })
         })
       },
-      getmedicineDiseIdList(){
-        selectByType({staffId:this.$store.getters.id,selectType:2}).then(res=>{
-          this.medicineDiseIdList = res.data.medicineDiseList
+      getElectronicCase(){
+        this.$http({
+          url: this.$http.adornUrl(`/electronic_case/case/info/${this.registerId}`),
+          method: 'get'
+        }).then(({data}) => {
+          this.confirmButtonDisabled = true
+          if (data && data.code === 200) {
+            if (data.case) {
+              this.icdZd = data.case.icds
+              this.priliminaryDise = data.case.electronicCase
+            }
+          } else {
+            this.$message.error(data.msg)
+          }
         })
       },
       submitPriliminaryDise(){
@@ -397,16 +407,13 @@
         //   if (valid) {
         this.priliminaryDise.patientId=this.patient.patientId
         this.priliminaryDise.registerId=this.registerId
-        this.icdZd=this.icdZd.filter(item=>{
-          this.priliminaryDise.icdId=item.icdId
-          this.priliminaryDise.icdName=item.icdName
-          this.priliminaryDise.icdCode=item.icdCode
+        let ids=this.icdZd.map(item => {
+          return item.icdId
         })
-        // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
         this.$http({
           url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
           method: !this.record.id ? 'post' : 'put',
-          data: this.$http.adornData(this.priliminaryDise)
+          data: this.$http.adornData({'electronicCase':this.priliminaryDise,'icdId':ids})
         }).then(({data}) => {
           this.confirmButtonDisabled = true
           if (data && data.code === 200) {
@@ -426,44 +433,6 @@
         })
         //   }
         // })
-        // this.priliminaryDise.registrationId = this.patient.registrationId
-        // this.record.forEach(item=>{
-        //   this.priliminaryDise.priliminaryDiseStrList+=(item.name+',')
-        //   this.priliminaryDise.priliminaryDiseIdList+=(item.id+',')
-        // })
-        // this.priliminaryDise.priliminaryDiseStrList = this.priliminaryDise.priliminaryDiseStrList.substr(0, this.priliminaryDise.priliminaryDiseStrList.length - 1);
-        // this.priliminaryDise.priliminaryDiseIdList = this.priliminaryDise.priliminaryDiseIdList.substr(0, this.priliminaryDise.priliminaryDiseIdList.length - 1);
-        // this.priliminaryDise.name = this.patient.patientName
-        // this.priliminaryDise.gender = this.patient.patientSex
-        // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
-        // this.priliminaryDise.ageStr = this.patient.patientAge
-        // this.priliminaryDise.patientId=this.patient.patientId
-        // submitPriliminaryDise(this.priliminaryDise).then(res=>{
-        //     this.$http({
-        //       url: this.$http.adornUrl(`/electronic_case/case/save`),
-        //       method: 'post',
-        //       data: this.$http.adornData(this.priliminaryDise)
-        //       // title: '成功',
-        //       // message: '成功提交初诊病历',
-        //       // type: 'success',
-        //       // duration: 2000
-        //     }).then(({data}) => {
-        //       this.confirmButtonDisabled = true
-        //       if (data && data.code === 200) {
-        //         this.$message({
-        //           message: '操作成功',
-        //           type: 'success',
-        //           duration: 1000,
-        //           onClose: () => {
-        //             this.visible = false
-        //             this.$emit('refreshDataList')
-        //           }
-        //         })
-        //       } else {
-        //         this.$message.error(data.msg)
-        //       }
-        //     })
-        //   })
       },
       deleteZd(row){
         this.icdZd=this.icdZd.filter(item=>{
@@ -496,11 +465,8 @@
         this.disList = res.data.list
         this.total = res.data.total
       },
-      loadpatient(){
-      },
       addIcd(){
         this.dialogTableVisible=true
-        this.getIcd()
       },
       controlfast(){
         this.isclose=!this.isclose
