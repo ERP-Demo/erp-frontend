@@ -49,6 +49,16 @@ const mainRoutes = {
         isTab: true
       }
     },
+    /*{
+      path: '/warehouse/tuihuo/:id',
+      component: _import('modules/drugs_purchase/add'),
+      name: 'drugs_purchase-tuihuo',
+      meta: {
+        menuId: 'drugs_purchase-tuihuo',
+        title: '验收退货',
+        isTab: true
+      }
+    },*/
   ],
   beforeEnter (to, from, next) {
     let token = Vue.cookie.get('token')
