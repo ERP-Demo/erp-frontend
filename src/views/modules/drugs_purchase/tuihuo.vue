@@ -18,15 +18,20 @@
                     prop="pdMoney"
                     header-align="center"
                     align="center"
-                    @change="count"
                     label="进货单价">
             </el-table-column>
             <el-table-column
                     header-align="center"
                     align="center"
+                    prop="num"
                     label="进货数量">
+            </el-table-column>
+            <el-table-column
+                    header-align="center"
+                    align="center"
+                    label="退货数量">
                 <template slot-scope="scope">
-                    <el-input-number prop="pdNum" @change="count"  v-model="scope.row.pdNum" :min="0" :precision="0"></el-input-number>
+                    <el-input-number v-model="scope.row.pdNum" :min="0" :max="scope.row.num" :precision="0"></el-input-number>
                 </template>
             </el-table-column>
         </el-table>
@@ -52,6 +57,7 @@
                 visible: false,
                 tableData: [],
                 totalPrice: 0,
+                purchaseId: ''
             }
         },
         activated() {
@@ -59,64 +65,33 @@
         },
         methods: {
             init(id) {
-                let ids=this.$route.params.id
                 this.visible=true
+                this.purchaseId=id
                 this.$http({
                     url: this.$http.adornUrl('/drugs_purchase/purchase/all/'+id),
                     method: 'get'
                 }).then(({data}) => {
                     if (data && data.code === 200) {
-                        this.tableData = data.all
-                        console.log(this.tableData)
+                        data.all.map(item => {
+                            this.tableData.push({
+                                'pdid': item.pdid,
+                                'drugsName':item.drugsName,
+                                'pdMoney': item.pdMoney,
+                                'num': item.pdNum,
+                                'pdNum': 0
+                            })
+                        })
                     } else {
                         this.tableData = []
                     }
                     this.dataListLoading = false
                 })
             },
-            //计算总价格
-            count(value){
-                this.totalPrice=0
-                for (const d of this.tableData) {
-                    this.totalPrice=this.NumberAdd(this.totalPrice,this.NumberMul(d.pdNum,d.pdMoney));
-                }
-            },
-            NumberMul(arg1, arg2) {
-                var m = 0;
-                var s1 = arg1.toString();
-                var s2 = arg2.toString();
-                try {
-                    m += s1.split(".")[1].length;
-                } catch (e) {}
-                try {
-                    m += s2.split(".")[1].length;
-                } catch (e) {}
-
-                return Number(s1.replace(".", "")) * Number(s2.replace(".", "")) / Math.pow(10, m);
-            },
-            NumberAdd(arg1, arg2) {
-                var r1, r2, m, n;
-                try {
-                    r1 = arg1.toString().split(".")[1].length
-                } catch (e) {
-                    r1 = 0
-                }
-                try {
-                    r2 = arg2.toString().split(".")[1].length
-                } catch (e) {
-                    r2 = 0
-                }
-                m = Math.pow(10, Math.max(r1, r2))
-                n = (r1 >= r2) ? r1 : r2;
-                return ((arg1 * m + arg2 * m) / m).toFixed(n);
-            },
             dataFormSubmit(){
-                this.dataForm.purchaseReturned=this.tableData;
-                console.log(this.tableData)
                 this.$http({
                     url: this.$http.adornUrl('/drugs_purchase/purchase/purchaseReturned'),
                     method: 'post',
-                    data: this.$http.adornData(this.dataForm)
+                    data: this.$http.adornData({'purchaseReturned':{'purchaseId':this.purchaseId},'purchaseReturnedDetaileds':this.tableData})
                 }).then(({data}) => {
                     this.confirmButtonDisabled = true
                     if (data && data.code === 200) {
