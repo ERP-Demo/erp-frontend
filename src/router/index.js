@@ -40,12 +40,12 @@ const mainRoutes = {
       }
     },
     {
-      path: '/drugs_purchase-update',
+      path: '/drugs_purchase/update/:id',
       component: _import('modules/drugs_purchase/add'),
       name: 'drugs_purchase-update',
       meta: {
         menuId: 'drugs_purchase-update',
-        title: '化验详细',
+        title: '订单添加',
         isTab: true
       }
     },

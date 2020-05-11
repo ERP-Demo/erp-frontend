@@ -5,7 +5,7 @@
     <aside style="margin:0 0 0 0">
       <el-button type="text" size="medium" @click="addcheck"><i class="el-icon-circle-plus-outline" />新增项目</el-button>
       <el-button type="text" size="medium" @click="delcheck"><i class="el-icon-remove-outline" />删除项目</el-button>
-      <el-button type="text" size="medium" @click="apply()" ><i class="el-icon-circle-check" />开立项目</el-button>
+      <el-button type="text" size="medium" @click="apply" ><i class="el-icon-circle-check" />开立项目</el-button>
       <el-button type="text" size="medium" @click="invalid"><i class="el-icon-circle-close" />作废项目</el-button>
       <el-button type="text" size="medium" @click="saveNonDrug"><i class="el-icon-upload2" />暂存</el-button>
       <el-button type="text" size="medium" @click="getNonDrug"><i class="el-icon-download" />取出暂存项</el-button>
@@ -270,7 +270,7 @@ export default {
       getNonDrug(data).then(res=>{
         res.data.dmsNonDrugItemRecordParamList.forEach(item=>{
           this.selectCheckred(item)
-          
+
         })
         this.$notify({
           title: '成功',
@@ -416,9 +416,8 @@ export default {
             })
         this.listRecord()
       })
-    },  
+    },
     submitDemand(){
-      alert("成功");
       this.dataListLoading = true
       this.$http({
         url: this.$http.adornUrl('/requirements/requirements/save'),
@@ -443,15 +442,10 @@ export default {
       this.demandVisible = false
     },
     demand(row){
+      this.dataForm.projectId=row.testSynthesizeId
+      this.dataForm.projectName=row.testSynthesizeName
       this.demandVisible = true
       this.check = deepClone(row)
-    },
-    apply(){
-      if(this.dataForm.projectId!=null){
-        this.demandVisible = true
-      }else {
-        return;
-      }
     },
     async getNondrugList() {
       const response = await getNondrugList(this.listQuery)

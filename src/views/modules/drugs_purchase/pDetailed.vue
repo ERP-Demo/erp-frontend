@@ -7,7 +7,7 @@
                 ref="multipleTable"
                 :data="tableData"
                 tooltip-effect="dark"
-                style="width: 100%">
+                style="width: 100%">查看药品
             <el-table-column
                     prop="drugsName"
                     header-align="center"

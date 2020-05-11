@@ -14,13 +14,7 @@
                 v-loading="dataListLoading"
                 @selection-change="selectionChangeHandle"
                 style="width: 100%;">
-            <el-table-column
-                    prop="subName"
-                    header-align="center"
-                    align="center"
-                    label="操作人">
-            </el-table-column>
-            <purchase ref="purchase"></purchase>
+
             <el-table-column
                     fixed="right"
                     header-align="center"
@@ -28,9 +22,44 @@
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="agreHandle(scope.row.processInstanceId)">同意</el-button>
-                    <el-button type="text" size="small" @click="rejHandle(scope.row.processInstanceId)">驳回</el-button>
                     <el-button type="text" size="small" @click="detHandle(scope.row.purchaseId)">查看详情</el-button>
+                </template>
+            </el-table-column>
+            <purchase ref="purchase"></purchase>
+
+            <el-table-column
+                    prop="subName"
+                    header-align="center"
+                    align="center"
+                    label="操作人"
+                    fixed="right">
+            </el-table-column>
+            <el-table-column
+                    prop="checkName"
+                    header-align="center"
+                    align="center"
+                    label="审核人"
+                    fixed="right">
+            </el-table-column>
+            <el-table-column
+                    header-align="center"
+                    align="center"
+                    label="状态"
+                    fixed="right">
+                <template slot-scope="scope">
+                    <el-popover v-if="scope.row.checkName&&scope.row.bpmName==='提交申请'" trigger="hover" placement="top"
+                                @show="getReason(scope.row)">
+                        <div v-loading="reasonLoading">
+                            <p>操作人: {{ scope.row.checkName }}</p>
+                            <p>驳回原因: {{ scope.row.reason }}</p>
+                        </div>
+                        <div slot="reference">
+                            <el-tag type="danger" size="medium">被驳回</el-tag>
+                        </div>
+                    </el-popover>
+                    <el-tag type="warning" v-else-if="scope.row.bpmName==='提交申请'">待提交</el-tag>
+                    <el-tag type="warning" v-else-if="scope.row.bpmName==='经理审核'">待审核</el-tag>
+                    <el-tag type="success" v-else>已同意</el-tag>
                 </template>
             </el-table-column>
         </el-table>
@@ -80,7 +109,7 @@
             getDataList() {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/drugs_purchase/purchase/checkList'),
+                    url: this.$http.adornUrl('/drugs_purchase/purchase/historyOrder'),
                     method: 'get',
                     params: this.$http.adornParams({
                         'page': this.pageIndex,
@@ -201,6 +230,22 @@
                             this.$message.error(data.msg)
                         }
                     })
+                })
+            },
+            getReason(row) {
+                if (row.reason) return
+                this.reasonLoading = true
+                this.$http({
+                    url: this.$http.adornUrl('/activiti/reason'),
+                    method: 'post',
+                    params: this.$http.adornParams({'processInstanceId': row.processInstanceId})
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        this.$set(row, 'reason', data.reason)
+                        this.reasonLoading = false
+                    } else {
+                        this.$message.error(data.msg)
+                    }
                 })
             }
         }

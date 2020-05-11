@@ -41,7 +41,7 @@
                 <template slot-scope="scope">
                     <el-button type="text" size="small" @click="subHandle(scope.row.processInstanceId)">提交
                     </el-button>
-                    <el-button type="text" size="small" @click="updHandle(scope.row.purchaseId)">修改
+                    <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.purchaseId)">修改
                     </el-button>
                     <el-button type="text" size="small" @click="delHandle(scope.row.purchaseId)">删除
                     </el-button>
@@ -61,10 +61,13 @@
                 layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <pDetailed v-if="pDetailedVisible" ref="pDetailed" @refreshDataList="getDataList"></pDetailed>
+        <!-- 弹窗, 新增 / 修改 -->
+        <add-or-update v-if="addOrUpdateVisible" ref="add" @refreshDataList="getDataList"></add-or-update>
     </div>
 </template>
 
 <script>
+    import add from './add'
     import purchase from './purchase'
     import pDetailed from "./pDetailed";
 
@@ -87,7 +90,8 @@
         },
         components: {
             purchase,
-            pDetailed
+            pDetailed,
+            add
         },
         activated() {
             this.getDataList()
@@ -107,7 +111,6 @@
                 }).then(({data}) => {
                     if (data && data.code === 200) {
                         this.dataList = data.page.list
-                        console.log(this.dataList)
                         this.totalPage = data.page.totalCount
                     } else {
                         this.dataList = []
@@ -143,10 +146,7 @@
             },
             // 新增 / 修改
             addOrUpdateHandle(id) {
-                this.addOrUpdateVisible = true
-                this.$nextTick(() => {
-                    this.$refs.pDetailed.init(id)
-                })
+                this.$router.push({path:'/drugs_purchase/update/'+id})
             },
             //获取药
             getData() {
@@ -158,7 +158,7 @@
                 }).then(({data}) => {
                     if (data && data.code === 200) {
                         this.tableData = data.page.list
-                    } else {
+                        } else {
                         this.dataList = []
                     }
                     this.dataListLoading = false
