@@ -112,8 +112,7 @@
         <el-tab-pane label="检验申请" :disabled="!firstdisabled" name="third"><Examine ref="examine" v-bind:patient="patient"></Examine></el-tab-pane>
         <el-tab-pane label="门诊确诊" :disabled="!firstdisabled||!comfirmdisabled" name="fourth"><Comfirm @comfirmdms="comfirmdms" ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
         <el-tab-pane label="成药处方" :disabled="!firstdisabled||!comfirmdisabled" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient"></Prescription></el-tab-pane>
-        <el-tab-pane label="草药处方" :disabled="!firstdisabled||!comfirmdisabled" name="eightth"><Cprescription ref="cprescription" v-bind:patient="patient"></Cprescription></el-tab-pane>
-        <el-tab-pane label="处置申请" :disabled="!firstdisabled||!comfirmdisabled" name="sixth"><Handle ref="cprescription" v-bind:patient="patient"></Handle></el-tab-pane>
+        <el-tab-pane label="处置申请" :disabled="!firstdisabled||!comfirmdisabled" name="sixth"><Handle v-bind:patient="patient"></Handle></el-tab-pane>
         <el-tab-pane label="患者账单" :disabled="!firstdisabled" name="seventh"><Bill ref="bill" v-bind:patient="patient"></Bill></el-tab-pane>
       </el-tabs>
     </div>
@@ -130,14 +129,13 @@ import Examine from '@/views/modules/outpatient/workstation/examine'
 import Prescription from '@/views/modules/outpatient/workstation/prescription'
 import Handle from '@/views/modules/outpatient/workstation/handle'
 import Comfirm from '@/views/modules/outpatient/workstation/confirm'
-import Cprescription from '@/views/modules/outpatient/workstation/Cprescription'
 import Bill from '@/views/modules/outpatient/workstation/bill'
 import {getPatientList,bindPatient,startDiagnosis} from '@/api/outpatient/patient'
 import {endDiagnosis,getnonend} from '@/api/outpatient/dmscase'
 import { deepClone } from '@/utils'
 import { truncate } from 'fs';
   export default{
-    components: {Record,Inspection,Examine,Prescription,Handle,Comfirm,Cprescription,Bill},
+    components: {Record,Inspection,Examine,Prescription,Handle,Comfirm,Bill},
     data(){
       return{
         comfirmdisabled:true,

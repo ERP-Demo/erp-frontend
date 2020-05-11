@@ -1,5 +1,6 @@
 <template>
-    <!-- 非药品模板管理 -->
+    <!-- 化验
+    模板管理 -->
   <div class="div1">
     <el-container>
     <!--  -->
@@ -7,7 +8,7 @@
 
     <el-aside :width="asidewidth" style="margin-top:0;background:white;padding: 0 0 0 0">
           <aside style="height:50px;margin:0 0 0 0">
-            <el-tag size="large">非药品模板</el-tag>
+            <el-tag size="large">化验模板</el-tag>
 
           </aside>
         <div style="padding: 0 10px 0 10px">
@@ -100,29 +101,40 @@
         </el-form-item>
       </el-form>
       <el-button type="primary" style="margin-bottom:10px;margin-left:10px" @click="addItem">编辑项目</el-button>
-      <el-table style="margin-bottom:50px" :data="nondrugList" stripe border highlight-current-row>
-        <el-table-column label="项目编码" prop="code"></el-table-column>
-        <el-table-column label="项目名称" prop="name" width="300px"></el-table-column>
-        <el-table-column label="项目规格" prop="format"></el-table-column>
-        <el-table-column label="项目单价(元)" prop="price"></el-table-column>
-        <el-table-column label="所属费用科目" prop="expClassId"></el-table-column>
+
+        <el-table style="margin-bottom:50px" :data="dataList">
+          <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
+          <el-table-column   label="化验项目名" prop="testModelName" width="330px"></el-table-column>
+          <el-table-column label="项目简介" prop="testModelIntroduction" width="200px"></el-table-column>
+<!--        <el-table-column label="药品单价(元)" prop="drugModelPrice" width="70px"></el-table-column>-->
+<!--        <el-table-column label="药品数量" prop="drugModelNum" width="70px"></el-table-column>-->
+<!--        <el-table-column label="总价" prop="drugModelPrice" width="70px"></el-table-column>-->
+<!--        <el-table-column label="拼音码" prop="drugModelEnglishcode" width="200px"></el-table-column>-->
+<!--        <el-table-column label="使用建议" prop="drugModelProposal"></el-table-column>-->
+<!--        <el-table-column label="频次" prop="drugModelFrequency">-->
       </el-table>
     </el-main>
     </el-container>
-    <el-dialog title="添加非药品项目" width="800px" :visible.sync="dialogVisible">
-      <div style="height:370px">
-      <el-transfer
-      filterable
-      style="width:1000px"
-      :titles="['非药品项目','模板内容']"
-      filter-placeholder="项目名搜索"
-      v-model="choices"
-      :data="chonondruglist">
-    <span slot-scope="{option}">{{option.name}}</span>
-      </el-transfer>
-      <el-button type="danger" style="margin-top:20px;margin-left:20px;float:right" @click="dialogVisible=!dialogVisible">取消</el-button>
-      <el-button type="primary" style="margin-top:20px;float:right" @click="confirmItem">确定</el-button>
-      </div>
+    <el-dialog title="增加化验项目" :visible.sync="dialogVisible" width="700px"  top="10px">
+      <el-container>
+        <el-aside width="100%" style="padding:0 0 0 0;margin:0 0 0 0">
+          <el-tag type="primary" style="width:100%;height:30px">化验项目目录
+            <el-button type="primary" size="mini"  style="width: 20px;;float:right"><svg-icon icon-class="search" style="margin-left:-6px"/></el-button>
+            <el-input  size="mini" placeholder="化验项目名称" v-model="searchdrug" style="width:60%;float:right" @change="getdrugList(0)"></el-input>
+          </el-tag>
+          <el-table :data="drugList" height="500px" @row-click="choosedrug">
+            <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
+            <el-table-column label="化验项目id" prop="id"></el-table-column>
+            <el-table-column label="化验项目名" prop="name"></el-table-column>
+          </el-table>
+          <pagination layout="prev, pager, next" auto-scroll="false" style="margin-top:0px" page-sizes="[]"  v-show="total2>0" :total="total2" :page.sync="page.pageNum" :limit.sync="page.pageSize" @pagination="getdrugList(0)" />
+          <div>
+          </div>
+        </el-aside>
+      </el-container>
+      <span slot="footer" class="dialog-footer">
+      <el-button type="primary" style="float:right" @click="addDrug">确定</el-button>
+    </span>
     </el-dialog>
   </div>
 </template>
@@ -131,23 +143,37 @@ import {getNondrugModelList,updateModel,createModel,deleteModel} from '@/api/non
 import {getAllNondrug} from '@/api/non_drug'
 import Pagination from '@/components/Pagination'
 import { deepClone,parseTime } from '@/utils'
+
 export default {
-    components: {Pagination},
+  components: {Pagination},
   data(){
     return{
-      chonondruglist:[],
+      dataList:[],
+      page:{
+        pageNum:1,
+        pageSize:10,
+      },
+      oneprescription:{
+        name:'',
+        druglist:[],
+        amount:0,
+        status:0,
+      },
+      itemdrugList:[],
+      drugList:[],
+      searchdrug:'',
       choices:[],
       dialogVisible:false,
       alldrugList:[],
       nondrugList:[],
       edit:0,
       model:{},
+      total2:0,
       loading:false,
       isaside:false,
       asidewidth:"100%",
       total:0,
       listQuery:{
-        nonDrugIdList:'',
         id:'',
         status:1,
         name:'',
@@ -155,7 +181,7 @@ export default {
         ownId:this.$store.getters.id,
         aim:'',
         code:'',
-        type:'',
+        type:1,
         pageSize:20,
         pageNum:1,
         isAdmin:'0'
@@ -170,36 +196,104 @@ export default {
   },
   created(){
     this.getModelList()
-    this.getAllNondrug()
+  },
+  activated () {
+    this.getDataList()
   },
   methods:{
+    // 获取数据列表
+    getDataList () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/test_model/model/list'),
+        method: 'get',
+        params: this.$http.adornParams()
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.dataList = data.page.list
+          // console.log("数据"+data.list)
+        } else {
+          this.dataList = []
+        }
+        this.dataListLoading = false
+      })
+
+    },
+    addDrug(){
+      this.dialogVisible = false
+      this.itemdrugList = this.oneprescription.druglist
+      this.itemdrugList.forEach(item=>{
+        item.totalprice = Math.floor((item.price*item.num)*100)/100
+      })
+    },
+    async getdrugList(type) {
+      let data = {}
+      data.pageSize = this.page.pageSize
+      data.pageNum = this.page.pageNum
+      if(type!==0)
+        data.typeId = type
+      data.name = this.searchdrug
+      const response = await getdrugList(data)
+      this.drugList = response.data.list
+      this.total2 = response.data.total
+    },
+    deldrug(row){
+      this.oneprescription.druglist = this.oneprescription.druglist.filter(item=>{
+        if(item.id===row.id)
+          return false
+        return true
+      })
+      this.oneprescription.amount = 0
+      this.oneprescription.druglist.forEach(item=>{
+        this.oneprescription.amount += item.price
+      })
+      this.oneprescription.amount = Math.floor((this.oneprescription.amount+0.5)*100)/100
+    },
+    choosedrug(val){
+      let flag = 1
+      this.oneprescription.druglist.forEach(item=>{
+        if(item.id===val.id){
+          item.num+=1
+          flag=0
+        }
+      })
+      if(flag){
+        this.oneprescription.amount +=val.price
+        this.oneprescription.amount = Math.floor((this.oneprescription.amount+0.5)*100)/100
+        this.oneprescription.druglist.push(val)
+        this.oneprescription.druglist.forEach(item=>{
+          if(item.num===undefined)
+            item.num=1
+        })
+      }
+    },
     deleteModel(row){
-       this.$confirm('确认删除当前模板?', '警告', {
+      this.$confirm('确认删除当前模板?', '警告', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(()=>{      deleteModel(row.id).then(res=>{
-        this.getModelList()
-        this.$notify({
-          title: '成功',
-          message: res.message,
-          type: 'success',
-          duration: 2000
-        })
-      })})
-
+      }).then(()=>{
+        deleteModel(row.id).then(res=>{
+          this.getModelList()
+          this.$notify({
+            title: '成功',
+            message: res.message,
+            type: 'success',
+            duration: 2000
+          })
+        })})
     },
     createModel(){
       let data = deepClone(this.model)
       data.status = 1
       data.ownId = this.$store.getters.id
-      data.nonDrugIdList = deepClone(this.choices)
-      data.scope = 0
+      data.dmsMedicineModelItemList = deepClone(this.itemdrugList)
+      data.type = 1
       createModel(data).then(res=>{
         this.getModelList()
         this.$notify({
           title: '成功',
-          message: '成功创建模板',
+          message: res.message,
           type: 'success',
           duration: 2000
         })
@@ -209,14 +303,16 @@ export default {
     updateModel(){
       let data = deepClone(this.model)
       data.nonDrugIdList = deepClone(this.choices)
+      data.createTime = ''
+      data.ownId = this.$store.getters.id
       updateModel(data).then(res=>{
-        this.getModelList()
         this.$notify({
           title: '成功',
-          message: res.message,
+          message: '修改成功',
           type: 'success',
           duration: 2000
         })
+        this.getModelList()
       })
       this.showaside()
     },
@@ -228,22 +324,8 @@ export default {
       this.dialogVisible=!this.dialogVisible
     },
     addItem(){
-      if(this.model.type===0||this.model.type===1||this.model.type===2){
-        this.chonondruglist = this.alldrugList.filter(item=>{
-          if(item.recordType===this.model.type+1)
-            return true
-          return false
-        })
-        this.dialogVisible = true
-        return
-      }
-      this.getModelList()
-        this.$notify({
-          title: '警告',
-          message: '请先选择类型！',
-          type: 'warning',
-          duration: 2000
-        })
+      this.dialogVisible = true
+      this.getdrugList()
     },
     getAllNondrug(){
       getAllNondrug().then(res=>{
@@ -255,11 +337,23 @@ export default {
       })
     },
     async getModelList(){
-      getNondrugModelList(this.listQuery).then(res=>{
+      listModel(this.listQuery).then(res=>{
         this.modelList = res.data.list
+        this.modelList.forEach(model=>{
+          model.dmsMedicineModelItemList.forEach(item=>{
+            selectById(item.id).then(res=>{
+              item.name = res.data.name
+              item.format = res.data.format
+              item.price = res.data.price
+              item.totalprice = item.price*item.num
+              item.mnemonicCode = res.data.mnemonicCode
+            })
+          })
+          model.createTime = parseTime(model.createTime)
+        })
         this.total = res.data.total
       })
-      
+
     },
     searchModel(){
       this.loading = true
@@ -277,20 +371,16 @@ export default {
       else if(type==='add'){
         this.choices = []
         this.nondrugList = []
+        this.itemdrugList = []
         this.model = {}
-        this.edit = 0 
+        this.edit = 0
       }
       else
         this.edit = 0
     },
-    editModel(row){
-      this.choices = deepClone(row.nonDrugIdList)
-      this.nondrugList = this.alldrugList.filter(item=>{
-        if(row.nonDrugIdList.includes(item.id))
-          return true
-      })
+    async editModel(row){
       this.model = deepClone(row)
-      this.model.createTime = parseTime(this.model.createTime)
+      this.itemdrugList = this.model.dmsMedicineModelItemList
       this.showaside('edit')
     }
   }
@@ -298,9 +388,9 @@ export default {
 </script>
 <style>
   body .el-table th.gutter{
-display: table-cell!important;
-}
-.el-transfer-panel{
+    display: table-cell!important;
+  }
+  .el-transfer-panel{
     width: 300px;
-}
+  }
 </style>

@@ -62,7 +62,7 @@ export default {
     }
   },
   created () {
-    this.getCaptcha()
+    // this.getCaptcha()
   },
   methods: {
     // 提交表单
@@ -118,6 +118,7 @@ export default {
       content: "";
       background-image: url(../../assets/img/login_bg.jpg);
       background-size: cover;
+      background-position-x: -400px;
     }
     .site-content__wrapper {
       position: absolute;

@@ -6,7 +6,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-<!--        <el-button v-if="isAuth('requirements:requirements:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>-->
+        <el-button  type="primary" :disabled="dataListSelections.length >= 2" @click="Pay,dialogVisible = true">缴费</el-button>
         <el-button v-if="isAuth('requirements:requirements:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
@@ -65,6 +65,17 @@
         label="检查部位">
     </el-table-column>
       <el-table-column
+              align="center"
+              label="状态"
+              show-overflow-tooltip>
+        <template slot-scope="scope">
+          <el-tag type="warning" v-if="scope.row.status===-1">未开立</el-tag>
+          <el-tag type="danger" v-if="scope.row.status===0">已作废</el-tag>
+          <el-tag type="info" v-if="scope.row.status===1">未缴费</el-tag>
+          <el-tag type="success" v-if="scope.row.status===4">已续费</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         fixed="right"
         header-align="center"
         align="center"
@@ -87,6 +98,47 @@
     </el-pagination>
     <!-- 弹窗, 新增 / 修改 -->
     <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <el-dialog
+            title="费用详细"
+            :visible.sync="dialogVisible"
+            width="30%"
+            :before-close="handleClose">
+      <el-table
+              :data="dataAll"
+              border
+              v-loading="dataListLoading"
+              @selection-change="selectionChangeHandle"
+              style="width: 100%;">
+        <el-table-column
+                type="selection"
+                header-align="center"
+                align="center"
+                width="50">
+        </el-table-column>
+        <el-table-column
+                prop="testSynthesizeId"
+                header-align="center"
+                align="center"
+                label="项目编号">
+        </el-table-column>
+        <el-table-column
+                prop="testSynthesizeName"
+                header-align="center"
+                align="center"
+                label="项目名">
+        </el-table-column>
+        <el-table-column
+                prop="testSynthesizePrice"
+                header-align="center"
+                align="center"
+                label="项目价格">
+        </el-table-column>
+      </el-table>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -98,13 +150,15 @@ export default {
       dataForm: {
         key: ''
       },
+      dataAll:[],
       dataList: [],
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
       dataListLoading: false,
       dataListSelections: [],
-      addOrUpdateVisible: false
+      addOrUpdateVisible: false,
+      dialogVisible: false
     }
   },
   components: {
@@ -136,6 +190,9 @@ export default {
         this.dataListLoading = false
       })
     },
+    handleClose(done) {
+                done();
+    },
     // 每页数
     sizeChangeHandle (val) {
       this.pageSize = val
@@ -146,6 +203,26 @@ export default {
     currentChangeHandle (val) {
       this.pageIndex = val
       this.getDataList()
+    },
+    //缴费
+    Pay() {
+      var ids = this.dataListSelections.map(item => {
+        return item.projectId
+      }).join(",")
+      this.$http({
+        url: this.$http.adornUrl('/test_synthesize/synthesize/selectByid/'+ids),
+        method: 'get',
+        params: this.$http.adornParams()
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.dataAll= data.list
+          console.log(this.dataAll)
+        } else {
+          this.dataList = []
+          this.totalPage = 0
+        }
+        alert("缴费成功");
+      })
     },
     // 多选
     selectionChangeHandle (val) {
