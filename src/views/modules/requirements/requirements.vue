@@ -6,7 +6,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button  type="primary" :disabled="dataListSelections.length >= 2" @click="Pay,dialogVisible = true">缴费</el-button>
+        <el-button  type="primary" :disabled="dataListSelections.length >= 2" @click="Pay(),dialogVisible = true">缴费</el-button>
         <el-button v-if="isAuth('requirements:requirements:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
@@ -101,42 +101,38 @@
     <el-dialog
             title="费用详细"
             :visible.sync="dialogVisible"
-            width="30%"
+            width="50%"
             :before-close="handleClose">
       <el-table
-              :data="dataAll"
-              border
-              v-loading="dataListLoading"
-              @selection-change="selectionChangeHandle"
-              style="width: 100%;">
+              ref="multipleTable"
+              :data="tableData"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
         <el-table-column
                 type="selection"
-                header-align="center"
-                align="center"
-                width="50">
+                width="55">
         </el-table-column>
         <el-table-column
                 prop="testSynthesizeId"
-                header-align="center"
-                align="center"
-                label="项目编号">
+                label="项目编号"
+                width="180">
         </el-table-column>
         <el-table-column
                 prop="testSynthesizeName"
-                header-align="center"
-                align="center"
-                label="项目名">
+                label="项目名称"
+                width="180">
         </el-table-column>
         <el-table-column
                 prop="testSynthesizePrice"
-                header-align="center"
-                align="center"
                 label="项目价格">
         </el-table-column>
       </el-table>
+      <el-tag type="primary">项目金额总计:</el-tag>
+      <el-tag type="warning">{{money}} 元</el-tag>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+    <el-button type="primary" @click="determine(),dialogVisible = false">确 定</el-button>
   </span>
     </el-dialog>
   </div>
@@ -150,7 +146,8 @@ export default {
       dataForm: {
         key: ''
       },
-      dataAll:[],
+      registerId:"",
+      dataA:[],
       dataList: [],
       pageIndex: 1,
       pageSize: 10,
@@ -158,7 +155,10 @@ export default {
       dataListLoading: false,
       dataListSelections: [],
       addOrUpdateVisible: false,
-      dialogVisible: false
+      dialogVisible: false,
+      tableData: [],
+      money:0.0,
+      multipleSelection: []
     }
   },
   components: {
@@ -209,19 +209,52 @@ export default {
       var ids = this.dataListSelections.map(item => {
         return item.projectId
       }).join(",")
+      var sta = this.dataListSelections.map(item => {
+        return item.status
+      }).join(",")
+      if(sta==4){
+        return;
+      }
       this.$http({
         url: this.$http.adornUrl('/test_synthesize/synthesize/selectByid/'+ids),
         method: 'get',
         params: this.$http.adornParams()
       }).then(({data}) => {
         if (data && data.code === 200) {
-          this.dataAll= data.list
-          console.log(this.dataAll)
+          this.tableData=data.list
         } else {
-          this.dataList = []
-          this.totalPage = 0
+          this.tableData=[]
         }
-        alert("缴费成功");
+      })
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+      var moe = this.multipleSelection.map(item => {
+        return item.testSynthesizePrice
+      }).join(",")
+      this.money=moe
+    },
+    determine(){
+      var ids = this.dataListSelections.map(item => {
+        return item.projectId
+      }).join(",")
+      this.$http({
+        url: this.$http.adornUrl(`/requirements/requirements/updatestate/`+ids),
+        method: 'get',
+        data: this.$http.adornData()
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1000,
+            onClose: () => {
+              this.getDataList()
+            }
+          })
+        } else {
+          this.$message.error(data.msg)
+        }
       })
     },
     // 多选
