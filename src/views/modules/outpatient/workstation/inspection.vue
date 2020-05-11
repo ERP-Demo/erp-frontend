@@ -5,7 +5,7 @@
     <aside style="margin:0 0 0 0">
       <el-button type="text" size="medium" @click="addcheck"><i class="el-icon-circle-plus-outline" />新增项目</el-button>
       <el-button type="text" size="medium" @click="delcheck"><i class="el-icon-remove-outline" />删除项目</el-button>
-      <el-button type="text" size="medium" @click="apply()" ><i class="el-icon-circle-check" />开立项目</el-button>
+      <el-button type="text" size="medium" @click="apply" ><i class="el-icon-circle-check" />开立项目</el-button>
       <el-button type="text" size="medium" @click="invalid"><i class="el-icon-circle-close" />作废项目</el-button>
       <el-button type="text" size="medium" @click="saveNonDrug"><i class="el-icon-upload2" />暂存</el-button>
       <el-button type="text" size="medium" @click="getNonDrug"><i class="el-icon-download" />取出暂存项</el-button>
@@ -130,16 +130,16 @@
   <el-dialog title="填写检查要求" :visible.sync="demandVisible">
     <div style="height:260px">
       <el-form inline label-width="100px" >
-        <el-form-item label="项目编码"><el-input disabled placeholder=""  v-model="check.project_id"></el-input></el-form-item>
-        <el-form-item label="项目名称"><el-input disabled placeholder=""  v-model="check.project_name"></el-input></el-form-item>
-        <el-form-item label="目的" ><el-input placeholder="" v-model="check.purpose"></el-input></el-form-item>
-        <el-form-item label="要求" ><el-input placeholder="" v-model="check.requirements"></el-input></el-form-item>
-        <el-form-item label="临床印象"><el-input placeholder=""  v-model="check.Clinical_impression"></el-input></el-form-item>
-        <el-form-item label="临床诊断" ><el-input placeholder="" v-model="check.Clinical_diagnosis"></el-input></el-form-item>
-        <el-form-item label="检查部位"><el-input placeholder=""  v-model="check.Check_the"></el-input></el-form-item>
+        <el-form-item label="项目编码"><el-input disabled placeholder=""  v-model="dataForm.projectId"></el-input></el-form-item>
+        <el-form-item label="项目名称"><el-input disabled placeholder=""  v-model="dataForm.projectName"></el-input></el-form-item>
+        <el-form-item label="目的" ><el-input placeholder="" v-model="dataForm.purpose"></el-input></el-form-item>
+        <el-form-item label="要求" ><el-input placeholder="" v-model="dataForm.requirements"></el-input></el-form-item>
+        <el-form-item label="临床印象"><el-input placeholder=""  v-model="dataForm.clinicalImpression"></el-input></el-form-item>
+        <el-form-item label="临床诊断" ><el-input placeholder="" v-model="dataForm.clinicalDiagnosis"></el-input></el-form-item>
+        <el-form-item label="检查部位"><el-input placeholder=""  v-model="dataForm.checkThe"></el-input></el-form-item>
       </el-form>
       <el-button type="danger" style="float:right" @click="demandVisible=false">取消</el-button>
-      <el-button type="primary" style="float:right;margin-right:10px" @click="dataFormSubmit()">确认</el-button>
+      <el-button type="primary" style="float:right;margin-right:10px" @click="submitDemand()">确认</el-button>
     </div>
   </el-dialog>
   <el-dialog title="检查结果" :visible.sync="resultvisible" top="10px"> 
@@ -175,14 +175,15 @@ export default {
       totalprice:0.000,
       ref:[],
       checkmodels:[],
-      check: {
-        project_id: '',
-        project_name:'',
-        purpose:'',
-        requirements:'',
-        Clinical_impression:'',
-        Clinical_diagnosis:'',
-        Check_the:''
+      dataForm: {},
+      dataRule: {
+        projectId: [{ required: true, message: '项目编码不能为空', trigger: 'blur' }],
+        projectName: [{ required: true, message: '项目名称不能为空', trigger: 'blur' }],
+        purpose: [{ required: true, message: '目的不能为空', trigger: 'blur' }],
+        requirements: [{ required: true, message: '要求不能为空', trigger: 'blur' }],
+        clinicalImpression: [{ required: true, message: '临床印象不能为空', trigger: 'blur' }],
+        clinicalDiagnosis: [{ required: true, message: '临床诊断不能为空', trigger: 'blur' }],
+        checkThe: [{ required: true, message: '检查部位不能为空', trigger: 'blur' }]
       },
       demandVisible:false,
       dialogTableVisible:false,
@@ -269,7 +270,7 @@ export default {
       getNonDrug(data).then(res=>{
         res.data.dmsNonDrugItemRecordParamList.forEach(item=>{
           this.selectCheckred(item)
-          
+
         })
         this.$notify({
           title: '成功',
@@ -385,8 +386,9 @@ export default {
       })
     },
     handleSelectionChange(val){
-      this.check.project_id=this.checkList.map(item =>{return item.testSynthesizeId}).join(",")
-      this.check.project_name=this.checkList.map(item =>{return item.testSynthesizeName}).join(",")
+      this.dataForm.projectName=this.checkList.map(item =>{return item.testSynthesizeName}).join(",")
+      this.dataForm.projectId=this.checkList.map(item =>{return item.testSynthesizeId}).join(",")
+      // this.dataForm.projectId=1
       this.ref = val
       this.totalprice = 0.00
       this.ref.forEach(item=>{
@@ -414,21 +416,36 @@ export default {
             })
         this.listRecord()
       })
-    },  
+    },
     submitDemand(){
-      alert("成功");
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/requirements/requirements/save'),
+        method: 'post',
+        data: this.$http.adornData(this.dataForm)
+      }).then(({data}) => {
+        this.confirmButtonDisabled = true
+        if (data && data.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1000,
+            onClose: () => {
+              this.visible = false
+              this.$emit('refreshDataList')
+            }
+          })
+        } else {
+          this.$message.error(data.msg)
+        }
+      })
       this.demandVisible = false
     },
     demand(row){
+      this.dataForm.projectId=row.testSynthesizeId
+      this.dataForm.projectName=row.testSynthesizeName
       this.demandVisible = true
       this.check = deepClone(row)
-    },
-    apply(){
-      if(this.check.project_id!=null){
-        this.demandVisible = true
-      }else {
-        return;
-      }
     },
     async getNondrugList() {
       const response = await getNondrugList(this.listQuery)
@@ -489,33 +506,6 @@ export default {
         this.mainwidth="65%"
     }
   },
-  // 表单提交
-  dataFormSubmit () {
-    this.$refs['check'].validate((valid) => {
-      if (valid) {
-        this.$http({
-          url: this.$http.adornUrl(`/requirements/check/${!this.dataForm.id ? 'save' : 'update'}`),
-          method: !this.dataForm.id ? 'post' : 'put',
-          data: this.$http.adornData(this.dataForm)
-        }).then(({data}) => {
-          this.confirmButtonDisabled = true
-          if (data && data.code === 200) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.visible = false
-                this.$emit('refreshDataList')
-              }
-            })
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      }
-    })
-  }
 }
 </script>
 

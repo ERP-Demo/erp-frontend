@@ -2,10 +2,12 @@
   <div class="mod-config">
     <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
       <el-form-item>
-        <el-input v-model="dataForm.key" placeholder="请输入患者名称" clearable></el-input>
+        <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
+        <el-button v-if="isAuth('electronic_case_model:case:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('electronic_case_model:case:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -21,59 +23,65 @@
         width="50">
       </el-table-column>
     <el-table-column
-        prop="username"
+        prop="chiefComplaint"
         header-align="center"
         align="center"
-        label="医生">
+        label="">
     </el-table-column>
     <el-table-column
-        prop="patientName"
+        prop="historyOfPresentIllness"
         header-align="center"
         align="center"
-        label="患者">
+        label="">
     </el-table-column>
-      <el-table-column
-            prop="complain"
-            header-align="center"
-            align="center"
-            label="主诉">
+    <el-table-column
+        prop="historyOfTreatment"
+        header-align="center"
+        align="center"
+        label="">
     </el-table-column>
-      <el-table-column
-              prop="onsetTime"
-              header-align="center"
-              align="center"
-              label="发病时间">
-      </el-table-column>
-      <el-table-column
-              prop="patientSymptom"
-              header-align="center"
-              align="center"
-              label="症状">
-      </el-table-column>
-      <el-table-column
-              prop="medicalHistory"
-              header-align="center"
-              align="center"
-              label="既往病史">
-      </el-table-column>
-      <el-table-column
-              prop="allergyHistory"
-              header-align="center"
-              align="center"
-              label="过敏史">
-      </el-table-column>
-      <el-table-column
-              prop="healthCheckup"
-              header-align="center"
-              align="center"
-              label="体格检查">
-      </el-table-column>
-      <el-table-column
-              prop="treatment"
-              header-align="center"
-              align="center"
-              label="治疗情况">
-      </el-table-column>
+    <el-table-column
+        prop="pastHistory"
+        header-align="center"
+        align="center"
+        label="">
+    </el-table-column>
+    <el-table-column
+        prop="allergies"
+        header-align="center"
+        align="center"
+        label="">
+    </el-table-column>
+    <el-table-column
+        prop="healthCheckup"
+        header-align="center"
+        align="center"
+        label="">
+    </el-table-column>
+    <el-table-column
+        prop="priliminaryDiseIdList"
+        header-align="center"
+        align="center"
+        label="">
+    </el-table-column>
+    <el-table-column
+        prop="priliminaryDiseStrList"
+        header-align="center"
+        align="center"
+        label="">
+    </el-table-column>
+    <el-table-column
+        prop="name"
+        header-align="center"
+        align="center"
+        label="">
+    </el-table-column>
+    <el-table-column
+        prop="status"
+        header-align="center"
+        align="center"
+        label="">
+    </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"
@@ -128,7 +136,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/electronic_case/case/list'),
+        url: this.$http.adornUrl('electronic_case_model/case/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -179,7 +187,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/electronic_case/case/delete'),
+          url: this.$http.adornUrl('electronic_case_model/case/delete'),
           method: 'delete',
           data: this.$http.adornData(ids, false)
         }).then(({data}) => {

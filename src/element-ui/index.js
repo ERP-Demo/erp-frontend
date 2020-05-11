@@ -67,10 +67,10 @@ import {
   Cascader,
   // ColorPicker,
   // Transfer,
-  // Container,
-  // Header,
-  // Aside,
-  // Main,
+  Container,
+  Header,
+  Aside,
+  Main,
   // Footer,
   Loading,
   MessageBox,
@@ -136,10 +136,10 @@ Vue.use(Step)
 Vue.use(Cascader)
 // Vue.use(ColorPicker)
 // Vue.use(Transfer)
-// Vue.use(Container)
-// Vue.use(Header)
-// Vue.use(Aside)
-// Vue.use(Main)
+Vue.use(Container)
+Vue.use(Header)
+Vue.use(Aside)
+Vue.use(Main)
 // Vue.use(Footer)
 
 Vue.use(Loading.directive)
