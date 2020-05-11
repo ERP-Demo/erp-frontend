@@ -22,6 +22,7 @@
                     label="操作">
                 <template slot-scope="scope">
                     <el-button type="text" size="small" @click="detHandle(scope.row.purchaseId)">查看详情</el-button>
+                    <el-button type="text" size="small" @click="tuiHuo(scope.row.purchaseId)">退货</el-button>
                 </template>
             </el-table-column>
             <purchase ref="purchase"></purchase>
@@ -37,12 +38,14 @@
                 layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <pDetailed v-if="pDetailedVisible" ref="pDetailed" @refreshDataList="getDataList"></pDetailed>
+        <tuihuo v-if="tuihuoVisible" ref="tuihuo" @refreshDataList="getDataList"></tuihuo>
     </div>
 </template>
 
 <script>
     import purchase from '../drugs_purchase/purchase'
     import pDetailed from "../drugs_purchase/pDetailed";
+    import tuihuo from "../drugs_purchase/tuihuo";
 
     export default {
         data() {
@@ -55,6 +58,7 @@
                 pageSize: 10,
                 totalPage: 0,
                 pDetailedVisible: false,
+                tuihuoVisible: false,
                 dataListLoading: false,
                 dataListSelections: [],
                 addOrUpdateVisible: false
@@ -62,7 +66,8 @@
         },
         components: {
             purchase,
-            pDetailed
+            pDetailed,
+            tuihuo
         },
         activated() {
             this.getDataList()
@@ -91,11 +96,21 @@
                     this.dataListLoading = false
                 })
             },
+            //查看详细
             detHandle(id) {
                 this.pDetailedVisible = true
                 this.$nextTick(() => {
                     this.$refs.pDetailed.init(id)
                 })
+            },
+            //退货
+            tuiHuo(id) {
+                this.tuihuoVisible = true
+                this.$nextTick(() => {
+                    this.$refs.tuihuo.init(id)
+                })
+                /*console.log(id)
+                this.$router.push({path:'/warehouse/tuihuo/'+id})*/
             },
             //获取复选框
             handleSelectionChange(val) {
