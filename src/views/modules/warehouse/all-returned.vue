@@ -2,7 +2,7 @@
     <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
             <el-form-item>
-                <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+                <el-input v-model="dataForm.key" placeholder="进货单号" clearable></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button @click="getDataList()">查询</el-button>
@@ -30,14 +30,20 @@
                     prop="purchaseId"
                     header-align="center"
                     align="center"
-                    label="供应商">
+                    label="进货单号">
             </el-table-column>
-            <!--<el-table-column
-                    prop="pdNum"
+            <el-table-column
+                    prop="supplierName"
                     header-align="center"
                     align="center"
-                    label="退货数量">
-            </el-table-column>-->
+                    label="供应商">
+            </el-table-column>
+            <el-table-column
+                    prop="username"
+                    header-align="center"
+                    align="center"
+                    label="操作人">
+            </el-table-column>
             <el-table-column
                     prop="tuihuoTime"
                     header-align="center"
@@ -61,12 +67,7 @@
                     <el-tag type="success" v-else>未提交</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column
-                    prop="username"
-                    header-align="center"
-                    align="center"
-                    label="操作人">
-            </el-table-column>
+
             <el-table-column
                     fixed="right"
                     header-align="center"
@@ -74,14 +75,10 @@
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="subHandle(scope.row.processInstanceId)">提交
-                    </el-button>
-                    <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.purchaseId)">修改
-                    </el-button>
-                    <el-button type="text" size="small" @click="delHandle(scope.row.purchaseId)">删除
-                    </el-button>
-                    <el-button type="text" size="small" @click="detHandle(scope.row.purchaseId)">查看详情
-                    </el-button>
+                    <el-button type="text" size="small" @click="subHandle(scope.row.processInstanceId)">提交</el-button>
+                    <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.purchaseId)">修改</el-button>
+                    <el-button type="text" size="small" @click="delHandle(scope.row.purchaseId)">删除</el-button>
+                    <el-button type="text" size="small" @click="detHandle(scope.row.tuihuoId)">查看详情</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -95,10 +92,12 @@
                 :total="totalPage"
                 layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
+        <pReturned v-if="pDetailedVisible" ref="pReturned" @refreshDataList="getDataList"></pReturned>
     </div>
 </template>
 
 <script>
+    import pReturned from "../drugs_purchase/pReturned";
 
     export default {
         name: "all-returned",
@@ -120,6 +119,9 @@
         activated() {
             this.getDataList()
         },
+        components: {
+            pReturned
+        },
         methods: {
             // 获取数据列表
             getDataList() {
@@ -135,13 +137,19 @@
                 }).then(({data}) => {
                     if (data && data.code === 200) {
                         this.dataList = data.page.list
-                        console.log(this.dataList)
                         this.totalPage = data.page.totalCount
                     } else {
                         this.dataList = []
                         this.totalPage = 0
                     }
                     this.dataListLoading = false
+                })
+            },
+            //查看详细
+            detHandle(id) {
+                this.pDetailedVisible = true
+                this.$nextTick(() => {
+                    this.$refs.pReturned.init(id)
                 })
             },
             //获取复选框
