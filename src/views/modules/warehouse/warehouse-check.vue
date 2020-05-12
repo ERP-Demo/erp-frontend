@@ -87,7 +87,6 @@
                 }).then(({data}) => {
                     if (data && data.code === 200) {
                         this.dataList = data.page.list
-                        console.log(this.dataList)
                         this.totalPage = data.page.totalCount
                     } else {
                         this.dataList = []
@@ -109,8 +108,6 @@
                 this.$nextTick(() => {
                     this.$refs.tuihuo.init(id)
                 })
-                /*console.log(id)
-                this.$router.push({path:'/warehouse/tuihuo/'+id})*/
             },
             //获取复选框
             handleSelectionChange(val) {
