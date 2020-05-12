@@ -71,7 +71,7 @@
             </template>
           </el-table-column>
         </el-table>
-         <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getModelList" />
+         <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" />
         </div>
       </div>
     </el-aside>
@@ -120,7 +120,7 @@
         <el-aside width="100%" style="padding:0 0 0 0;margin:0 0 0 0">
           <el-tag type="primary" style="width:100%;height:30px">化验项目目录
             <el-button type="primary" size="mini"  style="width: 20px;;float:right"><svg-icon icon-class="search" style="margin-left:-6px"/></el-button>
-            <el-input  size="mini" placeholder="化验项目名称" v-model="searchdrug" style="width:60%;float:right" @change="getdrugList(0)"></el-input>
+            <el-input  size="mini" placeholder="化验项目名称" style="width:60%;float:right" @change="getdrugList(0)"></el-input>
           </el-tag>
           <el-table :data="drugList" height="500px" @row-click="choosedrug">
             <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
@@ -139,10 +139,7 @@
   </div>
 </template>
 <script>
-import {getNondrugModelList,updateModel,createModel,deleteModel} from '@/api/nondrugmodel'
-import {getAllNondrug} from '@/api/non_drug'
 import Pagination from '@/components/Pagination'
-import { deepClone,parseTime } from '@/utils'
 
 export default {
   components: {Pagination},
@@ -161,15 +158,10 @@ export default {
       },
       itemdrugList:[],
       drugList:[],
-      searchdrug:'',
-      choices:[],
       dialogVisible:false,
-      alldrugList:[],
-      nondrugList:[],
       edit:0,
       model:{},
       total2:0,
-      loading:false,
       isaside:false,
       asidewidth:"100%",
       total:0,
@@ -194,9 +186,6 @@ export default {
       }
     }
   },
-  created(){
-    this.getModelList()
-  },
   activated () {
     this.getDataList()
   },
@@ -211,7 +200,6 @@ export default {
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.page.list
-          // console.log("数据"+data.list)
         } else {
           this.dataList = []
         }
@@ -226,29 +214,6 @@ export default {
         item.totalprice = Math.floor((item.price*item.num)*100)/100
       })
     },
-    async getdrugList(type) {
-      let data = {}
-      data.pageSize = this.page.pageSize
-      data.pageNum = this.page.pageNum
-      if(type!==0)
-        data.typeId = type
-      data.name = this.searchdrug
-      const response = await getdrugList(data)
-      this.drugList = response.data.list
-      this.total2 = response.data.total
-    },
-    deldrug(row){
-      this.oneprescription.druglist = this.oneprescription.druglist.filter(item=>{
-        if(item.id===row.id)
-          return false
-        return true
-      })
-      this.oneprescription.amount = 0
-      this.oneprescription.druglist.forEach(item=>{
-        this.oneprescription.amount += item.price
-      })
-      this.oneprescription.amount = Math.floor((this.oneprescription.amount+0.5)*100)/100
-    },
     choosedrug(val){
       let flag = 1
       this.oneprescription.druglist.forEach(item=>{
@@ -259,7 +224,7 @@ export default {
       })
       if(flag){
         this.oneprescription.amount +=val.price
-        this.oneprescription.amount = Math.floor((this.oneprescription.amount+0.5)*100)/100
+        this.oneprescription.amount = Math.floor((this.oneprescription.amount)*100)/100
         this.oneprescription.druglist.push(val)
         this.oneprescription.druglist.forEach(item=>{
           if(item.num===undefined)
@@ -267,98 +232,8 @@ export default {
         })
       }
     },
-    deleteModel(row){
-      this.$confirm('确认删除当前模板?', '警告', {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(()=>{
-        deleteModel(row.id).then(res=>{
-          this.getModelList()
-          this.$notify({
-            title: '成功',
-            message: res.message,
-            type: 'success',
-            duration: 2000
-          })
-        })})
-    },
-    createModel(){
-      let data = deepClone(this.model)
-      data.status = 1
-      data.ownId = this.$store.getters.id
-      data.dmsMedicineModelItemList = deepClone(this.itemdrugList)
-      data.type = 1
-      createModel(data).then(res=>{
-        this.getModelList()
-        this.$notify({
-          title: '成功',
-          message: res.message,
-          type: 'success',
-          duration: 2000
-        })
-      })
-      this.showaside()
-    },
-    updateModel(){
-      let data = deepClone(this.model)
-      data.nonDrugIdList = deepClone(this.choices)
-      data.createTime = ''
-      data.ownId = this.$store.getters.id
-      updateModel(data).then(res=>{
-        this.$notify({
-          title: '成功',
-          message: '修改成功',
-          type: 'success',
-          duration: 2000
-        })
-        this.getModelList()
-      })
-      this.showaside()
-    },
-    confirmItem(){
-      this.nondrugList = this.alldrugList.filter(item=>{
-        if(this.choices.includes(item.id))
-          return true
-      })
-      this.dialogVisible=!this.dialogVisible
-    },
     addItem(){
       this.dialogVisible = true
-      this.getdrugList()
-    },
-    getAllNondrug(){
-      getAllNondrug().then(res=>{
-        this.alldrugList = res.data
-        this.alldrugList.forEach(item=>{
-          item.label = item.name
-          item.key = item.id
-        })
-      })
-    },
-    async getModelList(){
-      listModel(this.listQuery).then(res=>{
-        this.modelList = res.data.list
-        this.modelList.forEach(model=>{
-          model.dmsMedicineModelItemList.forEach(item=>{
-            selectById(item.id).then(res=>{
-              item.name = res.data.name
-              item.format = res.data.format
-              item.price = res.data.price
-              item.totalprice = item.price*item.num
-              item.mnemonicCode = res.data.mnemonicCode
-            })
-          })
-          model.createTime = parseTime(model.createTime)
-        })
-        this.total = res.data.total
-      })
-
-    },
-    searchModel(){
-      this.loading = true
-      this.getModelList()
-      this.loading = false
     },
     showaside(type){
       if(this.asidewidth==="100%")
@@ -369,8 +244,6 @@ export default {
       if(type==='edit')
         this.edit = 1
       else if(type==='add'){
-        this.choices = []
-        this.nondrugList = []
         this.itemdrugList = []
         this.model = {}
         this.edit = 0
@@ -378,8 +251,7 @@ export default {
       else
         this.edit = 0
     },
-    async editModel(row){
-      this.model = deepClone(row)
+    async editModel(){
       this.itemdrugList = this.model.dmsMedicineModelItemList
       this.showaside('edit')
     }

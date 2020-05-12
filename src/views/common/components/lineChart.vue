@@ -33,10 +33,10 @@
                 type: Boolean,
                 default: true
             },
-            chartData: {
-                type: Object,
-                required: true
-            }
+            // chartData: {
+            //     type: Object,
+            //     required: true
+            // }
         },
         data() {
             return {
@@ -46,12 +46,12 @@
             }
         },
         watch: {
-            chartData: {
-                deep: true,
-                handler(val) {
-                    this.setOptions(val)
-                }
-            }
+            // chartData: {
+            //     deep: true,
+            //     handler(val) {
+            //         this.setOptions(val)
+            //     }
+            // }
         },
         mounted() {
             this.initChart()
@@ -139,7 +139,7 @@
             },
             initChart() {
                 this.chart = echarts.init(this.$el, 'macarons')
-                this.setOptions(this.chartData)
+                // this.setOptions(this.chartData)
             }
         }
     }

@@ -44,9 +44,9 @@
       </el-aside>
       <transition name="el-zoom-in-left">
         <el-main width="50%" v-show="isclose" style="border-style: dotted;border-width: 0px 0px 0px 1px;border-color:#C0C0C0;margin-top:-12px">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tabs>
             <el-tab-pane label="病历模板" name="first">
-              <el-table stripe :data="models" height="230" @row-click="selectmodel" @row-dblclick="addmodel">
+              <el-table stripe height="230" @row-click="selectmodel" @row-dblclick="addmodel">
                 <el-table-column label="病历名">
                   <template slot-scope="scope">
                     {{scope.row.name}}
@@ -72,7 +72,7 @@
               </el-card>
             </el-tab-pane>
             <el-tab-pane label="常用诊断" name="second">
-              <el-table :data="medicineDiseIdList" @row-click="selectDis">
+              <el-table @row-click="selectDis">
                 <el-table-column label="ICD编码" prop="icd"></el-table-column>
                 <el-table-column label="名称" prop="name"></el-table-column>
               </el-table>
@@ -117,7 +117,7 @@
     <el-dialog title="诊断目录" :visible.sync="dialogTableVisible" top="50px">
       <div style="height:520px">
         <span>搜索诊断</span>
-        <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getIcd"></el-input>
+        <el-input style="width:200px" placeholder="搜索诊断" @change="getIcd"></el-input>
         <el-table highlight-current-row @row-click="selectDis" :data="icd " style="margin-top:20px;width: 800px;margin-left: 40px" >
           <el-table-column property="icdId" label="ID"></el-table-column>
           <el-table-column property="icdName" label="名称"></el-table-column>
@@ -137,346 +137,277 @@
   </div>
 </template>
 <script>
-  import {getDmsDislist,parseList} from '@/api/diagnosis'
-  import {submitPriliminaryDise,selectEndCaseHistoryByReg} from '@/api/outpatient/dmscase'
-  import {getAllStaffModel} from '@/api/outpatient/dmscasemodel'
-  import Pagination from '@/components/Pagination'
-  import {selectByType,addfre,delfre} from '@/api/outpatient/frequentuse'
-  import {parseTime,deepClone} from '@/utils'
-  import {saveCasePage,getCasePage} from '@/api/outpatient/save'
+  import {deepClone} from '@/utils'
   export default {
-    props:['patient','registerId'],
-    name:'Record',
-    components: {Pagination},
-    data(){
-      return{
-        datetable:[],
-        history:[],
-        historyitem:{},
+    props: ['patient', 'registerId'],
+    name: 'Record',
+    data() {
+      return {
+        datetable: [],
+        history: [],
+        historyitem: {},
         pickerOptions: {
           disabledDate(time) {
             return time.getTime() > Date.now();
           },
-          shortcuts: [{
-            text: '今天',
-            onClick(picker) {
-              picker.$emit('pick', new Date());
-            }
-          }, {
-            text: '昨天',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24);
-              picker.$emit('pick', date);
-            }
-          }, {
-            text: '一周前',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', date);
-            }
-          }]
-        },
-        dialogTableVisible:false,
-        activeName:'first',
-        isclose:false,
-        record:{},
-        medicineDiseIdList:[],//常用诊断
-        priliminaryDise:{
-          complain:'',//主述
-          patientSymptom:'',//现病史
-          treatment:'',//现治疗情况
-          medicalHistory:'',//既往史
-          allergyHistory:'',//过敏史
-          healthCheckup:'',//体格检查
-          registrationId:'',//
-          patientId:'',
-          registerId:'',
-          priliminaryDiseStrList:'',
-          priliminaryDiseIdList:'',
-          onsetTime:'',//发病时间
-          name:'',
-          gender:'',
-          ageStr:'',
-          icdId:'',
-          icdName:'',
-          icdCode:''
-        },
-        mainwidth:"80%",
-        activeNames: ['1'],
-        data2:[
-          {
-            date: '0001',
-            name: '王小虎1',
-            address: '38岁'
+          dialogTableVisible: false,
+          isclose: false,
+          record: {},
+          priliminaryDise: {
+            complain: '',//主述
+            patientSymptom: '',//现病史
+            treatment: '',//现治疗情况
+            medicalHistory: '',//既往史
+            allergyHistory: '',//过敏史
+            healthCheckup: '',//体格检查
+            registrationId: '',//
+            patientId: '',
+            registerId: '',
+            priliminaryDiseStrList: '',
+            priliminaryDiseIdList: '',
+            onsetTime: '',//发病时间
+            name: '',
+            gender: '',
+            ageStr: '',
+            icdId: '',
+            icdName: '',
+            icdCode: ''
           },
-          {
-            date: '0002',
-            name: '王小虎2',
-            address: '39岁'
+          mainwidth: "80%",
+          model: {},
+          icd: [],
+          icdZd: [],
+          icdPage: {
+            dataForm: {
+              key: ''
+            },
+            pageIndex: 1,
+            pageSize: 10,
+            totalPage: 0,
+            dataListLoading: false,
+            dataListSelections: [],
+            addOrUpdateVisible: false
           }
-        ],
-        total:0,
-        disQuery: {
-          catId: '',
-          code: '',
-          name: '',
-          icd: '',
-          status: '',
-          pageSize: 8,
-          pageNum: 1
         },
-        models:[],
-        model:{},
-        disList:[],
-        icd:[],
-        icdZd:[],
-        icdPage:{
-          dataForm: {
-            key: ''
+        watch: {
+          'patient': function (newVal) {
+            this.patient = newVal
+            this.getCasePage()
           },
-          pageIndex: 1,
-          pageSize: 10,
-          totalPage: 0,
-          dataListLoading: false,
-          dataListSelections: [],
-          addOrUpdateVisible: false
+        },
+        methods: {
+          getIcd() {
+            this.dataListLoading = true
+            this.$http({
+              url: this.$http.adornUrl('/icd/icd/list'),
+              method: 'get',
+              params: this.$http.adornParams({
+                'page': this.icdPage.pageIndex,
+                'limit': this.icdPage.pageSize,
+                'key': this.icdPage.dataForm.key
+              })
+            }).then(({data}) => {
+              if (data && data.code === 200) {
+                this.icd = data.page.list
+                this.icdPage.totalPage = data.page.totalCount
+              } else {
+                this.icd = []
+                this.icdPage.totalPage = 0
+              }
+              this.icdPage.dataListLoading = false
+            })
+          },
+          sizeChangeHandle(val) {
+            this.icdPage.pageSize = val
+            this.icdPage.pageIndex = 1
+            this.getDataList()
+          },
+          // 当前页
+          currentChangeHandle(val) {
+            this.icdPage.pageIndex = val
+            this.getDataList()
+          },
+          addmodel(val) {
+            this.$confirm('是否加载病历模板 ' + val.name + ' ?', '加载病历模板', {
+              confirmButtonText: '确认',
+              cancelButtonText: '取消',
+              type: 'success'
+            }).then(() => {
+              this.priliminaryDise = deepClone(val)
+            })
+          },
+          selectmodel(val) {
+            this.model = val
+          },
+          saveCasePage() {
+            let data = this.priliminaryDise
+            data.registrationId = this.patient.registrationId
+            this.priliminaryDise.patientId = this.patient.patientId
+            this.$http({
+              url: this.$http.adornUrl(`/electronic_case/case/saveRidis`),
+              method: 'post',
+              data: this.$http.adornData(this.priliminaryDise)
+            }).then(({data}) => {
+              this.confirmButtonDisabled = true
+              if (data && data.code === 200) {
+                this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  duration: 1000,
+                  onClose: () => {
+                    this.visible = false
+                    this.$emit('refreshDataList')
+                  }
+                })
+              } else {
+                this.$message.error(data.msg)
+              }
+            })
+          },
+          getCasePage() {
+            let data = this.priliminaryDise
+            data.registrationId = this.patient.registrationId
+            this.priliminaryDise.patientId = this.patient.patientId
+            this.$http({
+              url: this.$http.adornUrl(`/electronic_case/case/getRidis`),
+              method: 'post',
+              data: this.$http.adornData(this.priliminaryDise)
+            }).then(({data}) => {
+              this.datetable = data.list
+              if (this.priliminaryDise.complain == null) {
+                this.datetable = data.list
+              } else if (this.datetable != null) {
+                this.priliminaryDise = data.list
+              } else {
+                this.datetable = data.list
+              }
+              this.confirmButtonDisabled = true
+              if (data && data.code === 200) {
+                this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  duration: 1000,
+                  onClose: () => {
+                    this.visible = false
+                    this.$emit('refreshDataList')
+                  }
+                })
+              } else {
+                this.$message.error(data.msg)
+              }
+            })
+          },
+          selecthistory(val) {
+            this.historyitem = val
+          },
+          submitPriliminaryDise() {
+            this.priliminaryDise.patientId = this.patient.patientId
+            this.priliminaryDise.registerId = this.registerId
+            this.icdZd = this.icdZd.filter(item => {
+              this.priliminaryDise.icdId = item.icdId
+              this.priliminaryDise.icdName = item.icdName
+              this.priliminaryDise.icdCode = item.icdCode
+            })
+            this.$http({
+              url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
+              method: !this.record.id ? 'post' : 'put',
+              data: this.$http.adornData(this.priliminaryDise)
+            }).then(({data}) => {
+              this.confirmButtonDisabled = true
+              if (data && data.code === 200) {
+                this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  duration: 1000,
+                  onClose: () => {
+                    this.visible = false
+                    this.$emit('refreshDataList')
+                  }
+                })
+                this.record = {brand_right: 0};
+              } else {
+                this.$message.error(data.msg)
+              }
+            })
+            //   }
+            // })
+            // this.priliminaryDise.registrationId = this.patient.registrationId
+            // this.record.forEach(item=>{
+            //   this.priliminaryDise.priliminaryDiseStrList+=(item.name+',')
+            //   this.priliminaryDise.priliminaryDiseIdList+=(item.id+',')
+            // })
+            // this.priliminaryDise.priliminaryDiseStrList = this.priliminaryDise.priliminaryDiseStrList.substr(0, this.priliminaryDise.priliminaryDiseStrList.length - 1);
+            // this.priliminaryDise.priliminaryDiseIdList = this.priliminaryDise.priliminaryDiseIdList.substr(0, this.priliminaryDise.priliminaryDiseIdList.length - 1);
+            // this.priliminaryDise.name = this.patient.patientName
+            // this.priliminaryDise.gender = this.patient.patientSex
+            // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
+            // this.priliminaryDise.ageStr = this.patient.patientAge
+            // this.priliminaryDise.patientId=this.patient.patientId
+            // submitPriliminaryDise(this.priliminaryDise).then(res=>{
+            //     this.$http({
+            //       url: this.$http.adornUrl(`/electronic_case/case/save`),
+            //       method: 'post',
+            //       data: this.$http.adornData(this.priliminaryDise)
+            //       // title: '成功',
+            //       // message: '成功提交初诊病历',
+            //       // type: 'success',
+            //       // duration: 2000
+            //     }).then(({data}) => {
+            //       this.confirmButtonDisabled = true
+            //       if (data && data.code === 200) {
+            //         this.$message({
+            //           message: '操作成功',
+            //           type: 'success',
+            //           duration: 1000,
+            //           onClose: () => {
+            //             this.visible = false
+            //             this.$emit('refreshDataList')
+            //           }
+            //         })
+            //       } else {
+            //         this.$message.error(data.msg)
+            //       }
+            //     })
+            //   })
+          },
+          deleteZd(row) {
+            this.icdZd = this.icdZd.filter(item => {
+              if (item.icdId === row.icdId)
+                return false
+              return true
+            })
+          },
+          selectDis(val) {
+            this.$confirm('是否添加 ' + val.icdName + ' 到该患者?', '添加诊断', {
+              confirmButtonText: '确认',
+              cancelButtonText: '取消',
+              type: 'success'
+            }).then(() => {
+              let flag = 1
+              this.icdZd.forEach(item => {
+                if (item.icdId === val.icdId) {
+                  flag = 0
+                }
+              })
+              if (flag)
+                this.icdZd.push(val)
+              else
+                alert('已存在该诊断！')
+              this.dialogTableVisible = false
+            })
+          },
+          addIcd() {
+            this.dialogTableVisible = true
+            this.getIcd()
+          },
+          controlfast() {
+            this.isclose = !this.isclose
+            if (this.mainwidth === "60%")
+              this.mainwidth = "80%"
+            else
+              this.mainwidth = "60%"
+          }
         }
-      };
-    },
-    created(){
-      this.getAllStaffModel()
-    },
-    watch:{
-      'patient' : function(newVal, oldVal){
-        this.patient = newVal
-        this.selectEndCaseHistoryByReg()
-        this.getElectronicCase()
-      },
-    },
-    methods:{
-      getIcd () {
-        this.dataListLoading = true
-        this.$http({
-          url: this.$http.adornUrl('/icd/icd/list'),
-          method: 'get',
-          params: this.$http.adornParams({
-            'page': this.icdPage.pageIndex,
-            'limit': this.icdPage.pageSize,
-            'key': this.icdPage.dataForm.key
-          })
-        }).then(({data}) => {
-          if (data && data.code === 200) {
-            this.icd = data.page.list
-            this.icdPage.totalPage = data.page.totalCount
-          } else {
-            this.icd = []
-            this.icdPage.totalPage = 0
-          }
-          this.icdPage.dataListLoading = false
-        })
-      },
-      sizeChangeHandle (val) {
-        this.icdPage.pageSize = val
-        this.icdPage.pageIndex = 1
-        this.getDataList()
-      },
-      // 当前页
-      currentChangeHandle (val) {
-        this.icdPage.pageIndex = val
-        this.getDataList()
-      },
-      addmodel(val){
-        this.$confirm('是否加载病历模板 '+val.name+' ?', '加载病历模板', {
-          confirmButtonText: '确认',
-          cancelButtonText: '取消',
-          type: 'success'
-        }).then(()=>{
-          this.priliminaryDise = deepClone(val)
-          let diss = ''
-          this.priliminaryDise.priliminaryDiseIdList.forEach(item=>{
-            diss += (item+',')
-          })
-          diss = diss.substr(0,diss.length-1)
-          parseList(diss).then(res=>{
-            this.record = res.data
-          })
-        })
-      },
-      selectmodel(val){
-        this.model = val
-      },
-      getAllStaffModel(){
-        getAllStaffModel(this.$store.getters.id).then(res=>{
-          this.models = res.data.staffList
-          this.models.forEach(item=>{
-            item.dis = ''
-            item.priliminaryDiseStrList.forEach(dis=>{
-              item.dis+=(dis+',')
-            })
-            item.dis = item.dis.substr(0,item.dis.length-1)
-          })
-        })
-      },
-      saveCasePage(){
-        let data  =this.priliminaryDise
-        data.registrationId = this.patient.registrationId
-        this.priliminaryDise.patientId=this.patient.patientId
-        this.$http({
-          url: this.$http.adornUrl(`/electronic_case/case/saveRidis`),
-          method: 'post',
-          data: this.$http.adornData(this.priliminaryDise)
-        }).then(({data}) => {
-          this.confirmButtonDisabled = true
-          if (data && data.code === 200) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.visible = false
-                this.$emit('refreshDataList')
-              }
-            })
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      },
-      getCasePage(){
-        let data  =this.priliminaryDise
-        data.registrationId = this.patient.registrationId
-        this.priliminaryDise.patientId=this.patient.patientId
-        this.$http({
-          url: this.$http.adornUrl(`/electronic_case/case/getRidis`),
-          method: 'post',
-          data: this.$http.adornData(this.priliminaryDise)
-        }).then(({data}) => {
-          this.datetable=data.list
-          if(this.priliminaryDise.complain==null){
-            this.datetable=data.list
-          }else if(this.datetable!=null){
-            this.priliminaryDise=data.list
-          }else {
-            this.datetable=data.list
-          }
-          this.confirmButtonDisabled = true
-          if (data && data.code === 200) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.visible = false
-                this.$emit('refreshDataList')
-              }
-            })
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      },
-      selecthistory(val){
-        this.historyitem = val
-      },
-      selectEndCaseHistoryByReg(){
-        selectEndCaseHistoryByReg(this.patient.registrationId).then(res=>{
-          this.history = res.data.dmsCaseHistoryList
-          this.history.forEach(item=>{
-            item.createTime = parseTime(item.createTime)
-            item.startDate = parseTime(item.startDate)
-          })
-        })
-      },
-      getElectronicCase(){
-        this.$http({
-          url: this.$http.adornUrl(`/electronic_case/case/info/${this.registerId}`),
-          method: 'get'
-        }).then(({data}) => {
-          this.confirmButtonDisabled = true
-          if (data && data.code === 200) {
-            if (data.case) {
-              this.icdZd = data.case.icds
-              this.priliminaryDise = data.case.electronicCase
-            }
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      },
-      submitPriliminaryDise(){
-        // this.$refs['record'].validate((valid) => {
-        //   if (valid) {
-        this.priliminaryDise.patientId=this.patient.patientId
-        this.priliminaryDise.registerId=this.registerId
-        let ids=this.icdZd.map(item => {
-          return item.icdId
-        })
-        this.$http({
-          url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
-          method: !this.record.id ? 'post' : 'put',
-          data: this.$http.adornData({'electronicCase':this.priliminaryDise,'icdId':ids})
-        }).then(({data}) => {
-          this.confirmButtonDisabled = true
-          if (data && data.code === 200) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.visible = false
-                this.$emit('refreshDataList')
-              }
-            })
-            this.record={brand_right:0};
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-        //   }
-        // })
-      },
-      deleteZd(row){
-        this.icdZd=this.icdZd.filter(item=>{
-          if(item.icdId===row.icdId)
-            return false
-          return true
-        })
-      },
-      selectDis(val){
-        this.$confirm('是否添加 '+val.icdName+' 到该患者?', '添加诊断', {
-          confirmButtonText: '确认',
-          cancelButtonText: '取消',
-          type: 'success'
-        }).then(()=>{
-          let flag = 1
-          this.icdZd.forEach(item=>{
-            if(item.icdId===val.icdId){
-              flag=0
-            }
-          })
-          if(flag)
-            this.icdZd.push(val)
-          else
-            alert('已存在该诊断！')
-          this.dialogTableVisible = false
-        })
-      },
-      async getDis(){
-        const res = await getDmsDislist(this.disQuery)
-        this.disList = res.data.list
-        this.total = res.data.total
-      },
-      addIcd(){
-        this.dialogTableVisible=true
-      },
-      controlfast(){
-        this.isclose=!this.isclose
-        if(this.mainwidth==="60%")
-          this.mainwidth="80%"
-        else
-          this.mainwidth="60%"
       }
     }
   }

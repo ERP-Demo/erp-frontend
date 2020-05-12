@@ -74,8 +74,8 @@ import {
   // Footer,
   Loading,
   MessageBox,
-  Message
-  // Notification
+  Message, Scrollbar,
+  // Notification,
 } from 'element-ui'
 
 Vue.use(Pagination)
@@ -141,6 +141,7 @@ Vue.use(Header)
 Vue.use(Aside)
 Vue.use(Main)
 // Vue.use(Footer)
+Vue.use(Scrollbar)
 
 Vue.use(Loading.directive)
 
