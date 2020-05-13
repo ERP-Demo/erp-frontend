@@ -108,7 +108,7 @@
     <div>
       <el-tabs v-model="activeName2" type="card" style="margin-top:20px">
         <el-tab-pane label="病历首页" name="first"><Record ref="record" v-bind:patient="patient" v-bind:registerId="registerId"></Record></el-tab-pane>
-        <el-tab-pane label="检查申请" name="second"><Inspection ref="inspection" v-bind:patient="patient"></Inspection></el-tab-pane>
+        <el-tab-pane label="检查申请" name="second"><Inspection ref="inspection" v-bind:patient="patient" v-bind:registerId="registerId"></Inspection></el-tab-pane>
         <el-tab-pane label="门诊确诊" name="fourth"><Comfirm ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
         <el-tab-pane label="成药处方" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient"></Prescription></el-tab-pane>
         <el-tab-pane label="处置申请" name="sixth"><Handle v-bind:patient="patient"></Handle></el-tab-pane>
