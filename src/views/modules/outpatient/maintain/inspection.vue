@@ -134,10 +134,8 @@
     </div>
 </template>
 <script>
-    import {getNondrugModelList, updateModel, createModel, deleteModel} from '@/api/nondrugmodel'
-    import {getAllNondrug} from '@/api/non_drug'
     import Pagination from '@/components/Pagination'
-    import {deepClone, parseTime} from '@/utils'
+    import { deepClone } from '@/utils'
 
     export default {
         components: {Pagination},
@@ -255,9 +253,6 @@
                 if (type !== 0)
                     data.typeId = type
                 data.name = this.searchdrug
-                const response = await getdrugList(data)
-                this.drugList = response.data.list
-                this.total2 = response.data.total
             },
             deldrug(row) {
                 this.oneprescription.druglist = this.oneprescription.druglist.filter(item => {
@@ -289,21 +284,13 @@
                     })
                 }
             },
-            deleteModel(row) {
+            deleteModel() {
                 this.$confirm('确认删除当前模板?', '警告', {
                     confirmButtonText: '确认',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    deleteModel(row.id).then(res => {
-                        this.getModelList()
-                        this.$notify({
-                            title: '成功',
-                            message: res.message,
-                            type: 'success',
-                            duration: 2000
-                        })
-                    })
+
                 })
             },
             createModel() {
@@ -343,15 +330,7 @@
                 data.nonDrugIdList = deepClone(this.choices)
                 data.createTime = ''
                 data.ownId = this.$store.getters.id
-                updateModel(data).then(res => {
-                    this.$notify({
-                        title: '成功',
-                        message: '修改成功',
-                        type: 'success',
-                        duration: 2000
-                    })
-                    this.getModelList()
-                })
+
                 this.showaside()
             },
             confirmItem() {
@@ -366,31 +345,9 @@
                 this.getdrugList()
             },
             getAllNondrug() {
-                getAllNondrug().then(res => {
-                    this.alldrugList = res.data
-                    this.alldrugList.forEach(item => {
-                        item.label = item.name
-                        item.key = item.id
-                    })
-                })
+
             },
             async getModelList() {
-                listModel(this.listQuery).then(res => {
-                    this.modelList = res.data.list
-                    this.modelList.forEach(model => {
-                        model.dmsMedicineModelItemList.forEach(item => {
-                            selectById(item.id).then(res => {
-                                item.name = res.data.name
-                                item.format = res.data.format
-                                item.price = res.data.price
-                                item.totalprice = item.price * item.num
-                                item.mnemonicCode = res.data.mnemonicCode
-                            })
-                        })
-                        model.createTime = parseTime(model.createTime)
-                    })
-                    this.total = res.data.total
-                })
 
             },
             searchModel() {
