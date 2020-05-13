@@ -155,7 +155,6 @@
   </el-container>
 </template>
 <script>
-import {deepClone} from '@/utils'
 export default {
   props:['patient'],
   name:'Inspection',
@@ -298,7 +297,6 @@ export default {
       this.dataForm.projectId=row.testSynthesizeId
       this.dataForm.projectName=row.testSynthesizeName
       this.demandVisible = true
-      this.check = deepClone(row)
     },
     selectCheckred(val){
       let flag = 1

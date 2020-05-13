@@ -137,7 +137,6 @@
   </div>
 </template>
 <script>
-  import {deepClone} from '@/utils'
   export default {
     props:['patient','registerId'],
     name:'Record',
@@ -269,8 +268,6 @@
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
-        }).then(()=>{
-          this.priliminaryDise = deepClone(val)
         })
       },
       selectmodel(val){

@@ -171,7 +171,6 @@
   </div>
 </template>
 <script>
-  import {deepClone} from '@/utils'
   export default {
     props: ['patient'],
     name: 'Prescription',
@@ -236,8 +235,7 @@
         val.status = -1
         this.prescriptionList.push(val)
       },
-      selectmodel(val) {
-        this.model = deepClone(val)
+      selectmodel() {
         this.model.amount = Math.floor((this.model.amount) * 100) / 100
         this.modelvisivle = true
       },
