@@ -8,7 +8,7 @@
         <el-input v-model="dataForm.handleName" placeholder="处置名称"></el-input>
       </el-form-item>
       <el-form-item label="处置价格" prop="handlePrice">
-        <el-input v-model="dataForm.handlePrice" placeholder="处置价格"></el-input>
+        <el-input-number v-model="dataForm.handlePrice" :min="0" :precision="2"></el-input-number>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -28,7 +28,7 @@ export default {
       dataRule: {
         id: [{ required: true, message: '处置id不能为空', trigger: 'blur' }],
         handleName: [{ required: true, message: '处置名称不能为空', trigger: 'blur' }],
-        handlePrice: [{ required: true, message: '处置价格不能为空', trigger: 'blur' }]
+        handlePrice: [{ required: true, message: '处置价格不能为空', trigger: 'change' }]
       }
     }
   },
