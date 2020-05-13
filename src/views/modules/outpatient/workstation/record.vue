@@ -78,10 +78,10 @@
               </el-table>
             </el-tab-pane>
             <el-tab-pane label="历史病历" name="third">
-              <el-table highlight-current-row height="230" :data="history" @row-click="selecthistory">
-                <el-table-column label="主要诊断" prop="priliminaryDiseStrList">
+              <el-table highlight-current-row height="230" :data="electronicListList" @row-click="selecthistory">
+                <el-table-column label="主要诊断" prop="icdName">
                 </el-table-column>
-                <el-table-column label="就诊时间" prop="createTime">
+                <el-table-column label="就诊时间" prop="onsetTime">
                 </el-table-column>
               </el-table>
               <el-card v-show="historyitem.priliminaryDiseStrList!==undefined" class="box-card" shadow="never" body-style="font-size: 14px;font-family:'微软雅黑';width:470px;height:500px">
@@ -212,6 +212,7 @@
         disList:[],
         icd:[],
         icdZd:[],
+          electronicListList:[],
         icdPage:{
           dataForm: {
             key: ''
@@ -229,6 +230,7 @@
       'patient' : function(newVal){
         this.patient = newVal
         this.getElectronicCase()
+          this.selectElectronic()
       },
     },
     methods:{
@@ -417,8 +419,24 @@
           this.mainwidth="80%"
         else
           this.mainwidth="60%"
+      },
+      selectElectronic(){
+          var id=this.patient.patientId
+          console.log("id:"+id)
+        this.$http({
+          url: this.$http.adornUrl('/electronic_case/case/selectElectronic/'+id),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.electronicListList = data.list
+            console.log(this.electronicListList)
+          } else {
+            this.tableData = []
+          }
+          this.dataListLoading = false
+        })
+        },
       }
-    }
   }
 </script>
 <style>
