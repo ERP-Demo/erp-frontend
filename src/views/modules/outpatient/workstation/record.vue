@@ -44,7 +44,7 @@
       </el-aside>
       <transition name="el-zoom-in-left">
         <el-main width="50%" v-show="isclose" style="border-style: dotted;border-width: 0px 0px 0px 1px;border-color:#C0C0C0;margin-top:-12px">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tabs v-model="activeName">
             <el-tab-pane label="病历模板" name="first">
               <el-table stripe :data="models" height="230" @row-click="selectmodel" @row-dblclick="addmodel">
                 <el-table-column label="病历名">

@@ -35,7 +35,7 @@
       </el-card>
     </div>
     <div>
-      <el-button type="primary" style="float:right;margin-right:30px" @click="submitdefinite">提交</el-button>
+      <el-button type="primary" style="float:right;margin-right:30px">提交</el-button>
     </div>
   </el-aside>
   <transition name="el-zoom-in-left">
@@ -54,13 +54,13 @@
   <el-dialog title="诊断目录" :visible.sync="dialogTableVisible" top="50px">
     <div style="height:520px">
     <span>搜索诊断</span>
-    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getDis"></el-input>
+    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name"></el-input>
     <el-table highlight-current-row @row-click="selectDis" :data="disList " style="margin-top:20px">
       <el-table-column property="icd" label="ICD编码" width="150"></el-table-column>
       <el-table-column property="name" label="名称" width="350"></el-table-column>
       <el-table-column property="code" label="编码" width="200"></el-table-column>
     </el-table>
-    <pagination style="margin-top:0px" v-show="total>0" :total="total" page-sizes="[]" :page.sync="disQuery.pageNum" :limit.sync="disQuery.pageSize" @pagination="getDis" />
+    <pagination style="margin-top:0px" v-show="total>0" :total="total" page-sizes="[]" :page.sync="disQuery.pageNum" :limit.sync="disQuery.pageSize" />
     </div>
   </el-dialog>
   </div>
