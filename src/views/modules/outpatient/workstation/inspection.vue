@@ -5,10 +5,10 @@
     <aside style="margin:0 0 0 0">
       <el-button type="text" size="medium" @click="addcheck"><i class="el-icon-circle-plus-outline" />新增项目</el-button>
       <el-button type="text" size="medium" @click="delcheck"><i class="el-icon-remove-outline" />删除项目</el-button>
-      <el-button type="text" size="medium" @click="apply" ><i class="el-icon-circle-check" />开立项目</el-button>
-      <el-button type="text" size="medium" @click="invalid"><i class="el-icon-circle-close" />作废项目</el-button>
-      <el-button type="text" size="medium" @click="saveNonDrug"><i class="el-icon-upload2" />暂存</el-button>
-      <el-button type="text" size="medium" @click="getNonDrug"><i class="el-icon-download" />取出暂存项</el-button>
+      <el-button type="text" size="medium"><i class="el-icon-circle-check" />开立项目</el-button>
+      <el-button type="text" size="medium"><i class="el-icon-circle-close" />作废项目</el-button>
+      <el-button type="text" size="medium"><i class="el-icon-upload2" />暂存</el-button>
+      <el-button type="text" size="medium"><i class="el-icon-download" />取出暂存项</el-button>
       <el-button type="text" size="mini" @click="refresh"><i class="el-icon-refresh" />刷新</el-button>
       <el-button style="float:right" @click="controlfast"><i v-show="!isclose" class="el-icon-caret-right" /><i v-show="isclose" class="el-icon-caret-left" />  </el-button>
     </aside>
@@ -77,7 +77,7 @@
      <el-tabs>
       <el-tab-pane label="检查模板" name="first">
         
-        <el-table highlight-current-row @row-dblclick="addModel" @row-click="selectModel" stripe :data="自己加" height="230">
+        <el-table highlight-current-row @row-dblclick="addModel" @row-click="selectModel" stripe height="230">
           <el-table-column label="模板名">
             <template slot-scope="scope">
               {{scope.row.name}}
@@ -100,7 +100,7 @@
         </el-card>
      </el-tab-pane>
      <el-tab-pane label="常用检查项" name="second">
-       <el-table :data="自己加" highlight-current-row  @row-click="addfreitem">
+       <el-table highlight-current-row  @row-click="addfreitem">
          <el-table-column label="项目名" prop="name"></el-table-column>
          <el-table-column label="项目单价" prop="price"></el-table-column>
          <el-table-column label="编码" prop="code"></el-table-column>
@@ -155,7 +155,6 @@
   </el-container>
 </template>
 <script>
-import {deepClone} from '@/utils'
 export default {
   props:['patient'],
   name:'Inspection',
@@ -298,7 +297,6 @@ export default {
       this.dataForm.projectId=row.testSynthesizeId
       this.dataForm.projectName=row.testSynthesizeName
       this.demandVisible = true
-      this.check = deepClone(row)
     },
     selectCheckred(val){
       let flag = 1

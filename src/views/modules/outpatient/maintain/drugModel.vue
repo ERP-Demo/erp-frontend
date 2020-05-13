@@ -187,7 +187,6 @@
 </template>
 <script>
 import Pagination from '@/components/Pagination'
-import { deepClone} from '@/utils'
 
 export default {
     components: {Pagination},
