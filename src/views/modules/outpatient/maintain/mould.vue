@@ -121,13 +121,6 @@
   </div>
 </template>
 <script>
-
-
-  let id = 1000;
-import {getDmsDislist,parseList} from '@/api/diagnosis'
-import {listModelCatTree,createModel,deleteModel,updateModel,getModelDetail} from '@/api/outpatient/dmscasemodel'
-import {selectByType,addfre,delfre} from '@/api/outpatient/frequentuse'
-import {deepClone} from '@/utils'
 import Pagination from '@/components/Pagination'
   export default {
     components: {Pagination},
@@ -156,9 +149,6 @@ import Pagination from '@/components/Pagination'
         total:0
       }
     },
-    created(){
-      this.listModelCatTree(this.editmodel)
-    },
     methods: {
       changeModel(){
         this.editmodel.priliminaryDiseIdList = ''
@@ -169,23 +159,9 @@ import Pagination from '@/components/Pagination'
         })
         this.editmodel.priliminaryDiseIdList = this.editmodel.priliminaryDiseIdList.substr(0,this.editmodel.priliminaryDiseIdList.length-1)
         this.editmodel.priliminaryDiseStrList = this.editmodel.priliminaryDiseStrList.substr(0,this.editmodel.priliminaryDiseStrList.length-1)
-        updateModel(this.editmodel).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: '修改成功',
-            type: 'success',
-            duration: 2000
-          })
-        })
-      },
-      async getDis(){
-        const res = await getDmsDislist(this.disQuery)
-        this.disList = res.data.list
-        this.total = res.data.total
       },
       addDis(){
         this.dialogTableVisible=true
-        this.getDis()
       },
       deleteDis(row){
         this.record=this.record.filter(item=>{
@@ -207,25 +183,6 @@ import Pagination from '@/components/Pagination'
           alert('已存在该诊断！')
         this.dialogTableVisible = false
       },
-      handleNodeClick(val){
-        if(val.type===2){
-          getModelDetail(val.modelId).then(res=>{
-            this.editmodel = res.data
-            this.editmodel.modelId = val.modelId
-            this.record = []
-            parseList(res.data.priliminaryDiseIdList).then(res2=>{
-              this.record = res2.data
-            })
-            this.modeldetail = true
-          })
-        }
-      },
-      listModelCatTree(){
-        this.data = []
-        listModelCatTree(this.$store.getters.id,0).then(res=>{
-          this.data = JSON.parse(JSON.stringify(res.data))
-        })
-      },
       edit(){
         this.showCheck=!this.showCheck
       },
@@ -242,16 +199,6 @@ import Pagination from '@/components/Pagination'
         data.ownId = this.$store.getters.id
         data.scope = 0
         this.addnodevisible = false
-        createModel(data).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: res.data,
-            type: 'success',
-            duration: 2000
-          })
-          this.listModelCatTree()
-        })
-        
       },
 
       remove(node, data) {
@@ -259,21 +206,8 @@ import Pagination from '@/components/Pagination'
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(()=>{
-        deleteModel(data.id).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: res.data,
-            type: 'success',
-            duration: 2000
-          })
-          this.listModelCatTree()
-        })
       })
-        console.log(data)
-
       },
-
     }
   };
 </script>

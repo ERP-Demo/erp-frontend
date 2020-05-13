@@ -44,7 +44,7 @@
       </el-aside>
       <transition name="el-zoom-in-left">
         <el-main width="50%" v-show="isclose" style="border-style: dotted;border-width: 0px 0px 0px 1px;border-color:#C0C0C0;margin-top:-12px">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tabs v-model="activeName">
             <el-tab-pane label="病历模板" name="first">
               <el-table stripe :data="models" height="230" @row-click="selectmodel" @row-dblclick="addmodel">
                 <el-table-column label="病历名">
@@ -137,17 +137,9 @@
   </div>
 </template>
 <script>
-  import {getDmsDislist,parseList} from '@/api/diagnosis'
-  import {submitPriliminaryDise,selectEndCaseHistoryByReg} from '@/api/outpatient/dmscase'
-  import {getAllStaffModel} from '@/api/outpatient/dmscasemodel'
-  import Pagination from '@/components/Pagination'
-  import {selectByType,addfre,delfre} from '@/api/outpatient/frequentuse'
-  import {parseTime,deepClone} from '@/utils'
-  import {saveCasePage,getCasePage} from '@/api/outpatient/save'
   export default {
     props:['patient','registerId'],
     name:'Record',
-    components: {Pagination},
     data(){
       return{
         datetable:[],
@@ -205,18 +197,6 @@
         },
         mainwidth:"80%",
         activeNames: ['1'],
-        data2:[
-          {
-            date: '0001',
-            name: '王小虎1',
-            address: '38岁'
-          },
-          {
-            date: '0002',
-            name: '王小虎2',
-            address: '39岁'
-          }
-        ],
         total:0,
         disQuery: {
           catId: '',
@@ -245,15 +225,10 @@
         }
       };
     },
-    created(){
-      this.getmedicineDiseIdList()
-      this.getAllStaffModel()
-    },
     watch:{
-      'patient' : function(newVal, oldVal){
+      'patient' : function(newVal){
         this.patient = newVal
-        this.selectEndCaseHistoryByReg()
-        this.getCasePage()
+        this.getElectronicCase()
       },
     },
     methods:{
@@ -293,32 +268,10 @@
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
-        }).then(()=>{
-          this.priliminaryDise = deepClone(val)
-          let diss = ''
-          this.priliminaryDise.priliminaryDiseIdList.forEach(item=>{
-            diss += (item+',')
-          })
-          diss = diss.substr(0,diss.length-1)
-          parseList(diss).then(res=>{
-            this.record = res.data
-          })
         })
       },
       selectmodel(val){
         this.model = val
-      },
-      getAllStaffModel(){
-        getAllStaffModel(this.$store.getters.id).then(res=>{
-          this.models = res.data.staffList
-          this.models.forEach(item=>{
-            item.dis = ''
-            item.priliminaryDiseStrList.forEach(dis=>{
-              item.dis+=(dis+',')
-            })
-            item.dis = item.dis.substr(0,item.dis.length-1)
-          })
-        })
       },
       saveCasePage(){
         let data  =this.priliminaryDise
@@ -381,18 +334,20 @@
       selecthistory(val){
         this.historyitem = val
       },
-      selectEndCaseHistoryByReg(){
-        selectEndCaseHistoryByReg(this.patient.registrationId).then(res=>{
-          this.history = res.data.dmsCaseHistoryList
-          this.history.forEach(item=>{
-            item.createTime = parseTime(item.createTime)
-            item.startDate = parseTime(item.startDate)
-          })
-        })
-      },
-      getmedicineDiseIdList(){
-        selectByType({staffId:this.$store.getters.id,selectType:2}).then(res=>{
-          this.medicineDiseIdList = res.data.medicineDiseList
+      getElectronicCase(){
+        this.$http({
+          url: this.$http.adornUrl(`/electronic_case/case/info/${this.registerId}`),
+          method: 'get'
+        }).then(({data}) => {
+          this.confirmButtonDisabled = true
+          if (data && data.code === 200) {
+            if (data.case) {
+              this.icdZd = data.case.icds
+              this.priliminaryDise = data.case.electronicCase
+            }
+          } else {
+            this.$message.error(data.msg)
+          }
         })
       },
       submitPriliminaryDise(){
@@ -400,16 +355,13 @@
         //   if (valid) {
         this.priliminaryDise.patientId=this.patient.patientId
         this.priliminaryDise.registerId=this.registerId
-        this.icdZd=this.icdZd.filter(item=>{
-          this.priliminaryDise.icdId=item.icdId
-          this.priliminaryDise.icdName=item.icdName
-          this.priliminaryDise.icdCode=item.icdCode
+        let ids=this.icdZd.map(item => {
+          return item.icdId
         })
-        // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
         this.$http({
           url: this.$http.adornUrl(`/electronic_case/case/${!this.record.id ? 'save' : 'update'}`),
           method: !this.record.id ? 'post' : 'put',
-          data: this.$http.adornData(this.priliminaryDise)
+          data: this.$http.adornData({'electronicCase':this.priliminaryDise,'icdId':ids})
         }).then(({data}) => {
           this.confirmButtonDisabled = true
           if (data && data.code === 200) {
@@ -429,44 +381,6 @@
         })
         //   }
         // })
-        // this.priliminaryDise.registrationId = this.patient.registrationId
-        // this.record.forEach(item=>{
-        //   this.priliminaryDise.priliminaryDiseStrList+=(item.name+',')
-        //   this.priliminaryDise.priliminaryDiseIdList+=(item.id+',')
-        // })
-        // this.priliminaryDise.priliminaryDiseStrList = this.priliminaryDise.priliminaryDiseStrList.substr(0, this.priliminaryDise.priliminaryDiseStrList.length - 1);
-        // this.priliminaryDise.priliminaryDiseIdList = this.priliminaryDise.priliminaryDiseIdList.substr(0, this.priliminaryDise.priliminaryDiseIdList.length - 1);
-        // this.priliminaryDise.name = this.patient.patientName
-        // this.priliminaryDise.gender = this.patient.patientSex
-        // this.priliminaryDise.onsetTime = parseTime(this.priliminaryDise.onsetTime).substr(0,10)
-        // this.priliminaryDise.ageStr = this.patient.patientAge
-        // this.priliminaryDise.patientId=this.patient.patientId
-        // submitPriliminaryDise(this.priliminaryDise).then(res=>{
-        //     this.$http({
-        //       url: this.$http.adornUrl(`/electronic_case/case/save`),
-        //       method: 'post',
-        //       data: this.$http.adornData(this.priliminaryDise)
-        //       // title: '成功',
-        //       // message: '成功提交初诊病历',
-        //       // type: 'success',
-        //       // duration: 2000
-        //     }).then(({data}) => {
-        //       this.confirmButtonDisabled = true
-        //       if (data && data.code === 200) {
-        //         this.$message({
-        //           message: '操作成功',
-        //           type: 'success',
-        //           duration: 1000,
-        //           onClose: () => {
-        //             this.visible = false
-        //             this.$emit('refreshDataList')
-        //           }
-        //         })
-        //       } else {
-        //         this.$message.error(data.msg)
-        //       }
-        //     })
-        //   })
       },
       deleteZd(row){
         this.icdZd=this.icdZd.filter(item=>{
@@ -494,16 +408,8 @@
           this.dialogTableVisible = false
         })
       },
-      async getDis(){
-        const res = await getDmsDislist(this.disQuery)
-        this.disList = res.data.list
-        this.total = res.data.total
-      },
-      loadpatient(){
-      },
       addIcd(){
         this.dialogTableVisible=true
-        this.getIcd()
       },
       controlfast(){
         this.isclose=!this.isclose

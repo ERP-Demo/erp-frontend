@@ -35,7 +35,7 @@ export default {
   name: 'Bill',
   props:['patient'],
   watch:{
-    'patient' : function(newVal, oldVal){
+    'patient' : function(newVal){
       this.patient = newVal
       this.queryBill()
     },

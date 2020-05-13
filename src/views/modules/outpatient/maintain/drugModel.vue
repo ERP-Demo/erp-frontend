@@ -69,7 +69,7 @@
             </template>
           </el-table-column>
         </el-table>
-         <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getModelList" />
+         <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" />
         </div>
       </div>
     </el-aside>
@@ -186,10 +186,7 @@
   </div>
 </template>
 <script>
-import {listModel,updateModel,createModel,deleteModel} from '@/api/drugmodel'
-import {getdrugList,selectById} from '@/api/drug'
 import Pagination from '@/components/Pagination'
-import { deepClone,parseTime } from '@/utils'
 
 export default {
     components: {Pagination},
@@ -203,7 +200,6 @@ export default {
         pageNum:1,
         pageSize:10,
       },
-        ides:'',
       oneprescription:{
         name:'',
         druglist:[],
@@ -212,10 +208,8 @@ export default {
       },
       itemdrugList:[],
       drugList:[],
-      searchdrug:'',
       choices:[],
       dialogVisible:false,
-      alldrugList:[],
       nondrugList:[],
       edit:0,
       model:{},
@@ -244,17 +238,8 @@ export default {
         pageSize:20,
         pageNum:1,
         isAdmin:'0'
-      },
-      modelList:[],
-      queryModel:{
-        name:'',
-        range:'',
-        type:''
       }
     }
-  },
-  created(){
-    this.getModelList()
   },
   activated () {
     this.getDataList1()
@@ -266,12 +251,10 @@ export default {
           this.dataListLoading = true
           this.$http({
               url: this.$http.adornUrl('/drug_model/model/list'),
-              method: 'get',
-              //params: this.$http.adornParams()
+              method: 'get'
           }).then(({data}) => {
               if (data && data.code === 200) {
                   this.datalist3 = data.page.list
-                  //console.log("数据"+data.list)
               } else {
                   this.dataList3 = []
               }
@@ -283,12 +266,10 @@ export default {
       this.dataListLoading = true
       this.$http({
         url: this.$http.adornUrl('/drugs/reports/all'),
-        method: 'get',
-        //params: this.$http.adornParams()
+        method: 'get'
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.list
-          //console.log("数据"+data.list)
         } else {
           this.dataList = []
         }
@@ -300,19 +281,14 @@ export default {
           this.multipleSelection = val;
       },
     addDrug(drugsId){
-        console.log("11111111111111111111111111")
       this.dialogVisible = false
-      //var ids=this.multipleSelection.map(item =>{return item.drugsId}).join(",")
         var ids = this.drugsId ? [drugsId] : this.multipleSelection.map(item => {
             return item.drugsId
         })
-        console.log("id:"+ids)
-
         this.$http({
             url: this.$http.adornUrl('/drugs/reports/selectByIds/'+ids),
             method: 'get',
             data: this.$http.adornData()
-            //params: this.$http.adornParams()
         }).then(({data}) => {
             if (data && data.code === 200) {
                 this.dataList1 = data.list
@@ -320,23 +296,7 @@ export default {
             } else {
                 this.dataList1 = []
             }
-
         })
-      //this.itemdrugList = this.dataList
-      // this.itemdrugList.forEach(item=>{
-      //   item.totalprice = Math.floor((item.price*item.num)*100)/100
-      // })
-    },
-    async getdrugList(type) {
-      let data = {}
-      data.pageSize = this.page.pageSize
-      data.pageNum = this.page.pageNum
-      if(type!==0)
-        data.typeId = type
-      data.name = this.searchdrug
-      const response = await getdrugList(data)
-      this.drugList = response.data.list
-      this.total2 = response.data.total
     },
     deldrug(row){
       this.oneprescription.druglist = this.oneprescription.druglist.filter(item=>{
@@ -349,24 +309,6 @@ export default {
         this.oneprescription.amount += item.price
       })
       this.oneprescription.amount = Math.floor((this.oneprescription.amount+0.5)*100)/100
-    },
-    choosedrug(val){
-      let flag = 1
-      this.oneprescription.druglist.forEach(item=>{
-        if(item.id===val.id){
-          item.num+=1
-          flag=0
-        }
-      })
-      if(flag){
-        this.oneprescription.amount +=val.price
-        this.oneprescription.amount = Math.floor((this.oneprescription.amount+0.5)*100)/100
-        this.oneprescription.druglist.push(val)
-        this.oneprescription.druglist.forEach(item=>{
-          if(item.num===undefined)
-            item.num=1
-        })
-      }
     },
     deleteModel(id){
     var ids = id ? [id] : this.multipleSelection.map(item => {
@@ -429,59 +371,14 @@ export default {
       data.nonDrugIdList = deepClone(this.choices)
       data.createTime = ''
       data.ownId = this.$store.getters.id
-      updateModel(data).then(res=>{
-        this.$notify({
-          title: '成功',
-          message: '修改成功',
-          type: 'success',
-          duration: 2000
-        })
-        this.getModelList()
-      })
       this.showaside()
-    },
-    confirmItem(){
-      this.nondrugList = this.alldrugList.filter(item=>{
-        if(this.choices.includes(item.id))
-          return true
-      })
-      this.dialogVisible=!this.dialogVisible
     },
     addItem(){
       this.dialogVisible = true
       this.getdrugList()
     },
-    getAllNondrug(){
-      getAllNondrug().then(res=>{
-        this.alldrugList = res.data
-        this.alldrugList.forEach(item=>{
-          item.label = item.name
-          item.key = item.id
-        })
-      })
-    },
-    async getModelList(){
-      listModel(this.listQuery).then(res=>{
-        this.modelList = res.data.list
-        this.modelList.forEach(model=>{
-          model.dmsMedicineModelItemList.forEach(item=>{
-          selectById(item.id).then(res=>{
-            item.name = res.data.name
-            item.format = res.data.format
-            item.price = res.data.price
-            item.totalprice = item.price*item.num
-            item.mnemonicCode = res.data.mnemonicCode
-            })
-          })
-          model.createTime = parseTime(model.createTime)
-        })
-        this.total = res.data.total
-      })
-      
-    },
     searchModel(){
       this.loading = true
-      this.getModelList()
       this.loading = false
     },
     showaside(type){
