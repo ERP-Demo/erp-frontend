@@ -177,8 +177,6 @@
   </el-container>
 </template>
 <script>
-  import {deepClone} from '@/utils'
-  import {Promise, all} from 'q';
   export default {
     props: ['patient', 'registerId'],
     name: 'Inspection',
