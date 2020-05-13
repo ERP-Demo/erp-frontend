@@ -132,7 +132,7 @@
           <el-button type="primary" style="float:right" @click="changepre" v-if="edit">修改处方</el-button>
           <el-input style="width:200px;margin-right:20px;float:right"
                     v-model="oneprescription.prescriptionName" placeholder="处方名"></el-input>
-          <el-table height="500px" :data="oneprescription.druglist" cell-style="text-align:center"
+          <el-table height="500px" :data="oneprescription.druglist" :cell-style="style"
                     :header-cell-style="style">
             <el-table-column property="drugsName" label="药品名" width="150"></el-table-column>
             <el-table-column property="drugsNorms" label="规格" width="200"></el-table-column>

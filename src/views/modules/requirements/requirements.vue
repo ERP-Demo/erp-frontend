@@ -6,7 +6,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button  type="primary" :disabled="dataListSelections.length >= 2" @click="Pay(),dialogVisible = true">缴费</el-button>
+        <el-button  type="primary" @click="Pay(),dialogVisible = true">缴费</el-button>
         <el-button v-if="isAuth('requirements:requirements:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>
       </el-form-item>
     </el-form>
@@ -22,48 +22,30 @@
         align="center"
         width="50">
       </el-table-column>
+      <el-table-column
+              prop="patientDetailed.patientName"
+              header-align="center"
+              align="center"
+              label="患者姓名">
+      </el-table-column>
     <el-table-column
-        prop="projectId"
+        prop="testSynthesize.testSynthesizeName"
         header-align="center"
         align="center"
         label="项目编码">
     </el-table-column>
     <el-table-column
-        prop="projectName"
+        prop="registerId"
         header-align="center"
         align="center"
-        label="项目名称">
+        label="就诊编号">
     </el-table-column>
-    <el-table-column
-        prop="purpose"
-        header-align="center"
-        align="center"
-        label="目的">
-    </el-table-column>
-    <el-table-column
-        prop="requirements"
-        header-align="center"
-        align="center"
-        label="要求">
-    </el-table-column>
-    <el-table-column
-        prop="clinicalImpression"
-        header-align="center"
-        align="center"
-        label="临床印象">
-    </el-table-column>
-    <el-table-column
-        prop="clinicalDiagnosis"
-        header-align="center"
-        align="center"
-        label="临床诊断">
-    </el-table-column>
-    <el-table-column
-        prop="checkThe"
-        header-align="center"
-        align="center"
-        label="检查部位">
-    </el-table-column>
+      <el-table-column
+              prop="testSynthesize.testSynthesizePrice"
+              header-align="center"
+              align="center"
+              label="价格">
+      </el-table-column>
       <el-table-column
               align="center"
               label="状态"
@@ -172,26 +154,19 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/requirements/requirements/list'),
+        url: this.$http.adornUrl('/requirements/requirements/All'),
         method: 'get',
-        params: this.$http.adornParams({
-          'page': this.pageIndex,
-          'limit': this.pageSize,
-          'key': this.dataForm.key
-        })
+        params: this.$http.adornParams()
       }).then(({data}) => {
         if (data && data.code === 200) {
-          this.dataList = data.page.list
-          this.totalPage = data.page.totalCount
+          this.dataList = data.list
+          // this.totalPage = data.page.totalCount
         } else {
           this.dataList = []
           this.totalPage = 0
         }
         this.dataListLoading = false
       })
-    },
-    handleClose(done) {
-                done();
     },
     // 每页数
     sizeChangeHandle (val) {
@@ -229,10 +204,6 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
-      var moe = this.multipleSelection.map(item => {
-        return item.testSynthesizePrice
-      }).join(",")
-      this.money=moe
     },
     determine(){
       var ids = this.dataListSelections.map(item => {
@@ -260,6 +231,7 @@ export default {
     // 多选
     selectionChangeHandle (val) {
       this.dataListSelections = val
+      console.log(val.testSynthesizePrice);
     },
     // 新增 / 修改
     addOrUpdateHandle (id) {
