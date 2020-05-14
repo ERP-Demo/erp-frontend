@@ -3,8 +3,8 @@
     <div class="site-content__wrapper">
       <div class="site-content">
         <div class="brand-info">
-          <h2 class="brand-info__text">进销存</h2>
-          <p class="brand-info__intro">进销存！</p>
+          <h2 class="brand-info__text">時櫻医疗</h2>
+          <p class="brand-info__intro">樱绽三月 共渡疫情 春回大地 医者仁心</p>
         </div>
         <div class="login-main">
           <h3 class="login-title">管理员登录</h3>
@@ -62,7 +62,7 @@ export default {
     }
   },
   created () {
-    this.getCaptcha()
+    // this.getCaptcha()
   },
   methods: {
     // 提交表单
@@ -118,6 +118,7 @@ export default {
       content: "";
       background-image: url(../../assets/img/login_bg.jpg);
       background-size: cover;
+      background-position-x: -400px;
     }
     .site-content__wrapper {
       position: absolute;

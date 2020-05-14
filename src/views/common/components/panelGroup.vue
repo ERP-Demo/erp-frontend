@@ -43,9 +43,9 @@ import CountTo from 'vue-count-to'
 export default {
   data () {
     return {
-      customer: 0,
-      orders: 0,
-      supplier: 0
+      customer: 5,
+      orders: 10,
+      supplier: 66
     }
   },
   components: {

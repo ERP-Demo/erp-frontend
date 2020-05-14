@@ -36,10 +36,6 @@
   </div>
 </template>
 <script>
-import {selectByType,addfre,delfre} from '@/api/outpatient/frequentuse'
-import {getdrugList} from '@/api/drug'
-import {getNondrugList} from '@/api/non_drug'
-import {getDmsDislist} from '@/api/diagnosis'
 import Pagination from '@/components/Pagination'
 export default {
   components: {Pagination},
@@ -78,15 +74,6 @@ export default {
         else
           data.deleteType = this.frequent.type
         data.staffId = this.$store.getters.id
-        delfre(data).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: res.message,
-            type: 'success',
-            duration: 2000
-          })
-          this.selectByType()
-        })
         this.loadItemList = false
         this.itemvisible = false
       })
@@ -105,21 +92,11 @@ export default {
         else
           data.addType = this.frequent.type
         data.staffId = this.$store.getters.id
-        addfre(data).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: res.message,
-            type: 'success',
-            duration: 2000
-          })
-          this.selectByType()
-        })
         this.loadItemList = false
         this.itemvisible = false
       })
     },
     showitemlist(){
-
       let data ={}
       data.name = this.searchitem
       this.itemvisible = true
@@ -127,96 +104,40 @@ export default {
         data.typeId = 101
         data.pageSize = this.page.pageSize
         data.pageNum = this.page.pageNum
-        getdrugList(data).then(res=>{
-          this.itemlist = res.data.list
-          this.total = res.data.total
-        })
       }
       else if(this.frequent.type===7){
         data.typeId = 103
         data.pageSize = this.page.pageSize
         data.pageNum = this.page.pageNum
-        getdrugList(data).then(res=>{
-          this.itemlist = res.data.list
-          this.total = res.data.total
-        })
       }
       else if(this.frequent.type===1){
         data.recordType = 1
         data.pageSize = this.page.pageSize
         data.pageNum = this.page.pageNum
-        getNondrugList(data).then(res=>{
-          this.itemlist = res.data.list
-          this.total = res.data.total
-        })
       }
       else if(this.frequent.type===4){
         data.recordType = 2
         data.pageSize = this.page.pageSize
         data.pageNum = this.page.pageNum
-        getNondrugList(data).then(res=>{
-          this.itemlist = res.data.list
-          this.total = res.data.total
-        })
       }
       else if(this.frequent.type===3){
         data.recordType = 3
         data.pageSize = this.page.pageSize
         data.pageNum = this.page.pageNum
-        getNondrugList(data).then(res=>{
-          this.itemlist = res.data.list
-          this.total = res.data.total
-        })
       }
       else if(this.frequent.type===2){
         data.recordType = 2
         data.pageSize = this.page.pageSize
         data.pageNum = this.page.pageNum
-        getDmsDislist(data).then(res=>{
-          this.itemlist = res.data.list
-          this.total = res.data.total
-        })
       }
     },
     selectByType(){
       let data ={}
-      let flag = 1
       data.staffId = this.$store.getters.id
       data.selectType = this.frequent.type
       if(data.selectType===7){
         data.selectType = 6
-        flag = 0
       }
-      selectByType(data).then(res=>{
-        if(this.frequent.type===6){
-          this.freqlist = res.data.drugList.filter(item=>{
-            if(item.typeId===101||item.typeId===102){
-              return true
-            }
-            return false
-          })
-        }
-        else if(flag===0){
-          this.freqlist = res.data.drugList.filter(item=>{
-            if(item.typeId===103){
-              return true
-            }
-            return false
-          })
-        }
-        else if(this.frequent.type===1){
-          this.freqlist = res.data.checkList
-        }
-        else if(this.frequent.type===2){
-          this.freqlist = res.data.medicineDiseList
-        }
-        else if(this.frequent.type===3){
-          this.freqlist = res.data.dispositionList
-        }
-        else if(this.frequent.type===4){
-          this.freqlist = res.data.testList
-        }
-      })
     }
   },
 }

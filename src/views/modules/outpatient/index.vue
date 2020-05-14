@@ -4,7 +4,7 @@
     <el-container class="el-container">
     <!-- 左侧患者列表 -->
     <transition name="el-zoom-in-left">
-    <el-aside v-show="isaside" style=" width:350px;padding:0" class="aside">
+    <el-aside v-show="isAside" style=" width:350px;padding:0" class="aside">
       <div>
       <el-card style="width:350px">
       <span style="font-family: 微软雅黑;margin-right: 4px;">选择患者：</span>
@@ -70,7 +70,7 @@
       </el-tab-pane>
       <el-tab-pane label="科室" name="second">
         <el-tag style="width:100%">待诊患者</el-tag>
-        <el-table v-loading="loaddepp" @row-click="bindPatient" highlight-current-row stripe :data="deptWaitList === null ? deptWaitList:deptWaitList.filter(data => !search || data.patient.patientName.toLowerCase().includes(search.toLowerCase())||data.registerId.toLowerCase().includes(search.toLowerCase()))" height="820">
+        <el-table v-loading="loadDepp" @row-click="bindPatient" highlight-current-row stripe :data="deptWaitList === null ? deptWaitList:deptWaitList.filter(data => !search || data.patient.patientName.toLowerCase().includes(search.toLowerCase())||data.registerId.toLowerCase().includes(search.toLowerCase()))" height="820">
           <el-table-column align="center" label="病历号" width="150px">
             <template slot-scope="scope">
               {{scope.row.registerId}}
@@ -97,7 +97,7 @@
     <el-main class="box-main">
       <div class='popContainer' v-if="mask"></div>
       <div style="border-style: dotted;border-width: 0px 0px 1px 0px;border-color:#C0C0C0;padding: 0 0 10px 0;margin-bottom:-10px">
-        <el-button size="mini" circle type="primary" @click="showaside"><i v-show="isaside" class="el-icon-arrow-left" /><i v-show="!isaside" class="el-icon-arrow-right" /></el-button>
+        <el-button size="mini" circle type="primary" @click="showAside"><i v-show="isAside" class="el-icon-arrow-left" /><i v-show="!isAside" class="el-icon-arrow-right" /></el-button>
         <span style="margin-left:15px;font-size:14px;font-family: '微软雅黑';">当前病人：</span>
         <el-tag class="painfo" color="white" style="width:15%;font-size:15px">姓名: <span style="olor:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientName}}</span></el-tag>
         <el-tag class="painfo" color="white" style="width:20%;font-size:15px">就诊号: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{registerId}}</span></el-tag>
@@ -105,16 +105,14 @@
         <el-tag class="painfo" color="white" style="width:10%;font-size:15px">年龄: <span style="color:black;font-size: 14px;font-family:'微软雅黑';">{{patient.patientAge}}</span></el-tag>
         <el-button type="text" style="margin-left:30px;letter-spacing: 5px;" @click="endDiagnosis"><i class="el-icon-success" />诊毕</el-button>
       </div>
-    <div style="margin-top=-30px">
-      <el-tabs v-model="activeName2" type="card" @tab-click="handleClick" style="margin-top:20px">
-        <el-tab-pane label="病历首页" :disabled="!firstdisabled" name="first"><Record @priliminary="priliminary" ref="record" v-bind:patient="patient" v-bind:registerId="registerId"></Record></el-tab-pane>
-        <el-tab-pane label="检查申请" :disabled="!firstdisabled" name="second"><Inspection ref="inspection" v-bind:patient="patient"></Inspection></el-tab-pane>
-        <el-tab-pane label="检验申请" :disabled="!firstdisabled" name="third"><Examine ref="examine" v-bind:patient="patient"></Examine></el-tab-pane>
-        <el-tab-pane label="门诊确诊" :disabled="!firstdisabled||!comfirmdisabled" name="fourth"><Comfirm @comfirmdms="comfirmdms" ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
-        <el-tab-pane label="成药处方" :disabled="!firstdisabled||!comfirmdisabled" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient"></Prescription></el-tab-pane>
-        <el-tab-pane label="草药处方" :disabled="!firstdisabled||!comfirmdisabled" name="eightth"><Cprescription ref="cprescription" v-bind:patient="patient"></Cprescription></el-tab-pane>
-        <el-tab-pane label="处置申请" :disabled="!firstdisabled||!comfirmdisabled" name="sixth"><Handle ref="cprescription" v-bind:patient="patient"></Handle></el-tab-pane>
-        <el-tab-pane label="患者账单" :disabled="!firstdisabled" name="seventh"><Bill ref="bill" v-bind:patient="patient"></Bill></el-tab-pane>
+    <div>
+      <el-tabs v-model="activeName2" type="card" style="margin-top:20px">
+        <el-tab-pane label="病历首页" name="first"><Record ref="record" v-bind:patient="patient" v-bind:registerId="registerId"></Record></el-tab-pane>
+        <el-tab-pane label="检查申请" name="second"><Inspection ref="inspection" v-bind:patient="patient" v-bind:registerId="registerId"></Inspection></el-tab-pane>
+        <el-tab-pane label="门诊确诊" name="fourth"><Comfirm ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
+        <el-tab-pane label="成药处方" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient"></Prescription></el-tab-pane>
+        <el-tab-pane label="处置申请" name="sixth"><Handle v-bind:patient="patient"></Handle></el-tab-pane>
+        <el-tab-pane label="患者账单" name="seventh"><Bill ref="bill" v-bind:patient="patient"></Bill></el-tab-pane>
       </el-tabs>
     </div>
     </el-main>
@@ -123,27 +121,18 @@
 </template>
 
 <script>
-  import AddOrUpdate from "@/views/modules/drugs_storage/storage-add-or-update";
 import Record from '@/views/modules/outpatient/workstation/record'
 import Inspection from '@/views/modules/outpatient/workstation/inspection'
-import Examine from '@/views/modules/outpatient/workstation/examine'
 import Prescription from '@/views/modules/outpatient/workstation/prescription'
 import Handle from '@/views/modules/outpatient/workstation/handle'
 import Comfirm from '@/views/modules/outpatient/workstation/confirm'
-import Cprescription from '@/views/modules/outpatient/workstation/Cprescription'
 import Bill from '@/views/modules/outpatient/workstation/bill'
-import {getPatientList,bindPatient,startDiagnosis} from '@/api/outpatient/patient'
-import {endDiagnosis,getnonend} from '@/api/outpatient/dmscase'
-import { deepClone } from '@/utils'
-import { truncate } from 'fs';
   export default{
-    components: {Record,Inspection,Examine,Prescription,Handle,Comfirm,Cprescription,Bill},
+    components: {Record,Inspection,Prescription,Handle,Comfirm,Bill},
     data(){
       return{
-        comfirmdisabled:true,
-        firstdisabled:true,
         mask:true,
-        loaddepp:true,
+        loadDepp:true,
         patient:{},
         deptWaitList:[],
         personalDuringList:[],
@@ -153,11 +142,10 @@ import { truncate } from 'fs';
           children: 'children',
           label: 'label'
         },
-        mouldname:'',
         dialog1: false,
         dialog2: false,
         search:'',
-        isaside: true,
+        isAside: true,
         activeName: 'first',
         activeName2: 'first',
         registerId: '',
@@ -167,56 +155,9 @@ import { truncate } from 'fs';
       this.getPatientList()
     },
     methods: {
-      comfirmdms(){
-        getnonend(this.patient.registrationId).then(res=>{
-          this.comfirmdisabled = true
-          if(res.data.dmsCaseHistoryList.length!==0){
-            this.activeName2 = 'second'
-            if(res.data.dmsCaseHistoryList[0].status===2){
-              this.comfirmdisabled = false
-              this.activeName2 = 'fiveth'
-            }
-            this.firstdisabled = false
-
-          }
-          else{
-            this.firstdisabled = true
-            this.activeName2 = 'first'
-          }
-          this.patient = val
-          this.$refs.record.controlfast()
-        })
-      },
-      priliminary(){
-        getnonend(this.patient.registrationId).then(res=>{
-          this.comfirmdisabled = true
-          if(res.data.dmsCaseHistoryList.length!==0){
-            if(res.data.dmsCaseHistoryList[0].status===2){
-              this.comfirmdisabled = false
-              this.activeName2 = 'fiveth'
-            }
-            this.firstdisabled = false
-            this.activeName2 = 'second'
-          }
-          else{
-            this.firstdisabled = true
-            this.activeName2 = 'first'
-          }
-          this.patient = val.patient
-          this.$refs.record.controlfast()
-        })
-      },
       endDiagnosis(){
-        endDiagnosis(this.patient.registrationId).then(res=>{
-          this.$notify({
-            title: '成功',
-            message: '已诊毕！',
-            type: 'success',
-            duration: 2000
-          })
-          this.showaside()
+          this.showAside()
           this.getPatientList()
-        })
       },
       continuing(val){
           this.$confirm('确认继续诊断患者 '+val.patient.patientName+'?', '就诊', {
@@ -224,27 +165,11 @@ import { truncate } from 'fs';
             cancelButtonText: '取消',
             type: 'success'
           }).then(()=>{
-            // getnonend(val.registrationId).then(res=>{
-            //   this.comfirmdisabled = true
-            //   if(res.data.dmsCaseHistoryList.length!==0){
-            //     this.activeName2 = 'second'
-            //     if(res.data.dmsCaseHistoryList[0].status===2){
-            //       this.comfirmdisabled = false
-            //       this.activeName2 = 'fiveth'
-            //     }
-            //     this.firstdisabled = false
-            //
-            //   }
-            //   else{
-            //     this.firstdisabled = true
-            //     this.activeName2 = 'first'
-            //   }
-              this.showaside()
+              this.showAside()
               this.patient = val.patient
               this.registerId=val.registerId
               this.$refs.record.controlfast()
             })
-          // })
 
       },
       bindPatient(val){
@@ -253,16 +178,6 @@ import { truncate } from 'fs';
           cancelButtonText: '取消',
           type: 'success'
         }).then(()=>{
-//activiti/consultation
-//           bindPatient(val.registrationId,this.$store.getters.id).then(res=>{
-//             this.getPatientList()
-//             this.$notify({
-//               title: '成功',
-//               message: '成功绑定该患者!',
-//               type: 'success',
-//               duration: 2000
-//             })
-//           })
             this.$http({
               url: this.$http.adornUrl('/activiti/consultation'),
               method: 'post',
@@ -296,21 +211,10 @@ import { truncate } from 'fs';
               this.$message.error(data.msg)
             }
           })
-          // startDiagnosis(val.registrationId).then(res=>{
-          //    this.$notify({
-          //     title: '成功',
-          //     message: '开始诊断',
-          //     type: 'success',
-          //     duration: 2000
-          //   })
-
-          // })
-
         })
-
       },
       async getPatientList(){
-        this.loaddepp = true
+        this.loadDepp = true
         this.$http({
           url: this.$http.adornUrl('/register/register/refreshPatient'),
           method: 'get'
@@ -321,24 +225,21 @@ import { truncate } from 'fs';
           this.deptWaitList = res.data.deptWaitList
           this.personalWaitList = res.data.personalWaitList
           console.log(this.personalWaitList);
-          this.loaddepp = false
+          this.loadDepp = false
         }).catch(err=>{
-          this.loaddepp = false
+          this.loadDepp = false
           this.$message.error(err)
         })
       },
-      showaside(){
-        if(this.isaside===false){
-          this.isaside=true;
+      showAside(){
+        if(this.isAside===false){
+          this.isAside=true;
           this.mask = true
         }
         else{
-          this.isaside = false
+          this.isAside = false
           this.mask = false
         }
-      },
-      storeRecord(){
-        this.dialog1=true;
       },
       removePatien(val){
         this.$confirm('确认解除绑定患者 '+val.patient.patientName+'?', '解除绑定', {
