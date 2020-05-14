@@ -153,10 +153,7 @@
     </div>
 </template>
 <script>
-    import {listModel,updateModel,createModel,deleteModel} from '@/api/drugmodel'
-    import {getdrugList,selectById} from '@/api/drug'
     import Pagination from '@/components/Pagination'
-    import { deepClone,parseTime } from '@/utils'
 
     export default {
         components: {Pagination},
@@ -480,10 +477,10 @@
     }
 </script>
 <style>
-    body .el-table th.gutter{
-        display: table-cell!important;
-    }
-    .el-transfer-panel{
-        width: 300px;
-    }
+  body .el-table th.gutter{
+display: table-cell!important;
+}
+.el-transfer-panel{
+    width: 300px;
+}
 </style>
