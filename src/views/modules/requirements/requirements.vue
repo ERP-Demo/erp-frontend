@@ -182,7 +182,7 @@ export default {
     //缴费
     Pay() {
       var ids = this.dataListSelections.map(item => {
-        return item.projectId
+        return item.requirements1.testSynthesizeId
       }).join(",")
       var sta = this.dataListSelections.map(item => {
         return item.status
@@ -207,7 +207,7 @@ export default {
     },
     determine(){
       var ids = this.dataListSelections.map(item => {
-        return item.projectId
+        return item.requirements1.testSynthesizeId
       }).join(",")
       this.$http({
         url: this.$http.adornUrl(`/requirements/requirements/updatestate/`+ids),
