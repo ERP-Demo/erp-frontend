@@ -442,7 +442,7 @@
                 this.dataListLoading = true
                 console.log(this.ref)
                 var data = this.ref.map(item => {
-                    return item.projectId
+                    return item.testSynthesizeId
                 })
                 var data1 = []
                 this.record.map(item => {
@@ -472,7 +472,7 @@
                             duration: 1000,
                             onClose: () => {
                                 this.visible = false
-                                this.$emit('refreshDataList')
+                                this.$emit('record')
                             }
                         })
                     } else {

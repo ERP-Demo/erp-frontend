@@ -386,16 +386,16 @@
       dataFormSubmit() {
         console.log({'data': this.refs, 'registrationId': this.patient.registrationId});
         this.$http({
-          url: this.$http.adornUrl('/prescription/prescription/addDrugsAndDetailed'),
-          method: 'post',
-          data: this.$http.adornData(this.refs, false)
-        }).then(({data}) => {
-          this.confirmButtonDisabled = true
-          if (data && data.code === 200) {
-            var ids=[]
-            this.refs.map(item => {
-              ids.push(item.rowId)
-            })
+              url: this.$http.adornUrl('/prescription/prescription/addDrugsAndDetailed'),
+              method: 'post',
+              data: this.$http.adornData(this.refs, false)
+            }).then(({data}) => {
+              this.confirmButtonDisabled = true
+              if (data && data.code === 200) {
+                var ids=[]
+                this.refs.map(item => {
+                  ids.push(item.rowId)
+                })
             this.inData.map(item => {
               if(ids.indexOf(item.rowId) > -1) {
                 item.status = 0
