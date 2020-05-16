@@ -108,9 +108,9 @@
                     </el-tab-pane>
                     <el-tab-pane label="常用检查项" name="second">
                         <el-table :data="freqlist" highlight-current-row @row-click="addfreitem">
-                            <el-table-column label="项目名" prop="name"></el-table-column>
-                            <el-table-column label="项目单价" prop="price"></el-table-column>
-                            <el-table-column label="编码" prop="code"></el-table-column>
+                            <el-table-column label="编码" prop="testSynthesizeId"></el-table-column>
+                            <el-table-column label="项目名" prop="testSynthesizeName"></el-table-column>
+                            <el-table-column label="项目单价" prop="testSynthesizePrice"></el-table-column>
                         </el-table>
                     </el-tab-pane>
                 </el-tabs>
@@ -244,15 +244,15 @@
         },
         created() {
             Promise.all([
-                this.getNondrugList().then(() => {
-                    this.getmodel()
-                })
+                // this.getNondrugList().then(() => {
+                //     this.getmodel()
+                // })
             ])
-            this.getfreqList()
         },
         activated() {
             this.getDataList()
             this.getDataList1()
+            this.getfreqList()
         },
         methods: {
             // 获取数据列表
@@ -331,11 +331,16 @@
                 this.selectCheck(val)
             },
             getfreqList() {
-                let data = {}
-                data.staffId = this.$store.getters.id
-                data.selectType = 1
-                selectByType(data).then(res => {
-                    this.freqlist = res.data.checkList
+                this.$http({
+                    url: this.$http.adornUrl('/requirements/requirements/topFive'),
+                    method: 'get'
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        this.freqlist = data.list
+                        console.log(this.freqlist)
+                    } else {
+                        this.freqList = []
+                    }
                 })
             },
             addModel(val) {
