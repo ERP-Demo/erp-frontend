@@ -34,7 +34,8 @@
                 prop="purchaseTime"
                 header-align="center"
                 align="center"
-                label="购入日期">
+                label="购入日期"
+                width="190">
         </el-table-column>
     </div>
 </template>

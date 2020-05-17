@@ -55,16 +55,9 @@
                     align="center"
                     label="状态">
                 <template slot-scope="scope">
-                    <el-popover v-if="scope.row.checkName" trigger="hover" placement="top" @show="getReason(scope.row)">
-                        <div v-loading="reasonLoading">
-                            <p>操作人: {{ scope.row.checkName }}</p>
-                            <p>驳回原因: {{ scope.row.reason }}</p>
-                        </div>
-                        <div slot="reference">
-                            <el-tag type="danger" size="medium">被驳回</el-tag>
-                        </div>
-                    </el-popover>
-                    <el-tag type="success" v-else>未提交</el-tag>
+                    <el-tag type="success" v-if="scope.row.status===0">未审核</el-tag>
+                    <el-tag type="success" v-else-if="scope.row.status===1">已通过</el-tag>
+                    <el-tag type="danger" v-else>被驳回</el-tag>
                 </template>
             </el-table-column>
 
@@ -75,9 +68,8 @@
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="subHandle(scope.row.processInstanceId)">提交</el-button>
-                    <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.purchaseId)">修改</el-button>
-                    <el-button type="text" size="small" @click="delHandle(scope.row.purchaseId)">删除</el-button>
+                    <el-button v-if="scope.row.status===0" type="text" size="small" @click="agreHandle(scope.row.tuihuoId)">通过</el-button>
+                    <el-button v-if="scope.row.status===0" type="text" size="small" @click="rejHandle(scope.row.tuihuoId)">驳回</el-button>
                     <el-button type="text" size="small" @click="detHandle(scope.row.tuihuoId)">查看详情</el-button>
                 </template>
             </el-table-column>
@@ -170,6 +162,36 @@
             // 多选
             selectionChangeHandle(val) {
                 this.dataListSelections = val
+            },
+            agreHandle(id){
+                this.$http({
+                    url: this.$http.adornUrl('/drugs_purchase/purchase/agreHandleReturned'),
+                    method: 'post',
+                    params: this.$http.adornParams({'tuihuoId': id})
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        this.$message.success("操作成功")
+                        this.getDataList()
+                    }else {
+                        this.$message.error(data.msg)
+                    }
+                    this.dataListLoading = false
+                })
+            },
+            rejHandle(id){
+                this.$http({
+                    url: this.$http.adornUrl('/drugs_purchase/purchase/rejHandleReturned'),
+                    method: 'post',
+                    params: this.$http.adornParams({'tuihuoId': id})
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        this.$message.success("操作成功")
+                        this.getDataList()
+                    }else {
+                        this.$message.error(data.msg)
+                    }
+                    this.dataListLoading = false
+                })
             }
         }
     }

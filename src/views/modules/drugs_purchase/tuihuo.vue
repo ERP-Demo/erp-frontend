@@ -2,7 +2,7 @@
     <el-dialog
             title="查看详情"
             :visible.sync="visible"
-            width="66%">
+            width="68%">
         <el-table
                 ref="multipleTable"
                 :data="tableData"
@@ -29,9 +29,22 @@
             <el-table-column
                     header-align="center"
                     align="center"
-                    label="退货数量">
+                    prop="tuihuoNum"
+                    label="已退货数量">
+            </el-table-column>
+            <el-table-column
+                    header-align="center"
+                    align="center"
+                    prop="freezeNum"
+                    label="冻结数量">
+            </el-table-column>
+            <el-table-column
+                    header-align="center"
+                    align="center"
+                    label="退货数量"
+            >
                 <template slot-scope="scope">
-                    <el-input-number v-model="scope.row.pdNum" :min="0" :max="scope.row.num" :precision="0"></el-input-number>
+                    <el-input-number v-model="scope.row.pdNum" :min="0" :max="scope.row.num-scope.row.tuihuoNum-scope.row.freezeNum" :precision="0"></el-input-number>
                 </template>
             </el-table-column>
         </el-table>
@@ -72,12 +85,15 @@
                     method: 'get'
                 }).then(({data}) => {
                     if (data && data.code === 200) {
+                        this.tableData=[]
                         data.all.map(item => {
                             this.tableData.push({
                                 'pdid': item.pdid,
                                 'drugsName':item.drugsName,
                                 'pdMoney': item.pdMoney,
                                 'num': item.pdNum,
+                                'freezeNum' : item.freezeNum===null? 0 :item.freezeNum,
+                                'tuihuoNum' : item.tuihuoNum===null? 0 :item.tuihuoNum,
                                 'pdNum': 0
                             })
                         })

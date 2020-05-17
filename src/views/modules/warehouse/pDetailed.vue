@@ -32,12 +32,6 @@
                     prop="tuihuoNum"
                     label="已退货数量">
             </el-table-column>
-            <el-table-column
-                    header-align="center"
-                    align="center"
-                    prop="freezeNum"
-                    label="冻结数量">
-            </el-table-column>
         </el-table>
     </el-dialog>
 </template>

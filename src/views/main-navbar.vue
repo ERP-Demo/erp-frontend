@@ -2,7 +2,7 @@
   <nav class="site-navbar" :class="'site-navbar--' + navbarLayoutType">
     <div class="site-navbar__header">
       <h1 class="site-navbar__brand" @click="$router.push({ name: 'home' })">
-        <a class="site-navbar__brand-lg" href="javascript:;">进销存</a>
+        <a class="site-navbar__brand-lg" href="javascript:;">時櫻</a>
       </h1>
     </div>
     <div class="site-navbar__body clearfix">
@@ -92,7 +92,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$http({
-          url: this.$http.adornUrl('/sys/logout'),
+          url: this.$http.adornUrl('/auth/logout'),
           method: 'post',
           data: this.$http.adornData()
         }).then(({data}) => {

@@ -26,20 +26,42 @@
                 </template>
             </el-table-column>
             <purchase ref="purchase"></purchase>
-
             <el-table-column
-                    prop="subName"
                     header-align="center"
                     align="center"
                     label="操作人"
                     fixed="right">
+                <template slot-scope="scope">
+                    {{scope.row.subName===null?'暂无':scope.row.subName}}
+                </template>
             </el-table-column>
             <el-table-column
-                    prop="checkName"
                     header-align="center"
                     align="center"
                     label="审核人"
                     fixed="right">
+                <template slot-scope="scope">
+                    {{scope.row.checkName===null?'暂无':scope.row.checkName}}
+                </template>
+            </el-table-column>
+            <el-table-column
+                    header-align="center"
+                    align="center"
+                    label="验收人"
+                    fixed="right">
+                <template slot-scope="scope">
+                    {{scope.row.warehouseName===null?'暂无':scope.row.warehouseName}}
+                </template>
+            </el-table-column>
+            <el-table-column
+                    prop="warehouseCheckName"
+                    header-align="center"
+                    align="center"
+                    label="验收审核人"
+                    fixed="right">
+                <template slot-scope="scope">
+                    {{scope.row.warehouseCheckName===null?'暂无':scope.row.warehouseCheckName}}
+                </template>
             </el-table-column>
             <el-table-column
                     header-align="center"
@@ -59,7 +81,9 @@
                     </el-popover>
                     <el-tag type="warning" v-else-if="scope.row.bpmName==='提交申请'">待提交</el-tag>
                     <el-tag type="warning" v-else-if="scope.row.bpmName==='经理审核'">待审核</el-tag>
-                    <el-tag type="success" v-else>已同意</el-tag>
+                    <el-tag type="warning" v-else-if="scope.row.bpmName==='验收'">待验收</el-tag>
+                    <el-tag type="warning" v-else-if="scope.row.bpmName==='仓库经理审核'">待验收审核</el-tag>
+                    <el-tag type="success" v-else>已完成</el-tag>
                 </template>
             </el-table-column>
         </el-table>

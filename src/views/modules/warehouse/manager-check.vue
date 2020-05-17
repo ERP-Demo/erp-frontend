@@ -15,18 +15,24 @@
                 @selection-change="selectionChangeHandle"
                 style="width: 100%;">
             <el-table-column
+                    prop="warehouseName"
+                    header-align="center"
+                    align="center"
+                    label="验收人">
+            </el-table-column>
+            <purchase ref="purchase"></purchase>
+            <el-table-column
                     fixed="right"
                     header-align="center"
                     align="center"
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="agreHandle(scope.row.processInstanceId)">通过</el-button>
-                    <el-button type="text" size="small" @click="tuiHuo(scope.row.purchaseId)">退货</el-button>
+                    <el-button type="text" size="small" @click="agreHandle(scope.row.purchaseId)">通过</el-button>
+                    <el-button type="text" size="small" @click="rejHandle(scope.row.processInstanceId)">驳回</el-button>
                     <el-button type="text" size="small" @click="detHandle(scope.row.purchaseId)">查看详情</el-button>
                 </template>
             </el-table-column>
-            <purchase ref="purchase"></purchase>
         </el-table>
 
         <el-pagination
@@ -45,7 +51,7 @@
 
 <script>
     import purchase from '../drugs_purchase/purchase'
-    import pDetailed from "../drugs_purchase/pDetailed";
+    import pDetailed from "./pDetailed";
     import tuihuo from "../drugs_purchase/tuihuo";
 
     export default {
@@ -78,7 +84,7 @@
             getDataList() {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/drugs_purchase/purchase/warehouseCheck'),
+                    url: this.$http.adornUrl('/drugs_purchase/purchase/manageCheck'),
                     method: 'get',
                     params: this.$http.adornParams({
                         'page': this.pageIndex,
@@ -153,51 +159,37 @@
                 })
             },
             rejHandle(id) {
-                var ids = id ? [id] : this.dataListSelections.map(item => {
-                    return item.processInstanceId
-                })
-                this.$confirm(`确定对这${ids.length}条数据进行[${id ? '驳回' : '批量驳回'}]操作?`, '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    this.$prompt('输入原因', '提示', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        inputPattern: /^[\s\S]*.*[^\s][\s\S]*$/,
-                        inputErrorMessage: '请输入原因'
-                    }).then(({value}) => {
-                        this.$http({
-                            url: this.$http.adornUrl('/drugs_purchase/purchase/reject'),
-                            method: 'post',
-                            data: this.$http.adornData({
-                                'ids': ids,
-                                'reason': value
-                            }, false)
-                        }).then(({data}) => {
-                            if (data && data.code === 200) {
-                                this.$message.success("操作成功")
-                                this.getDataList()
-                            } else {
-                                this.$message.error(data.msg)
-                            }
-                        })
-                    })
-                })
-            },
-            agreHandle(id) {
-                var ids = id ? [id] : this.dataListSelections.map(item => {
-                    return item.processInstanceId
-                })
-                this.$confirm(`确定对这${ids.length}条数据进行[${id ? '同意' : '批量同意'}]操作?`, '提示', {
+                this.$confirm('确定对这条数据进行驳回操作?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
                     this.$http({
-                        url: this.$http.adornUrl('/drugs_purchase/purchase/agreeWarehouse'),
+                        url: this.$http.adornUrl('/activiti/rejHandleReturned'),
                         method: 'post',
-                        data: this.$http.adornData(ids, false)
+                        params: this.$http.adornParams({
+                            'processInstanceId': id,
+                        }, false)
+                    }).then(({data}) => {
+                        if (data && data.code === 200) {
+                            this.$message.success("操作成功")
+                            this.getDataList()
+                        } else {
+                            this.$message.error(data.msg)
+                        }
+                    })
+                })
+            },
+            agreHandle(id) {
+                this.$confirm('确定对这条数据进行通过操作？', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.$http({
+                        url: this.$http.adornUrl('/drugs_purchase/purchase/agreHandleManage'),
+                        method: 'post',
+                        params: this.$http.adornParams({'purchaseId':id}, false)
                     }).then(({data}) => {
                         if (data && data.code === 200) {
                             this.$message.success("操作成功")
