@@ -30,7 +30,6 @@
   </div>
 </template>
 <script>
-import {listByRegistration} from '@/api/outpatient/feequery'
 export default {
   name: 'Bill',
   props:['patient'],
@@ -46,7 +45,7 @@ export default {
     };
   },
   created(){
-    
+
   },
   methods: {
     queryBill(){

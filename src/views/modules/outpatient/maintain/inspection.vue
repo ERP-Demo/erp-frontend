@@ -142,7 +142,7 @@
 </template>
 <script>
     import Pagination from '@/components/Pagination'
-    import {deepClone, parseTime} from '@/utils'
+    import {parseTime} from '@/utils'
 
     export default {
         components: {Pagination},
