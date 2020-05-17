@@ -62,9 +62,10 @@
                                 </el-table-column>
                                 <el-table-column label="操作" prop="id" width="150px">
                                     <template slot-scope="scope">
-                                        <el-button type="primary" size="mini" @click="editModel(scope.row)">修改
+                                        <el-button type="primary" size="mini" @click="editModel(scope.row.testModelId)">修改</el-button>
                                         </el-button>
-                                        <el-button type="danger" size="mini" @click="deleteModel(scope.row)">删除
+                                        <el-button type="danger" size="mini"
+                                                   @click="deleteModel(scope.row.testModelId)">删除
                                         </el-button>
                                     </template>
                                 </el-table-column>
@@ -77,12 +78,8 @@
             </transition>
             <!-- 编辑模板 -->
             <el-main style="padding:0 0 0 0;" v-if="isaside">
-                <el-button type="primary" style="margin-left:30px;margin-top:30px;margin-bottom:30px" v-if="edit"
-                           @click="updateModel">提交修改
-                </el-button>
-                <el-button type="primary" style="margin-left:30px;margin-top:30px;margin-bottom:30px" v-if="!edit"
-                           @click="createModel">新建模板
-                </el-button>
+                <el-button type="primary" style="margin-left:30px;margin-top:30px;margin-bottom:30px" v-if="edit" @click="updateModel">提交修改</el-button>
+                <el-button type="primary" style="margin-left:30px;margin-top:30px;margin-bottom:30px" v-if="!edit" @click="createModel">新建模板</el-button>
                 <el-button type="danger" @click="showaside">取消</el-button>
                 <el-form :model="datafrom" label-width="140px" inline>
                     <el-form-item label="模板名称">
@@ -103,10 +100,20 @@
                     </el-form-item>
                 </el-form>
                 <el-button type="primary" style="margin-bottom:10px;margin-left:10px" @click="addItem">编辑项目</el-button>
-                <el-table style="margin-bottom:50px" :data="dataList3">
+                <el-table style="margin-bottom:50px" :data="dataList3" v-if="!edit">
                     <el-table-column label="化验项目id" prop="testSynthesizeId" width="550"></el-table-column>
                     <el-table-column label="化验项目名" prop="testSynthesizeName" width="550"></el-table-column>
                     <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="515"></el-table-column>
+                </el-table>
+                <el-table style="margin-bottom:50px" :data="dataList4" v-if="edit">
+                    <el-table-column label="化验项目id" prop="testSynthesizeId" width="550"></el-table-column>
+                    <el-table-column label="化验项目名" prop="testSynthesizeName" width="550"></el-table-column>
+                    <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="515"></el-table-column>
+                    <el-table-column label="操作" prop="id" width="100px">
+                        <template slot-scope="scope">
+                            <el-button type="danger" size="mini" @click="removeList(scope.$index, scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </el-main>
         </el-container>
@@ -134,8 +141,10 @@
     </div>
 </template>
 <script>
+    import {getNondrugModelList, updateModel, createModel, deleteModel} from '@/api/nondrugmodel'
+    import {getAllNondrug} from '@/api/non_drug'
     import Pagination from '@/components/Pagination'
-    import { deepClone } from '@/utils'
+    import {deepClone, parseTime} from '@/utils'
 
     export default {
         components: {Pagination},
@@ -144,6 +153,7 @@
                 dataList1: [],
                 dataList2: [],
                 dataList3: [],
+                dataList4: [],
                 page: {
                     pageNum: 1,
                     pageSize: 10,
@@ -204,6 +214,9 @@
             this.getDataList2()
         },
         methods: {
+            removeList(index){ //删除行数
+                this.dataList1.splice(index, 1)
+            },
             // 获取数据列表
             getDataList() {
                 this.dataListLoading = true
@@ -243,6 +256,7 @@
             this.multipleSelection = val;
           },
             addTest() {
+                this.dataList4=this.multipleSelection
                 this.dataList3=this.multipleSelection
                 this.dialogVisible = false
             },
@@ -253,6 +267,9 @@
                 if (type !== 0)
                     data.typeId = type
                 data.name = this.searchdrug
+                const response = await getdrugList(data)
+                this.drugList = response.data.list
+                this.total2 = response.data.total
             },
             deldrug(row) {
                 this.oneprescription.druglist = this.oneprescription.druglist.filter(item => {
@@ -284,13 +301,33 @@
                     })
                 }
             },
-            deleteModel() {
-                this.$confirm('确认删除当前模板?', '警告', {
-                    confirmButtonText: '确认',
+            deleteModel(id) {
+                var ids = id ? [id] : this.multipleSelection.map(item => {
+                    return item.id
+                })
+                this.$confirm(`确定对这${ids.length}条数据进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
+                    confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-
+                    this.$http({
+                        url: this.$http.adornUrl('/test_model/model/delete'),
+                        method: 'delete',
+                        data: this.$http.adornData(ids, false)
+                    }).then(({data}) => {
+                        if (data && data.code === 200) {
+                            this.$message({
+                                message: '操作成功',
+                                type: 'success',
+                                duration: 1000,
+                                onClose: () => {
+                                    this.getDataList1()
+                                }
+                            })
+                        } else {
+                            this.$message.error(data.msg)
+                        }
+                    })
                 })
             },
             createModel() {
@@ -302,7 +339,7 @@
                 this.$http({
                     url: this.$http.adornUrl(`/test_model/model/save`),
                     method: 'post',
-                    data: this.$http.adornData({'test_model': datafrom, 'ids': ids},)
+                    data: this.$http.adornData({'testModel': datafrom, 'ids': ids},)
 
                 }).then(({data}) => {
                     this.confirmButtonDisabled = true
@@ -325,12 +362,31 @@
 
                 this.showaside()
             },
-            updateModel() {
-                let data = deepClone(this.model)
-                data.nonDrugIdList = deepClone(this.choices)
-                data.createTime = ''
-                data.ownId = this.$store.getters.id
-
+            updateModel(){
+                var ids=this.dataList4.map(item => {
+                    return item.testSynthesizeId
+                })
+                this.$http({
+                    url: this.$http.adornUrl(`/test_model/model/update`),
+                    method: 'put',
+                    data: this.$http.adornData({'testModel':this.datafrom,'ids':ids},)
+                }).then(({data}) => {
+                    this.confirmButtonDisabled = true
+                    if (data && data.code === 200) {
+                        this.$message({
+                            message: '操作成功',
+                            type: 'success',
+                            duration: 1000,
+                            onClose: () => {
+                                this.visible = false
+                                this.$emit('refreshDataList')
+                                this.getDataList()
+                            }
+                        })
+                    } else {
+                        this.$message.error(data.msg)
+                    }
+                })
                 this.showaside()
             },
             confirmItem() {
@@ -345,9 +401,31 @@
                 this.getdrugList()
             },
             getAllNondrug() {
-
+                getAllNondrug().then(res => {
+                    this.alldrugList = res.data
+                    this.alldrugList.forEach(item => {
+                        item.label = item.name
+                        item.key = item.id
+                    })
+                })
             },
             async getModelList() {
+                listModel(this.listQuery).then(res => {
+                    this.modelList = res.data.list
+                    this.modelList.forEach(model => {
+                        model.dmsMedicineModelItemList.forEach(item => {
+                            selectById(item.id).then(res => {
+                                item.name = res.data.name
+                                item.format = res.data.format
+                                item.price = res.data.price
+                                item.totalprice = item.price * item.num
+                                item.mnemonicCode = res.data.mnemonicCode
+                            })
+                        })
+                        model.createTime = parseTime(model.createTime)
+                    })
+                    this.total = res.data.total
+                })
 
             },
             searchModel() {
@@ -372,8 +450,18 @@
                 } else
                     this.edit = 0
             },
-            async editModel(row) {
-                this.model = deepClone(row)
+            editModel(i){
+                this.$http({
+                    url: this.$http.adornUrl(`/test_model/model/info/${i}`),
+                    method: 'get'
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        this.dataList4 = data.list
+                        // this.multipleSelection
+                        this.datafrom=data.mode
+
+                    }
+                })
                 this.itemdrugList = this.model.dmsMedicineModelItemList
                 this.showaside('edit')
             }
