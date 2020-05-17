@@ -37,9 +37,6 @@
         </el-table>
 
         <span slot="footer" class="dialog-footer">
-            <!--<div>
-                <p>退货金额：<el-span prop="totalPrice">{{ totalPrice }}</el-span></p>
-            </div>-->
             <el-button @click="visible = false">取消</el-button>
             <el-button type="primary" @click="dataFormSubmit()">退货</el-button>
         </span>
