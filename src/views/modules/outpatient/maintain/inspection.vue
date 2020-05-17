@@ -141,10 +141,8 @@
     </div>
 </template>
 <script>
-    import {getNondrugModelList, updateModel, createModel, deleteModel} from '@/api/nondrugmodel'
-    import {getAllNondrug} from '@/api/non_drug'
     import Pagination from '@/components/Pagination'
-    import {deepClone, parseTime} from '@/utils'
+    import {parseTime} from '@/utils'
 
     export default {
         components: {Pagination},
