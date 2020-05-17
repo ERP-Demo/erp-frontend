@@ -215,7 +215,7 @@
         },
         methods: {
             removeList(index){ //删除行数
-                this.dataList4.splice(index, 1)
+                this.dataList1.splice(index, 1)
             },
             // 获取数据列表
             getDataList() {
