@@ -14,7 +14,7 @@
       <el-form-item label="体格检查"><el-input readonly v-model="prerecord.healthCheckup" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="体格检查" style="width:80%;float:right"></el-input></el-form-item>
     </el-form>
     <el-tag style="margin-bottom:20px;margin-left:-20px">检查检验结果:</el-tag>
-    <el-form :model="record"> 
+    <el-form>
       <el-form-item label="检查结果"><el-input v-model="prerecord.checkResult" placeholder="检查结果" style="width:40%"></el-input></el-form-item>
       <el-form-item label="检验结果"><el-input v-model="prerecord.testResult" placeholder="检验结果" style="width:40%"></el-input></el-form-item>
     </el-form>
@@ -35,16 +35,16 @@
       </el-card>
     </div>
     <div>
-      <el-button type="primary" style="float:right;margin-right:30px" @click="submitdefinite">提交</el-button>
+      <el-button type="primary" style="float:right;margin-right:30px">提交</el-button>
     </div>
   </el-aside>
   <transition name="el-zoom-in-left">
   <el-main width="50%" v-show="isclose" style="border-style: dotted;border-width: 0px 0px 0px 1px;border-color:#C0C0C0;margin-top:-12px">
-     <el-tabs v-model="activeName" @tab-click="handleClick">
+     <el-tabs v-model="activeName">
       <el-tab-pane label="常用诊断" name="first">
         <el-table :data="medicineDiseIdList" @row-click="selectDis">
-          <el-table-column label="ICD编码" prop="icd"></el-table-column>
-          <el-table-column label="名称" prop="name"></el-table-column>
+          <el-table-column label="ICD编码" prop="icdCode"></el-table-column>
+          <el-table-column label="名称" prop="icdName"></el-table-column>
         </el-table>
       </el-tab-pane>
      </el-tabs>
@@ -54,23 +54,19 @@
   <el-dialog title="诊断目录" :visible.sync="dialogTableVisible" top="50px">
     <div style="height:520px">
     <span>搜索诊断</span>
-    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getDis"></el-input>
+    <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name"></el-input>
     <el-table highlight-current-row @row-click="selectDis" :data="disList " style="margin-top:20px">
       <el-table-column property="icd" label="ICD编码" width="150"></el-table-column>
       <el-table-column property="name" label="名称" width="350"></el-table-column>
       <el-table-column property="code" label="编码" width="200"></el-table-column>
     </el-table>
-    <pagination style="margin-top:0px" v-show="total>0" :total="total" page-sizes="[]" :page.sync="disQuery.pageNum" :limit.sync="disQuery.pageSize" @pagination="getDis" />
+    <pagination style="margin-top:0px" v-show="total>0" :total="total" page-sizes="[]" :page.sync="disQuery.pageNum" :limit.sync="disQuery.pageSize" />
     </div>
   </el-dialog>
   </div>
 </template>
-<script>  
-import {getnonend,submitdefinite} from '@/api/outpatient/dmscase'
-import {getDmsDislist,parseList} from '@/api/diagnosis'
+<script>
 import Pagination from '@/components/Pagination'
-import {selectByType} from '@/api/outpatient/frequentuse'
-import {parseTime} from '@/utils'
 export default {
   props:['patient'],
   components: {Pagination},
@@ -95,55 +91,18 @@ export default {
       activeName:'first',
       isclose:true,
       mainwidth:"60%",
-      activeNames: ['1'],
-      data2:[
-        {
-          date: '0001',
-          name: '王小虎1',
-          address: '38岁'
-        },
-        {
-          date: '0002',
-          name: '王小虎2',
-          address: '39岁'
-        }
-      ]
+      activeNames: ['1']
     };
   },
-  created(){
+  created() {
     this.getmedicineDiseIdList()
   },
   watch:{
-    'patient' : function(newVal, oldVal){
+    'patient' : function(newVal){
       this.patient = newVal
-      this.getnonend()
     },
   },
   methods:{
-    getmedicineDiseIdList(){
-      selectByType({staffId:this.$store.getters.id,selectType:2}).then(res=>{
-        this.medicineDiseIdList = res.data.medicineDiseList
-      })
-    },
-    submitdefinite(){
-      this.prerecord.definiteDiseStrList = ''
-      this.record.forEach(item=>{
-        this.prerecord.definiteDiseStrList += (item.id+',')
-      })
-      this.prerecord.startDate = parseTime(this.prerecord.startDate).substr(0,10)
-      this.prerecord.createTime = parseTime(this.prerecord.createTime).substr(0,10)
-      this.prerecord.definiteDiseStrList = this.prerecord.definiteDiseStrList.substr(0, this.prerecord.definiteDiseStrList.length - 1);
-      submitdefinite(this.prerecord).then(res=>{
-          this.$notify({
-          title: '成功',
-          message: '已确诊!',
-          type: 'success',
-          duration: 2000
-        })
-        this.$emit('comfirmdms')
-        
-      })
-    },
     deleteDis(row){
       this.record=this.record.filter(item=>{
         if(item.id===row.id)
@@ -172,20 +131,6 @@ export default {
     },
     addDis(){
       this.dialogTableVisible=true
-      this.getDis()
-    },
-    async getDis(){
-      const res = await getDmsDislist(this.disQuery)
-      this.disList = res.data.list
-      this.total = res.data.total
-    },
-    getnonend(){
-      getnonend(this.patient.registrationId).then(res=>{
-        this.prerecord = res.data.dmsCaseHistoryList[0]
-        parseList(this.prerecord.priliminaryDiseIdList).then(res=>{
-          this.record = res.data
-        })
-      })
     },
     controlfast(){
       this.isclose=!this.isclose
@@ -193,6 +138,18 @@ export default {
         this.mainwidth="80%"
       else
         this.mainwidth="60%"
+    },
+    getmedicineDiseIdList(){
+      this.$http({
+        url: this.$http.adornUrl('/electronic_case/case/topFive'),
+        method: 'get'
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.medicineDiseIdList = data.list
+        } else {
+          this.medicineDiseIdList = []
+        }
+      })
     }
   }
 }

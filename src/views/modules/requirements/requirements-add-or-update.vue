@@ -7,9 +7,15 @@
       <el-form-item label="项目编码" prop="projectId">
         <el-input v-model="dataForm.projectId" placeholder="项目编码"></el-input>
       </el-form-item>
-      <el-form-item label="项目名称" prop="projectName">
-        <el-input v-model="dataForm.projectName" placeholder="项目名称"></el-input>
-      </el-form-item>
+        <el-form-item label="医生id" prop="uid">
+            <el-input v-model="dataForm.uid" placeholder="医生id"></el-input>
+        </el-form-item>
+        <el-form-item label="病人id" prop="patientId">
+            <el-input v-model="dataForm.patientId" placeholder="病人id"></el-input>
+        </el-form-item>
+        <el-form-item label="就诊号" prop="registerId">
+            <el-input v-model="dataForm.registerId" placeholder="就诊号"></el-input>
+        </el-form-item>
       <el-form-item label="目的" prop="purpose">
         <el-input v-model="dataForm.purpose" placeholder="目的"></el-input>
       </el-form-item>
@@ -75,6 +81,8 @@ export default {
     },
     // 表单提交
     dataFormSubmit () {
+        this.dataForm.patientId=this.patient.patientId
+        this.dataForm.registerId=this.registerId
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.$http({
