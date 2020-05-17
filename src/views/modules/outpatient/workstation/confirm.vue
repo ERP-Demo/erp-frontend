@@ -43,8 +43,8 @@
      <el-tabs v-model="activeName">
       <el-tab-pane label="常用诊断" name="first">
         <el-table :data="medicineDiseIdList" @row-click="selectDis">
-          <el-table-column label="ICD编码" prop="icd"></el-table-column>
-          <el-table-column label="名称" prop="name"></el-table-column>
+          <el-table-column label="ICD编码" prop="icdCode"></el-table-column>
+          <el-table-column label="名称" prop="icdName"></el-table-column>
         </el-table>
       </el-tab-pane>
      </el-tabs>
@@ -94,6 +94,9 @@ export default {
       activeNames: ['1']
     };
   },
+  created() {
+    this.getmedicineDiseIdList()
+  },
   watch:{
     'patient' : function(newVal){
       this.patient = newVal
@@ -135,6 +138,18 @@ export default {
         this.mainwidth="80%"
       else
         this.mainwidth="60%"
+    },
+    getmedicineDiseIdList(){
+      this.$http({
+        url: this.$http.adornUrl('/electronic_case/case/topFive'),
+        method: 'get'
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.medicineDiseIdList = data.list
+        } else {
+          this.medicineDiseIdList = []
+        }
+      })
     }
   }
 }
