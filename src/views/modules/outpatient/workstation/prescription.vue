@@ -67,21 +67,21 @@
               <el-table :data="models" height="230" @row-click="selectmodel" @row-dblclick="addmodel">
                 <el-table-column label="模板名">
                   <template slot-scope="scope">
-                    {{scope.row.name}}
+                    {{scope.row.drugModelName}}
                   </template>
                 </el-table-column>
                 <el-table-column label="目的">
                   <template slot-scope="scope">
-                    {{scope.row.aim}}
+                    {{scope.row.drugModelIntroduction}}
                   </template>
                 </el-table-column>
               </el-table>
-              <el-card v-show="model.name!==undefined" class="box-card" shadow="never"
+              <el-card v-show="model.drugModelName!==undefined" class="box-card" shadow="never"
                        body-style="font-size: 14px;font-family:'微软雅黑';width:350px">
                 <div slot="header" class="clearfix">
-                  <span>{{model.name}}</span>
+                  <span>{{model.drugModelName}}</span>
                 </div>
-                <p><b>模板目的：</b>{{model.aim}}</p>
+                <p><b>模板目的：</b>{{model.drugModelIntroduction}}</p>
                 <p><b>模板总金额: </b>{{model.amount}}</p>
                 <p><b>模板项目：</b></p>
                 <p v-for="(drug,index) in model.druglist" :key="index"><b></b> {{drug.name}}</p>
@@ -132,7 +132,7 @@
           <el-button type="primary" style="float:right" @click="changepre" v-if="edit">修改处方</el-button>
           <el-input style="width:200px;margin-right:20px;float:right"
                     v-model="oneprescription.prescriptionName" placeholder="处方名"></el-input>
-          <el-table height="500px" :data="oneprescription.druglist" cell-style="text-align:center"
+          <el-table height="500px" :data="oneprescription.druglist" :cell-style="style"
                     :header-cell-style="style">
             <el-table-column property="drugsName" label="药品名" width="150"></el-table-column>
             <el-table-column property="drugsNorms" label="规格" width="200"></el-table-column>
@@ -180,6 +180,7 @@
         model: {},
         models: [],
         freqlist: [],
+        drugs:[],
         refs: [],
         prescriptionList: [],
         oneprescription: {
@@ -228,12 +229,41 @@
     },
     created() {
       this.listModel()
+      this.getDataList1()
     },
     methods: {
+      //成药模板的显示
+      getDataList1 () {
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl('/drug_model/model/list'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.models = data.page.list
+            console.log(data.page.list)
+          } else {
+            this.models = []
+          }
+          this.dataListLoading = false
+        })
+      },
       addmodel(val) {
         val.amount = Math.floor((val.amount) * 100) / 100
         val.status = -1
-        this.prescriptionList.push(val)
+        val.prescriptionName=val.drugModelName
+        this.$http({
+          url: this.$http.adornUrl(`/drug_model/model/info/${val.drugModelId}`),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            val.amount=data.price
+            this.oneprescription.druglist=data.list
+            console.log(this.inData)
+            this.inData.push(val)
+          }
+        })
+       // this.inData.push(val)
       },
       selectmodel() {
         this.model.amount = Math.floor((this.model.amount) * 100) / 100
@@ -386,16 +416,16 @@
       dataFormSubmit() {
         console.log({'data': this.refs, 'registrationId': this.patient.registrationId});
         this.$http({
-          url: this.$http.adornUrl('/prescription/prescription/addDrugsAndDetailed'),
-          method: 'post',
-          data: this.$http.adornData(this.refs, false)
-        }).then(({data}) => {
-          this.confirmButtonDisabled = true
-          if (data && data.code === 200) {
-            var ids=[]
-            this.refs.map(item => {
-              ids.push(item.rowId)
-            })
+              url: this.$http.adornUrl('/prescription/prescription/addDrugsAndDetailed'),
+              method: 'post',
+              data: this.$http.adornData(this.refs, false)
+            }).then(({data}) => {
+              this.confirmButtonDisabled = true
+              if (data && data.code === 200) {
+                var ids=[]
+                this.refs.map(item => {
+                  ids.push(item.rowId)
+                })
             this.inData.map(item => {
               if(ids.indexOf(item.rowId) > -1) {
                 item.status = 0
