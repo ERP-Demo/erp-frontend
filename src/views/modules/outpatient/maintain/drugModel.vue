@@ -231,7 +231,7 @@
                 }).then(({data}) => {
                     if (data && data.code === 200) {
                         this.datalist3 = data.page.list
-                        //console.log("数据"+data.list)
+                        //console.log(data.list)
                     } else {
                         this.dataList3 = []
                     }
