@@ -226,6 +226,9 @@
         }
       };
     },
+    created() {
+      this.getmedicineDiseIdList()
+    },
     watch:{
       'patient' : function(newVal){
         this.patient = newVal
@@ -436,6 +439,18 @@
           this.dataListLoading = false
         })
         },
+      getmedicineDiseIdList(){
+        this.$http({
+          url: this.$http.adornUrl('/electronic_case/case/topFive'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.medicineDiseIdList = data.list
+          } else {
+            this.medicineDiseIdList = []
+          }
+        })
+      }
       }
   }
 </script>
