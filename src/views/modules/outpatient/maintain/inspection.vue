@@ -63,7 +63,6 @@
                                 <el-table-column label="操作" prop="id" width="150px">
                                     <template slot-scope="scope">
                                         <el-button type="primary" size="mini" @click="editModel(scope.row.testModelId)">修改</el-button>
-                                        </el-button>
                                         <el-button type="danger" size="mini"
                                                    @click="deleteModel(scope.row.testModelId)">删除
                                         </el-button>
@@ -142,7 +141,6 @@
 </template>
 <script>
     import Pagination from '@/components/Pagination'
-    import {parseTime} from '@/utils'
 
     export default {
         components: {Pagination},
@@ -420,7 +418,6 @@
                                 item.mnemonicCode = res.data.mnemonicCode
                             })
                         })
-                        model.createTime = parseTime(model.createTime)
                     })
                     this.total = res.data.total
                 })
