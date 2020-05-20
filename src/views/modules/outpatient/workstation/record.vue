@@ -73,8 +73,8 @@
             </el-tab-pane>
             <el-tab-pane label="常用诊断" name="second">
               <el-table :data="medicineDiseIdList" @row-click="selectDis">
-                <el-table-column label="ICD编码" prop="icd"></el-table-column>
-                <el-table-column label="名称" prop="name"></el-table-column>
+                <el-table-column label="ICD编码" prop="icdCode"></el-table-column>
+                <el-table-column label="名称" prop="icdName"></el-table-column>
               </el-table>
             </el-tab-pane>
             <el-tab-pane label="历史病历" name="third">
@@ -225,6 +225,9 @@
           addOrUpdateVisible: false
         }
       };
+    },
+    created() {
+      this.getmedicineDiseIdList()
     },
     watch:{
       'patient' : function(newVal){
@@ -436,6 +439,18 @@
           this.dataListLoading = false
         })
         },
+      getmedicineDiseIdList(){
+        this.$http({
+          url: this.$http.adornUrl('/electronic_case/case/topFive'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.medicineDiseIdList = data.list
+          } else {
+            this.medicineDiseIdList = []
+          }
+        })
+      }
       }
   }
 </script>
