@@ -48,11 +48,7 @@
                                         {{scope.row.testModelIntroduction}}
                                     </template>
                                 </el-table-column>
-                                <el-table-column align="center" label="模版编码" prop="testModelCode">
-                                    <template slot-scope="scope">
-                                        {{scope.row.testModelCode}}
-                                    </template>
-                                </el-table-column>
+
                                 <el-table-column align="center" label="范围" prop="testModelRange" width="80">
                                     <template slot-scope="scope">
                                         <span v-if="scope.row.testModelRange===0">个人</span>
@@ -87,9 +83,6 @@
                     </el-form-item>
                     <el-form-item label="模板简介">
                         <el-input placeholder="模板简介" v-model="datafrom.testModelIntroduction" style="width:300px"></el-input>
-                    </el-form-item>
-                    <el-form-item v-if='edit' label="模板编码">
-                        <el-input placeholder="模板编码" v-model="datafrom.testModelCode" disabled style="width:300px"></el-input>
                     </el-form-item>
                     <el-form-item label="范围:" style="width:280px">
                         <el-select placeholder="请选择范围" v-model="datafrom.testModelRange" clearable style="width: 130px"
