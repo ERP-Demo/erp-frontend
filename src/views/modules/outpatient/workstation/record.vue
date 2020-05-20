@@ -461,7 +461,7 @@
       },
       getmodels(){
         this.$http({
-          url: this.$http.adornUrl('/electronic_case/case/allTemplate'),
+          url: this.$http.adornUrl('/electronic_case_template/case/allTemplate'),
           method: 'get'
         }).then(({data}) => {
           if (data && data.code === 200) {
