@@ -48,11 +48,7 @@
                                         {{scope.row.testModelIntroduction}}
                                     </template>
                                 </el-table-column>
-                                <el-table-column align="center" label="模版编码" prop="testModelCode">
-                                    <template slot-scope="scope">
-                                        {{scope.row.testModelCode}}
-                                    </template>
-                                </el-table-column>
+
                                 <el-table-column align="center" label="范围" prop="testModelRange" width="80">
                                     <template slot-scope="scope">
                                         <span v-if="scope.row.testModelRange===0">个人</span>
@@ -63,7 +59,6 @@
                                 <el-table-column label="操作" prop="id" width="150px">
                                     <template slot-scope="scope">
                                         <el-button type="primary" size="mini" @click="editModel(scope.row.testModelId)">修改</el-button>
-                                        </el-button>
                                         <el-button type="danger" size="mini"
                                                    @click="deleteModel(scope.row.testModelId)">删除
                                         </el-button>
@@ -87,9 +82,6 @@
                     </el-form-item>
                     <el-form-item label="模板简介">
                         <el-input placeholder="模板简介" v-model="datafrom.testModelIntroduction" style="width:300px"></el-input>
-                    </el-form-item>
-                    <el-form-item v-if='edit' label="模板编码">
-                        <el-input placeholder="模板编码" v-model="datafrom.testModelCode" disabled style="width:300px"></el-input>
                     </el-form-item>
                     <el-form-item label="范围:" style="width:280px">
                         <el-select placeholder="请选择范围" v-model="datafrom.testModelRange" clearable style="width: 130px"
@@ -142,7 +134,6 @@
 </template>
 <script>
     import Pagination from '@/components/Pagination'
-    import {parseTime} from '@/utils'
 
     export default {
         components: {Pagination},
@@ -420,7 +411,6 @@
                                 item.mnemonicCode = res.data.mnemonicCode
                             })
                         })
-                        model.createTime = parseTime(model.createTime)
                     })
                     this.total = res.data.total
                 })

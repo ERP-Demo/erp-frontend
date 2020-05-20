@@ -49,12 +49,12 @@
               <el-table stripe :data="models" height="230" @row-click="selectmodel" @row-dblclick="addmodel">
                 <el-table-column label="病历名">
                   <template slot-scope="scope">
-                    {{scope.row.name}}
+                    {{scope.row.complain}}
                   </template>
                 </el-table-column>
                 <el-table-column label="主要诊断">
                   <template slot-scope="scope">
-                    {{scope.row.dis}}
+                    {{scope.row.mainIcd}}
                   </template>
                 </el-table-column>
               </el-table>
@@ -73,8 +73,8 @@
             </el-tab-pane>
             <el-tab-pane label="常用诊断" name="second">
               <el-table :data="medicineDiseIdList" @row-click="selectDis">
-                <el-table-column label="ICD编码" prop="icd"></el-table-column>
-                <el-table-column label="名称" prop="name"></el-table-column>
+                <el-table-column label="ICD编码" prop="icdCode"></el-table-column>
+                <el-table-column label="名称" prop="icdName"></el-table-column>
               </el-table>
             </el-tab-pane>
             <el-tab-pane label="历史病历" name="third">
@@ -226,6 +226,10 @@
         }
       };
     },
+    created() {
+      this.getmedicineDiseIdList()
+      this.getmodels()
+    },
     watch:{
       'patient' : function(newVal){
         this.patient = newVal
@@ -266,10 +270,17 @@
         this.getDataList()
       },
       addmodel(val){
-        this.$confirm('是否加载病历模板 '+val.name+' ?', '加载病历模板', {
+        this.$confirm('是否加载病历模板 '+val.complain+' ?', '加载病历模板', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
+        }).then(()=>{
+          this.icdZd=[]
+          this.priliminaryDise.complain=val.complain
+          this.priliminaryDise.patientSymptom=val.patientSymptom
+          val.icds.map(item=>{
+              this.icdZd.push(item)
+          })
         })
       },
       selectmodel(val){
@@ -436,6 +447,30 @@
           this.dataListLoading = false
         })
         },
+      getmedicineDiseIdList(){
+        this.$http({
+          url: this.$http.adornUrl('/electronic_case/case/topFive'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.medicineDiseIdList = data.list
+          } else {
+            this.medicineDiseIdList = []
+          }
+        })
+      },
+      getmodels(){
+        this.$http({
+          url: this.$http.adornUrl('/electronic_case_template/case/allTemplate'),
+          method: 'get'
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.models = data.list
+          } else {
+            this.medicineDiseIdList = []
+          }
+        })
+      }
       }
   }
 </script>

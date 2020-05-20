@@ -571,7 +571,6 @@ export default {
       var ids = this.dataListSelections2.map(item => {
         return item.prescription.prescriptionId
       }).join(",")
-      alert(ids)
       this.$http({
         url: this.$http.adornUrl(`/prescription/prescription/updatestate/`+ids),
         method: 'get',

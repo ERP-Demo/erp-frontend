@@ -91,7 +91,6 @@
                         }).then(({data}) => {
                             if (data && data.code === 200) {
                                 this.dataForm.dataList = data.page.list
-                                console.log(this.dataForm.dataList)
                                 this.totalPage = data.page.totalCount
                             } else {
                                 this.dataList = []
