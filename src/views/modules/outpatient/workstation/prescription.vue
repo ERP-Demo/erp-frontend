@@ -137,9 +137,10 @@
             <el-table-column property="drugsName" label="药品名" width="150"></el-table-column>
             <el-table-column property="drugsNorms" label="规格" width="200"></el-table-column>
             <el-table-column property="drugsPrice" label="单价"></el-table-column>
+            <el-table-column property="pharmacyNum" label="库存"></el-table-column>
             <el-table-column label="数量" width="130px">
               <template slot-scope="scope">
-                <el-input-number controls-position="right" style="width:100px" :min="1" :max="100"
+                <el-input-number controls-position="right" style="width:100px" :min="1" :max="scope.row.pharmacyNum"
                                  size="mini" @change="changenum(scope.row)"
                                  v-model="scope.row.drugsNum"></el-input-number>
               </template>
@@ -394,7 +395,7 @@
           })
         }).then(({data}) => {
           if (data && data.code === 200) {
-            this.drugList = data.page.list
+            this.drugList = data.list
             this.drugsPage.totalPage = data.page.totalCount
           } else {
             this.drugList = []
