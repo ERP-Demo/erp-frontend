@@ -49,12 +49,12 @@
               <el-table stripe :data="models" height="230" @row-click="selectmodel" @row-dblclick="addmodel">
                 <el-table-column label="病历名">
                   <template slot-scope="scope">
-                    {{scope.row.complain}}
+                    {{scope.row.name}}
                   </template>
                 </el-table-column>
                 <el-table-column label="主要诊断">
                   <template slot-scope="scope">
-                    {{scope.row.mainIcd}}
+                    {{scope.row.dis}}
                   </template>
                 </el-table-column>
               </el-table>
@@ -118,7 +118,7 @@
       <div style="height:520px">
         <span>搜索诊断</span>
         <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getIcd"></el-input>
-        <el-table highlight-current-row @row-click="selectDis" :data="icd " style="margin-top:20px;width: 800px;margin-left: 40px" >
+        <el-table highlight-current-row @row-click="selectDis" :data="icd " style="margin-top:20px;width: 700px;margin-left: 40px" >
           <el-table-column property="icdId" label="ID"></el-table-column>
           <el-table-column property="icdName" label="名称"></el-table-column>
           <el-table-column property="icdCode" label="编码"></el-table-column>
@@ -228,7 +228,7 @@
     },
     created() {
       this.getmedicineDiseIdList()
-      this.getmodels()
+      this.getIcd()
     },
     watch:{
       'patient' : function(newVal){
@@ -270,17 +270,10 @@
         this.getDataList()
       },
       addmodel(val){
-        this.$confirm('是否加载病历模板 '+val.complain+' ?', '加载病历模板', {
+        this.$confirm('是否加载病历模板 '+val.name+' ?', '加载病历模板', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
-        }).then(()=>{
-          this.icdZd=[]
-          this.priliminaryDise.complain=val.complain
-          this.priliminaryDise.patientSymptom=val.patientSymptom
-          val.icds.map(item=>{
-              this.icdZd.push(item)
-          })
         })
       },
       selectmodel(val){
@@ -354,9 +347,18 @@
         }).then(({data}) => {
           this.confirmButtonDisabled = true
           if (data && data.code === 200) {
-            if (data.case) {
+            if (data.case.electronicCase!=null) {
               this.icdZd = data.case.icds
               this.priliminaryDise = data.case.electronicCase
+            }else {
+              this.icdZd = []
+              this.priliminaryDise.complain = []
+              this.priliminaryDise.onsetTime = []
+              this.priliminaryDise.patientSymptom = []
+              this.priliminaryDise.medicalHistory = []
+              this.priliminaryDise.allergyHistory = []
+              this.priliminaryDise.healthCheckup = []
+              this.priliminaryDise.treatment = []
             }
           } else {
             this.$message.error(data.msg)
@@ -454,18 +456,6 @@
         }).then(({data}) => {
           if (data && data.code === 200) {
             this.medicineDiseIdList = data.list
-          } else {
-            this.medicineDiseIdList = []
-          }
-        })
-      },
-      getmodels(){
-        this.$http({
-          url: this.$http.adornUrl('/electronic_case_template/case/allTemplate'),
-          method: 'get'
-        }).then(({data}) => {
-          if (data && data.code === 200) {
-            this.models = data.list
           } else {
             this.medicineDiseIdList = []
           }

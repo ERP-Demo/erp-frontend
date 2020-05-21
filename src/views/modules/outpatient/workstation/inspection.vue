@@ -217,7 +217,6 @@
             this.getfreqList()
         },
         methods: {
-
             removeList(index){ //删除行数
                 this.record.splice(index, 1)
             },

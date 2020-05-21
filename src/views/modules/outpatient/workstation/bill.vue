@@ -1,8 +1,8 @@
 <template>
+  <!-- 患者账单 -->
   <div>
     <el-table :data="bill" height="530px">
       <el-table-column label="项目名" prop="itemName"></el-table-column>
-      <el-table-column label="规格" prop="format"></el-table-column>
       <el-table-column label="数量" prop="currentNum"></el-table-column>
       <el-table-column label="单价" prop="price"></el-table-column>
       <el-table-column label="总金额" prop="totalprice"></el-table-column>
@@ -41,19 +41,51 @@ export default {
   },
   data(){
     return{
-      bill:[]
+      bill:[],
+      arrayList: []
     };
   },
   created(){
 
   },
+  activated() {
+    this.getDataList1()
+  },
   methods: {
-    queryBill(){
+    /*queryBill(){
       listByRegistration(this.patient.registrationId).then(res=>{
         this.bill = res.data
         this.bill.forEach(item=>{
           item.totalprice = item.price*item.currentNum
         })
+      })
+    },*/
+
+    //检查申请
+    getDataList1 () {
+      this.dataListLoading = true
+      this.$http({
+        url: this.$http.adornUrl('/requirements/requirements/AllList'),
+        method: 'get',
+        params: this.$http.adornParams()
+      }).then(({data}) => {
+        if (data && data.code === 200) {
+          this.drugsList = data.list
+          data.list.map(item => {
+            this.arrayList.push({
+              'name': item.testSynthesizeName,
+              'price': item.testSynthesizePrice,
+              'type': ''
+              // 化验项目
+            })
+          })
+          console.log(this.drugsList);
+          console.log(this.arrayList)
+        } else {
+          this.dataList = []
+          this.totalPage = 0
+        }
+        this.dataListLoading = false
       })
     }
   },
