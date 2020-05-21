@@ -134,6 +134,7 @@
                     v-model="oneprescription.prescriptionName" placeholder="处方名"></el-input>
           <el-table height="500px" :data="oneprescription.druglist" :cell-style="style"
                     :header-cell-style="style">
+            <el-table-column property="drugsId" label="药品id" width="150"></el-table-column>
             <el-table-column property="drugsName" label="药品名" width="150"></el-table-column>
             <el-table-column property="drugsNorms" label="规格" width="200"></el-table-column>
             <el-table-column property="drugsPrice" label="单价"></el-table-column>
@@ -143,6 +144,11 @@
                 <el-input-number controls-position="right" style="width:100px" :min="1" :max="scope.row.pharmacyNum"
                                  size="mini" @change="changenum(scope.row)"
                                  v-model="scope.row.drugsNum"></el-input-number>
+              </template>
+            </el-table-column>
+            <el-table-column label="库存" width="100px">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.drugsDay" placeholder="" :disabled="true"></el-input>
               </template>
             </el-table-column>
             <el-table-column label="使用方法" width="130">
@@ -226,6 +232,7 @@
     watch: {
       'patient': function (newVal) {
         this.patient = newVal
+        this.getDataList2()
       },
     },
     created() {
@@ -248,6 +255,7 @@
           }
           this.dataListLoading = false
         })
+
       },
       addmodel(val) {
         val.amount = Math.floor((val.amount) * 100) / 100
@@ -358,6 +366,7 @@
             if (item.num === undefined)
               item.num = 1
           })
+
         }
       },
       async getdrugList() {

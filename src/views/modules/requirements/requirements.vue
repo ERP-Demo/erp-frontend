@@ -4,10 +4,10 @@
       <div class="mod-config">
         <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
           <el-form-item>
-            <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+            <el-input v-model="dataForm.key" placeholder="请输入患者名" clearable></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button @click="getDataList()">查询</el-button>
+            <el-button @click="search()">查询</el-button>
             <el-button  type="primary" @click="Pay(),dialogVisible = true">缴费</el-button>
 <!--            <el-button v-if="isAuth('requirements:requirements:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
           </el-form-item>
@@ -120,12 +120,12 @@
 <!--    处置缴费-->
     <el-tab-pane label="处置缴费" name="second">
       <div class="mod-config">
-        <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+        <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList1()">
           <el-form-item>
-            <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+            <el-input v-model="dataForm.key1" placeholder="请输入患者名" clearable></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button @click="getDataList()">查询</el-button>
+            <el-button @click="getDataList1()">查询</el-button>
             <el-button  type="primary" @click="Pay1(),dialogVisible1 = true">缴费</el-button>
             <!--            <el-button v-if="isAuth('requirements:requirements:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
           </el-form-item>
@@ -147,6 +147,12 @@
                   header-align="center"
                   align="center"
                   label="就诊号">
+          </el-table-column>
+          <el-table-column
+                  prop="patientName"
+                  header-align="center"
+                  align="center"
+                  label="患者名称">
           </el-table-column>
           <el-table-column
                   prop="patientHandle.handleName"
@@ -186,10 +192,10 @@
         <el-pagination
                 @size-change="sizeChangeHandle"
                 @current-change="currentChangeHandle"
-                :current-page="pageIndex"
+                :current-page="pageIndex1"
                 :page-sizes="[10, 20, 50, 100]"
-                :page-size="pageSize"
-                :total="totalPage"
+                :page-size="pageSize1"
+                :total="totalPage1"
                 layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 弹窗, 新增 / 修改 -->
@@ -236,12 +242,12 @@
 <!--    成药缴费-->
     <el-tab-pane label="成药缴费" name="third">
       <div class="mod-config">
-        <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+        <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList2()">
           <el-form-item>
-            <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
+            <el-input v-model="dataForm.key2" placeholder="请输入患者名" clearable></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button @click="getDataList()">查询</el-button>
+            <el-button @click="search1()">查询</el-button>
             <el-button  type="primary" @click="Pay2(),dialogVisible2 = true">缴费</el-button>
             <!--            <el-button v-if="isAuth('requirements:requirements:delete')" type="danger" @click="deleteHandle()" :disabled="dataListSelections.length <= 0">批量删除</el-button>-->
           </el-form-item>
@@ -263,6 +269,12 @@
                   header-align="center"
                   align="center"
                   label="处方编号">
+          </el-table-column>
+          <el-table-column
+                  prop="patientDetailed.patientName"
+                  header-align="center"
+                  align="center"
+                  label="患者名称">
           </el-table-column>
           <el-table-column
                   prop="prescription.prescriptionName"
@@ -302,10 +314,10 @@
         <el-pagination
                 @size-change="sizeChangeHandle"
                 @current-change="currentChangeHandle"
-                :current-page="pageIndex"
+                :current-page="pageIndex2"
                 :page-sizes="[10, 20, 50, 100]"
-                :page-size="pageSize"
-                :total="totalPage"
+                :page-size="pageSize2"
+                :total="totalPage2"
                 layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 弹窗, 新增 / 修改 -->
@@ -371,7 +383,9 @@ export default {
     return {
       activeName: 'first',
       dataForm: {
-        key: ''
+        key: '',
+        key1: '',
+        key2: ''
       },
       registerId:"",
       dataA:[],
@@ -381,6 +395,12 @@ export default {
       pageIndex: 1,
       pageSize: 10,
       totalPage: 0,
+      pageIndex1: 1,
+      pageSize1: 10,
+      totalPage1: 0,
+      pageIndex2: 1,
+      pageSize2: 10,
+      totalPage2: 0,
       dataListLoading: false,
       dataListSelections: [],
       dataListSelections1: [],
@@ -395,6 +415,8 @@ export default {
       money1:0.0,
       money2:0.0,
       multipleSelection: [],
+      arrayList: [],
+        arrayList1: []
     }
   },
   components: {
@@ -410,7 +432,7 @@ export default {
     getDataList () {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/requirements/requirements/All'),
+        url: this.$http.adornUrl('/requirements/requirements/list'),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,
@@ -419,7 +441,9 @@ export default {
         })
       }).then(({data}) => {
         if (data && data.code === 200) {
-          this.dataList = data.list
+          this.dataList = data.page.list
+          this.arrayList = data.page.list
+          this.totalPage = data.page.totalCount
         } else {
           this.dataList = []
           this.totalPage = 0
@@ -432,16 +456,17 @@ export default {
         url: this.$http.adornUrl('/patient_handle/handle/apply/payment'),
         method: 'get',
         params: this.$http.adornParams({
-          'page': this.pageIndex,
-          'limit': this.pageSize,
-          'key': this.dataForm.key
+          'page': this.pageIndex1,
+          'limit': this.pageSize1,
+          'key': this.dataForm.key1
         })
       }).then(({data}) => {
         if (data && data.code === 200) {
-          this.dataList1 = data.list
+          this.dataList1 = data.page.list
+          this.totalPage1 = data.page.totalCount
         } else {
           this.dataList = []
-          this.totalPage = 0
+          this.totalPage1 = 0
         }
         this.dataListLoading = false
       })
@@ -452,22 +477,51 @@ export default {
         url: this.$http.adornUrl('/prescription/prescription/All'),
         method: 'get',
         params: this.$http.adornParams({
-          'page': this.pageIndex,
-          'limit': this.pageSize,
-          'name': this.dataForm.key
+          'page': this.pageIndex2,
+          'limit': this.pageSize2,
+          'name2': this.dataForm.key2
         })
       }).then(({data}) => {
         if (data && data.code === 200) {
-          this.dataList2 = data.list
-          // this.totalPage = data.page.totalCount
+          this.dataList2 = data.page.list
+            this.arrayList1 = data.page.list
+          this.totalPage2 = data.page.totalCount
         } else {
           this.dataList = []
-          this.totalPage = 0
+          this.totalPage2 = 0
         }
         this.dataListLoading = false
       })
 
     },
+    search(){
+      var newList=[]
+      this.dataList.forEach(requirements=>{
+        if(requirements.patientDetailed.patientName.includes(this.dataForm.key)){
+          newList.push(requirements)
+        }
+      })
+      if(this.dataForm.key==""){
+        this.dataList=this.arrayList
+      }else{
+        this.dataList=newList
+      }
+      return newList;
+    },
+      search1(){
+          var newList1=[]
+          this.dataList2.forEach(requirements=>{
+              if(requirements.patientDetailed.patientName.includes(this.dataForm.key2)){
+                  newList1.push(requirements)
+              }
+          })
+          if(this.dataForm.key2==""){
+              this.dataList2=this.arrayList1
+          }else{
+              this.dataList2=newList1
+          }
+          return newList1;
+      },
     closeAll(){
       this.money=null
       this.money1=null

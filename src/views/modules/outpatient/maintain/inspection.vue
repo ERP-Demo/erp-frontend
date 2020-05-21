@@ -98,9 +98,9 @@
                     <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="515"></el-table-column>
                 </el-table>
                 <el-table style="margin-bottom:50px" :data="dataList4" v-if="edit">
-                    <el-table-column label="化验项目id" prop="testSynthesizeId" width="550"></el-table-column>
-                    <el-table-column label="化验项目名" prop="testSynthesizeName" width="550"></el-table-column>
-                    <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="515"></el-table-column>
+                    <el-table-column label="化验项目id" prop="testSynthesizeId" width="350"></el-table-column>
+                    <el-table-column label="化验项目名" prop="testSynthesizeName" width="400"></el-table-column>
+                    <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="350"></el-table-column>
                     <el-table-column label="操作" prop="id" width="100px">
                         <template slot-scope="scope">
                             <el-button type="danger" size="mini" @click="removeList(scope.$index, scope.row)">删除</el-button>

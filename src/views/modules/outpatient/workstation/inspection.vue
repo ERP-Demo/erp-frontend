@@ -17,21 +17,59 @@
             </aside>
             <el-tag type="primary">项目金额总计:</el-tag>
             <el-tag type="warning">{{totalprice}} 元</el-tag>
-            <el-table ref="multipleTable" :data="record" border tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
-                <el-table-column align="center" type="selection" width="55" @selection-change="handleSelectionChange">
+            <el-table
+                    ref="multipleTable"
+                    :data="record"
+                    border
+                    tooltip-effect="dark"
+                    style="width: 100%"
+                    @selection-change="handleSelectionChange">
+                <el-table-column
+                        align="center"
+                        type="selection"
+                        width="55"
+                        @selection-change="handleSelectionChange">
                 </el-table-column>
-                <el-table-column align="center" label="项目编码" width="120"  prop="testSynthesizeId">
+                <el-table-column
+                        align="center"
+                        label="项目编码"
+                        width="120">
+                    <template slot-scope="scope">{{ scope.row.testSynthesizeId }}</template>
                 </el-table-column>
-                <el-table-column align="center" prop="testSynthesizeName" label="化验项目名称" width="200">
+                <el-table-column
+                        align="center"
+                        prop="testSynthesizeName"
+                        label="项目名称"
+                        width="200">
                 </el-table-column>
-                <el-table-column align="center" prop="testSynthesizePrice" label="单价" show-overflow-tooltip>
+                <el-table-column
+                        align="center"
+                        prop="testSynthesizePrice"
+                        label="单价"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        label="状态"
+                        show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <el-tag type="warning" v-if="scope.row.status===-1">未开立</el-tag>
+                        <el-tag type="danger" v-if="scope.row.status===0">已作废</el-tag>
+                        <el-tag type="info" v-if="scope.row.status===1">未缴费</el-tag>
+                        <el-tag type="info" v-if="scope.row.status===2">未登记</el-tag>
+                        <el-tag type="info" v-if="scope.row.status===3">已登记</el-tag>
+                        <el-tag type="success" v-if="scope.row.status===4">已执行</el-tag>
+                        <el-tag type="danger" v-if="scope.row.status===5">已退费</el-tag>
+                    </template>
                 </el-table-column>
                 <el-table-column
                         align="center"
                         label=""
                         show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <el-button type="danger" size="mini" @click="removeList(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" v-if="scope.row.status===-1" @click="demand(scope.row)">检查要求</el-button>
+                        <el-button type="text" v-if="scope.row.status===4" @click="showresult(scope.row)">查看结果
+                        </el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -202,27 +240,42 @@
             'patient': function (newVal, oldVal) {
                 this.patient = newVal
                 this.listRecord()
+                this.getDataList1()
+                this.getDataList2 ()
             },
         },
         created() {
             Promise.all([
-                this.getNondrugList().then(() => {
-                    this.getmodel()
-                })
+                // this.getNondrugList().then(() => {
+                //     this.getmodel()
+                // })
             ])
+
         },
         activated() {
             this.getDataList()
-            this.getDataList1()
+
             this.getfreqList()
         },
         methods: {
-
-            removeList(index){ //删除行数
-                this.record.splice(index, 1)
-            },
             // 获取数据列表
             getDataList1 () {
+                this.dataListLoading = true
+                this.$http({
+                    url: this.$http.adornUrl('/requirements/requirements/AllList/'+this.registerId),
+                    method: 'get',
+                    params: this.$http.adornParams()
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        this.record= data.list
+                    } else {
+                        this.dataList = []
+                        this.totalPage = 0
+                    }
+                    this.dataListLoading = false
+                })
+            },
+            getDataList2 () {
                 this.dataListLoading = true
                 this.$http({
                     url: this.$http.adornUrl('/test_model/model/list'),
@@ -241,7 +294,7 @@
             getDataList() {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl(''),
+                    url: this.$http.adornUrl('/test_synthesize/synthesize/list'),
                     method: 'get',
                     params: this.$http.adornParams({
                         'testSynthesizeName': this.listQuery.testSynthesizeName
@@ -255,7 +308,6 @@
                     this.dataListLoading = false
                 })
             },
-
             saveNonDrug() {
                 let data = {}
                 data.dmsNonDrugItemRecordParamList = this.ref
@@ -310,7 +362,6 @@
                 })
             },
             addModel(val) {
-                // this.record=val
                 val.totalprice = Math.floor((val.totalprice) * 100) / 100
                 val.status = -1
                 val.prescriptionName=val.testModelName
@@ -319,40 +370,44 @@
                     method: 'get'
                 }).then(({data}) => {
                     if (data && data.code === 200) {
-                        // val.totalprice=data.testSynthesizePrice
-                        this.record=data.list
-                        console.log("111"+data.list.testSynthesizePrice);
-                        console.log("111"+data.list)
-                        this.inData.push(val)
+                        let ids=this.record.map(item=>{
+                            return item.testSynthesizeId
+                        })
+                        data.list.map(item =>{
+                            if (!ids.includes(item.testSynthesizeId)){
+                                this.$set(item,'status',-1)
+                                console.log(item);
+                                this.record.push(item)
+                            }
+                        })
                     }
                 })
             },
             selectModel(val) {
-                console.log(val);
                 this.onemodel = val
             },
-            // async getmodel() {
-            //     let data = {}
-            //     data.scope = 0
-            //     data.ownId = this.$store.getters.id
-            //     data.type = 0
-            //     data.pageSize = 10000
-            //     data.pageNum = 1
-            //     data.isAdmin = 0
-            //     await getNondrugModelList(data).then(res => {
-            //         this.checkmodels = res.data.list
-            //         this.checkmodels.forEach(onemodel => {
-            //             onemodel.nondruglist = []
-            //             onemodel.totalprice = 0.00
-            //             this.checkList.filter(item => {
-            //                 if (onemodel.nonDrugIdList.includes(item.id)) {
-            //                     onemodel.nondruglist.push(item)
-            //                     onemodel.totalprice += item.price
-            //                 }
-            //             })
-            //         })
-            //     })
-            // },
+            async getmodel() {
+                let data = {}
+                data.scope = 0
+                data.ownId = this.$store.getters.id
+                data.type = 0
+                data.pageSize = 10000
+                data.pageNum = 1
+                data.isAdmin = 0
+                await getNondrugModelList(data).then(res => {
+                    this.checkmodels = res.data.list
+                    this.checkmodels.forEach(onemodel => {
+                        onemodel.nondruglist = []
+                        onemodel.totalprice = 0.00
+                        this.checkList.filter(item => {
+                            if (onemodel.nonDrugIdList.includes(item.id)) {
+                                onemodel.nondruglist.push(item)
+                                onemodel.totalprice += item.price
+                            }
+                        })
+                    })
+                })
+            },
             refresh() {
                 this.$confirm('未开立的项目都将清除,确认刷新?', '刷新', {
                     confirmButtonText: '确认',
