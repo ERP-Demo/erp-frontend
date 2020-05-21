@@ -9,8 +9,6 @@
                 </el-button>
                 <el-button type="text" size="medium" @click="apply"><i class="el-icon-circle-check"/>开立项目</el-button>
                 <el-button type="text" size="medium" @click="invalid"><i class="el-icon-circle-close"/>作废项目</el-button>
-                <el-button type="text" size="medium" @click="saveNonDrug"><i class="el-icon-upload2"/>暂存</el-button>
-                <el-button type="text" size="medium" @click="getNonDrug"><i class="el-icon-download"/>取出暂存项</el-button>
                 <el-button type="text" size="mini" @click="refresh"><i class="el-icon-refresh"/>刷新</el-button>
                 <el-button style="float:right" @click="controlfast"><i v-show="!isclose" class="el-icon-caret-right"/><i
                         v-show="isclose" class="el-icon-caret-left"/></el-button>
