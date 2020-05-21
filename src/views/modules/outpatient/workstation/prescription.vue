@@ -146,11 +146,6 @@
                                  v-model="scope.row.drugsNum"></el-input-number>
               </template>
             </el-table-column>
-            <el-table-column label="库存" width="100px">
-              <template slot-scope="scope">
-                <el-input v-model="scope.row.drugsDay" placeholder="" :disabled="true"></el-input>
-              </template>
-            </el-table-column>
             <el-table-column label="使用方法" width="130">
               <template slot-scope="scope">
                 <el-input placeholder="用法" v-model="scope.row.drugsUse"></el-input>
@@ -179,7 +174,7 @@
 </template>
 <script>
   export default {
-    props: ['patient'],
+    props: ['patient','registerId'],
     name: 'Prescription',
     data() {
       return {
@@ -190,6 +185,7 @@
         drugs:[],
         refs: [],
         prescriptionList: [],
+        prescriptionDetails:[],
         oneprescription: {
           prescriptionName: '',
           druglist: [],
@@ -232,6 +228,7 @@
     watch: {
       'patient': function (newVal) {
         this.patient = newVal
+        this.getOpenList()
         this.getDataList2()
       },
     },
@@ -240,6 +237,27 @@
       this.getDataList1()
     },
     methods: {
+      getOpenList(){
+        this.dataListLoading = true
+        this.$http({
+          url: this.$http.adornUrl('/prescription/prescription/queryByrId/'+this.registerId),
+          method: 'get',
+          params: this.$http.adornParams()
+        }).then(({data}) => {
+          if (data && data.code === 200) {
+            this.inData= data.list
+            this.inData.forEach(item => {
+              item.amount = item.prescriptionPrice
+              item.status=item.prescriptionState
+            })
+          } else {
+            this.dataList = []
+            this.totalPage = 0
+          }
+          this.dataListLoading = false
+        })
+      },
+
       //成药模板的显示
       getDataList1 () {
         this.dataListLoading = true

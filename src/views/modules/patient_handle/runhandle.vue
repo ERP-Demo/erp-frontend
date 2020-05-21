@@ -139,34 +139,11 @@ export default {
 
     },
 
-
-    //删除多表
-
-
-    //提交
-
-    //获取复选框
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-    },
     // 每页数
     sizeChangeHandle (val) {
       this.pageSize = val
       this.pageIndex = 1
       this.getDataList()
-    },
-    //关闭
-    handleClose(done) {
-                done();
-    },
-    // 当前页
-    currentChangeHandle (val) {
-      this.pageIndex = val
-      this.getDataList()
-    },
-    // 多选
-    selectionChangeHandle (val) {
-      this.dataListSelections = val
     },
     // 新增 / 修改
     addOrUpdateHandle (id) {
@@ -176,7 +153,7 @@ export default {
         }).then(({data}) => {
           if (data && data.code === 200) {
             this.$message({
-              message: '操作成功',
+              message: '执行成功',
               type: 'success',
               duration: 1000,
               onClose: () => {
