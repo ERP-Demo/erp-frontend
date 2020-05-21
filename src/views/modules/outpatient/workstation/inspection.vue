@@ -64,7 +64,7 @@
                 </el-table-column>
                 <el-table-column
                         align="center"
-                        label=""
+                        label="操作"
                         show-overflow-tooltip>
                     <template slot-scope="scope">
                         <el-button type="text" v-if="scope.row.status===-1" @click="demand(scope.row)">检查要求</el-button>
