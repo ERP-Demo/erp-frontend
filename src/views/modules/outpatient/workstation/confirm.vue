@@ -13,11 +13,6 @@
       <el-form-item label="过敏史"><el-input readonly v-model="prerecord.allergyHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="过敏史" style="width:80%;float:right"></el-input></el-form-item>
       <el-form-item label="体格检查"><el-input readonly v-model="prerecord.healthCheckup" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="体格检查" style="width:80%;float:right"></el-input></el-form-item>
     </el-form>
-    <el-tag style="margin-bottom:20px;margin-left:1px">检查检验结果:</el-tag>
-    <el-form>
-      <el-form-item label="检查结果"><el-input v-model="prerecord.checkResult" placeholder="检查结果" style="width:40%"></el-input></el-form-item>
-      <el-form-item label="检验结果"><el-input v-model="prerecord.testResult" placeholder="检验结果" style="width:40%"></el-input></el-form-item>
-    </el-form>
     <div style="margin-left:0px;margin-bottom:30px">
       <el-tag>评估诊断:</el-tag>
       <el-card style="width:85%">
@@ -35,7 +30,7 @@
       </el-card>
     </div>
     <div>
-      <el-button type="primary" style="float:right;margin-right:30px">提交</el-button>
+      <el-button type="primary" @click="submitPriliminaryDise()" style="float:right;margin-right:30px">提交</el-button>
     </div>
   </el-aside>
   <transition name="el-zoom-in-left">
