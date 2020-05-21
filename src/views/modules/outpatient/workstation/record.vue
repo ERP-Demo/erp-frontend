@@ -118,7 +118,7 @@
       <div style="height:520px">
         <span>搜索诊断</span>
         <el-input style="width:200px" placeholder="搜索诊断" v-model="disQuery.name" @change="getIcd"></el-input>
-        <el-table highlight-current-row @row-click="selectDis" :data="icd " style="margin-top:20px;width: 800px;margin-left: 40px" >
+        <el-table highlight-current-row @row-click="selectDis" :data="icd " style="margin-top:20px;width: 700px;margin-left: 40px" >
           <el-table-column property="icdId" label="ID"></el-table-column>
           <el-table-column property="icdName" label="名称"></el-table-column>
           <el-table-column property="icdCode" label="编码"></el-table-column>
@@ -228,6 +228,7 @@
     },
     created() {
       this.getmedicineDiseIdList()
+      this.getIcd()
     },
     watch:{
       'patient' : function(newVal){
@@ -346,9 +347,18 @@
         }).then(({data}) => {
           this.confirmButtonDisabled = true
           if (data && data.code === 200) {
-            if (data.case) {
+            if (data.case.electronicCase!=null) {
               this.icdZd = data.case.icds
               this.priliminaryDise = data.case.electronicCase
+            }else {
+              this.icdZd = []
+              this.priliminaryDise.complain = []
+              this.priliminaryDise.onsetTime = []
+              this.priliminaryDise.patientSymptom = []
+              this.priliminaryDise.medicalHistory = []
+              this.priliminaryDise.allergyHistory = []
+              this.priliminaryDise.healthCheckup = []
+              this.priliminaryDise.treatment = []
             }
           } else {
             this.$message.error(data.msg)

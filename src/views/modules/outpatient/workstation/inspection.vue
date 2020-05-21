@@ -240,6 +240,7 @@
             'patient': function (newVal, oldVal) {
                 this.patient = newVal
                 this.listRecord()
+                this.getDataList1()
             },
         },
         created() {
@@ -248,10 +249,11 @@
                 //     this.getmodel()
                 // })
             ])
+
         },
         activated() {
             this.getDataList()
-            this.getDataList1()
+
             this.getfreqList()
         },
         methods: {
@@ -259,7 +261,7 @@
             getDataList1 () {
                 this.dataListLoading = true
                 this.$http({
-                    url: this.$http.adornUrl('/requirements/requirements/AllList'),
+                    url: this.$http.adornUrl('/requirements/requirements/AllList/'+this.registerId),
                     method: 'get',
                     params: this.$http.adornParams()
                 }).then(({data}) => {

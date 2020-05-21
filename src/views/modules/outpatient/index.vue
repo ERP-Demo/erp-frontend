@@ -108,8 +108,8 @@
     <div>
       <el-tabs v-model="activeName2" type="card" style="margin-top:20px">
         <el-tab-pane label="病历首页" name="first"><Record ref="record" v-bind:patient="patient" v-bind:registerId="registerId"></Record></el-tab-pane>
-        <el-tab-pane label="检查申请" name="second"><Inspection ref="inspection" v-bind:patient="patient" v-bind:registerId="registerId"></Inspection></el-tab-pane>
-        <el-tab-pane label="门诊确诊" name="fourth"><Comfirm ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
+        <el-tab-pane label="检查申请" name="second" @click="AllList()"><Inspection ref="inspection" v-bind:patient="patient" v-bind:registerId="registerId"></Inspection></el-tab-pane>
+        <el-tab-pane label="门诊确诊" name="fourth"><Comfirm ref="comfirm" v-bind:patient="patient" v-bind:registerId="registerId" ></Comfirm></el-tab-pane>
         <el-tab-pane label="成药处方" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient"></Prescription></el-tab-pane>
         <el-tab-pane label="处置申请" name="sixth"><Handle v-bind:patient="patient" v-bind:registerId="registerId"></Handle></el-tab-pane>
         <el-tab-pane label="患者账单" name="seventh"><Bill ref="bill" v-bind:patient="patient"></Bill></el-tab-pane>
@@ -158,6 +158,9 @@ import Bill from '@/views/modules/outpatient/workstation/bill'
       endDiagnosis(){
           this.showAside()
           this.getPatientList()
+      },
+      AllList(){
+        alert("1111")
       },
       continuing(val){
           this.$confirm('确认继续诊断患者 '+val.patient.patientName+'?', '就诊', {
