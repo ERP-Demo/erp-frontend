@@ -21,7 +21,7 @@
                     width="50">
             </el-table-column>
             <el-table-column
-                    prop="synthesizeId"
+                    prop="testSynthesizeId"
                     header-align="center"
                     align="center"
                     label="序号">
@@ -69,7 +69,7 @@
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="showReqChilren(scope.row.synthesizeId)">详细</el-button>
+                    <el-button type="text" size="small" @click="showReqChilren(scope.row.testSynthesizeId)">详细</el-button>
                 </template>
             </el-table-column>
         </el-table>
