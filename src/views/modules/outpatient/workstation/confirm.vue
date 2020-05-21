@@ -3,7 +3,7 @@
   <!-- 确诊 -->
   <el-container>
   <el-aside :width="mainwidth" style="background:white;">
-    <el-tag style="margin-bottom:20px;margin-left:-20px" type="info">初诊内容:</el-tag>
+    <el-tag style="margin-bottom:20px;margin-left:0px" type="info">初诊内容:</el-tag>
     <el-button style="float:right" @click="controlfast"><i v-show="!isclose" class="el-icon-caret-right" /><i v-show="isclose" class="el-icon-caret-left" />  快捷操作</el-button>
     <el-form :model="prerecord" disabled style="color:black">
       <el-form-item label="主诉"><el-input readonly v-model="prerecord.complain" type="textarea" :autosize="{ minRows: 2, maxRows: 3}" placeholder="主述" style="width:80%;float:right;"></el-input></el-form-item>
@@ -13,12 +13,12 @@
       <el-form-item label="过敏史"><el-input readonly v-model="prerecord.allergyHistory" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="过敏史" style="width:80%;float:right"></el-input></el-form-item>
       <el-form-item label="体格检查"><el-input readonly v-model="prerecord.healthCheckup" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" placeholder="体格检查" style="width:80%;float:right"></el-input></el-form-item>
     </el-form>
-    <el-tag style="margin-bottom:20px;margin-left:-20px">检查检验结果:</el-tag>
+    <el-tag style="margin-bottom:20px;margin-left:1px">检查检验结果:</el-tag>
     <el-form>
       <el-form-item label="检查结果"><el-input v-model="prerecord.checkResult" placeholder="检查结果" style="width:40%"></el-input></el-form-item>
       <el-form-item label="检验结果"><el-input v-model="prerecord.testResult" placeholder="检验结果" style="width:40%"></el-input></el-form-item>
     </el-form>
-    <div style="margin-left:-20px;margin-bottom:30px">
+    <div style="margin-left:0px;margin-bottom:30px">
       <el-tag>评估诊断:</el-tag>
       <el-card style="width:85%">
         <el-button type="text" style="float:right" @click="addDis">添加诊断</el-button>

@@ -86,12 +86,12 @@
                                   :data="checkmodels" height="230">
                             <el-table-column label="模板名">
                                 <template slot-scope="scope">
-                                    {{scope.row.name}}
+                                    {{scope.row.testModelName}}
                                 </template>
                             </el-table-column>
                             <el-table-column label="模板简介">
                                 <template slot-scope="scope">
-                                    {{scope.row.aim}}
+                                    {{scope.row.testModelIntroduction}}
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -241,6 +241,7 @@
                 this.patient = newVal
                 this.listRecord()
                 this.getDataList1()
+                this.getDataList2 ()
             },
         },
         created() {
@@ -270,6 +271,21 @@
                     } else {
                         this.dataList = []
                         this.totalPage = 0
+                    }
+                    this.dataListLoading = false
+                })
+            },
+            getDataList2 () {
+                this.dataListLoading = true
+                this.$http({
+                    url: this.$http.adornUrl('/test_model/model/list'),
+                    method: 'get'
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        this.checkmodels = data.page.list
+                        console.log(data.page.list)
+                    } else {
+                        this.checkmodels = []
                     }
                     this.dataListLoading = false
                 })
@@ -346,22 +362,25 @@
                 })
             },
             addModel(val) {
-                this.$confirm('是否确定将 模板:' + val.name + ' 中的内容导入该患者的检查中', '导入模板', {
-                    confirmButtonText: '确认',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-                    val.nondruglist.forEach(item => {
-                        item.status = -1
-                        let flag = 1
-                        this.record.forEach(com => {
-                            if (com.id === item.id) {
-                                flag = 0
+                val.totalprice = Math.floor((val.totalprice) * 100) / 100
+                val.status = -1
+                val.prescriptionName=val.testModelName
+                this.$http({
+                    url: this.$http.adornUrl(`/test_model/model/info/${val.testModelId}`),
+                    method: 'get'
+                }).then(({data}) => {
+                    if (data && data.code === 200) {
+                        let ids=this.record.map(item=>{
+                            return item.testSynthesizeId
+                        })
+                        data.list.map(item =>{
+                            if (!ids.includes(item.testSynthesizeId)){
+                                this.$set(item,'status',-1)
+                                console.log(item);
+                                this.record.push(item)
                             }
                         })
-                        if (flag)
-                            this.record.push(item)
-                    })
+                    }
                 })
             },
             selectModel(val) {
