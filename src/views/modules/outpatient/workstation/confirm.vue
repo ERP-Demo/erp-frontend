@@ -87,7 +87,15 @@ export default {
       activeName:'first',
       isclose:true,
       mainwidth:"60%",
-      activeNames: ['1']
+      activeNames: ['1'],
+      icdPage: {
+          pageIndex: 1,
+          pageSize: 10,
+          totalPage: 0,
+          dataForm: {
+            key: ''
+          }
+        }
     };
   },
   created() {
