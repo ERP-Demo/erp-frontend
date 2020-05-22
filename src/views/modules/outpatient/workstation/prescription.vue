@@ -242,6 +242,7 @@
         }).then(({data}) => {
           if (data && data.code === 200) {
             this.inData= data.list
+            console.log(this.inData);
             this.inData.forEach(item => {
               item.amount = item.prescriptionPrice
               item.status=item.prescriptionState

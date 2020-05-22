@@ -112,7 +112,7 @@
         <el-tab-pane label="门诊确诊" name="fourth"><Comfirm ref="comfirm" v-bind:patient="patient" ></Comfirm></el-tab-pane>
         <el-tab-pane label="成药处方" name="fiveth"><Prescription ref="prescription" v-bind:patient="patient" v-bind:registerId="registerId"></Prescription></el-tab-pane>
         <el-tab-pane label="处置申请" name="sixth"><Handle v-bind:patient="patient" v-bind:registerId="registerId"></Handle></el-tab-pane>
-        <el-tab-pane label="患者账单" name="seventh"><Bill ref="bill" v-bind:patient="patient"></Bill></el-tab-pane>
+        <el-tab-pane label="患者账单" name="seventh"><Bill ref="bill" v-bind:patient="patient" v-bind:registerId="registerId"></Bill></el-tab-pane>
       </el-tabs>
     </div>
     </el-main>
