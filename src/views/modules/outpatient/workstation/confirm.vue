@@ -159,7 +159,7 @@ export default {
         }).then(()=>{
           let flag = 1
           this.record.forEach(item=>{
-            if(item.icd===val.icd){
+            if(item.icdId===val.icdId){
               flag=0
             }
           })
