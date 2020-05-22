@@ -251,7 +251,6 @@ export default {
     },
     // 新增 / 修改
     addOrUpdateHandle (id) {
-      alert(id)
       this.dataList.forEach(item =>{
         if(item.prescriptionId===id){
           this.pdData=item.prescriptionDetails
