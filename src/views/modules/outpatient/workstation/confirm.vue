@@ -97,13 +97,13 @@ export default {
   watch:{
     'patient' : function(newVal){
       this.patient = newVal
-      this.getElectronicCase();
+      this.getElectronicCase()
     },
   },
   methods:{
     deleteDis(row){
       this.record=this.record.filter(item=>{
-        if(item.id===row.id)
+        if(item.icdId===row.icdId)
           return false
         return true
       })
@@ -144,7 +144,7 @@ export default {
       })
     },
     selectDis(val){
-      this.$confirm('是否添加 '+val.name+' 到该患者?', '添加诊断', {
+      this.$confirm('是否添加 '+val.icdName+' 到该患者?', '添加诊断', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'success'
@@ -181,6 +181,28 @@ export default {
           this.medicineDiseIdList = data.list
         } else {
           this.medicineDiseIdList = []
+        }
+      })
+    },
+    //修改诊断
+    submitPriliminaryDise(){
+      var ids = this.record.map(item => {
+        return item.icdId
+      })
+      this.$http({
+        url: this.$http.adornUrl(`/electronic_case/case/save`),
+        method: 'post',
+        data: this.$http.adornData({'electronicCase': this.prerecord, 'icdId': ids},)
+      }).then(({data}) => {
+        this.confirmButtonDisabled = true
+        if (data && data.code === 200) {
+          this.$message({
+            message: '操作成功',
+            type: 'success',
+            duration: 1000
+          })
+        } else {
+          this.$message.error(data.msg)
         }
       })
     }
