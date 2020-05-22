@@ -63,8 +63,8 @@
       width="160"
       label="操作">
       <template slot-scope="scope">
-        <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.prescriptionId,scope.row.status)" v-if="scope.row.prescriptionState===0" >取药</el-button>
-        <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.prescriptionId,scope.row.status)" v-if="scope.row.prescriptionState===1" disabled="dis" >取药</el-button>
+        <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.prescriptionId)" v-if="scope.row.prescriptionState===0" >取药</el-button>
+        <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.prescriptionId)" v-if="scope.row.prescriptionState===1" disabled="dis" >取药</el-button>
         <el-button type="text" size="small" @click="dialogVisible1 = true,toviwe(scope.row.prescriptionId)">详情</el-button>
       </template>
     </el-table-column>
@@ -214,15 +214,10 @@ export default {
     },
     //多表数据
     toviwe(id){
-      this.$http({
-        url: this.$http.adornUrl('/prescription/prescription/byid/'+id),
-        method: 'get'
-      }).then(({data}) => {
-        if (data && data.code === 200) {
-           this.pdData = data.list
-          console.log(this.pdData)
-        } else {
-          this.pdData = []
+      console.log(this.dataList)
+      this.dataList.forEach(item =>{
+        if(item.prescriptionId===id){
+          this.pdData=item.prescriptionDetails
         }
       })
     },
@@ -255,33 +250,61 @@ export default {
       this.dataListSelections = val
     },
     // 新增 / 修改
-    addOrUpdateHandle (id,sta) {
-      if (sta === 2) {
-        this.$message({
-          message: '请先缴费',
-          type: 'warning',
-          duration: 1000,
-        })
-      } else {
-        this.$http({
-          url: this.$http.adornUrl('/prescription/prescription/bypdid/'+id),
-          method: 'get'
-        }).then(({data}) => {
-          if (data && data.code === 200) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.getDataList()
+    addOrUpdateHandle (id) {
+      this.dataList.forEach(item =>{
+        if(item.prescriptionId===id){
+          this.pdData=item.prescriptionDetails
+          // var nums = this.pdData.drugsNum ? [this.pdData.drugsNum] : this.pdData.map(p => {
+          //   this.pdData.forEach(pitem =>{
+          //     return pitem.drugsNum
+          //   })
+          //   return p.drugsNum
+          // })
+          // console.log(nums)
+          this.$http({
+              url: this.$http.adornUrl('/prescription/prescription/bypdid/'+id),
+              method: 'get'
+            }).then(({data}) => {
+              if (data && data.code === 200) {
+                this.$message({
+                  message: '操作成功',
+                  type: 'success',
+                  duration: 1000,
+                  onClose: () => {
+                    this.getDataList()
+                  }
+                })
+              } else {
+                this.$message.error(data.msg)
               }
             })
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      }
-
+        }
+      })
+      // if (sta === 2) {
+      //   this.$message({
+      //     message: '请先缴费',
+      //     type: 'warning',
+      //     duration: 1000,
+      //   })
+      // } else {
+        // this.$http({
+        //   url: this.$http.adornUrl('/prescription/prescription/bypdid/'+id),
+        //   method: 'get'
+        // }).then(({data}) => {
+        //   if (data && data.code === 200) {
+        //     this.$message({
+        //       message: '操作成功',
+        //       type: 'success',
+        //       duration: 1000,
+        //       onClose: () => {
+        //         this.getDataList()
+        //       }
+        //     })
+        //   } else {
+        //     this.$message.error(data.msg)
+        //   }
+        // })
+      // }
     },
     //获取药
     getData () {
