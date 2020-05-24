@@ -4,7 +4,7 @@
     :close-on-click-modal="false"
     :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
-      <el-form-item label="" prop="testSynthesizeName">
+      <el-form-item label="缴费名称" prop="testSynthesizeName">
         <el-input v-model="dataForm.testSynthesizeName" placeholder=""></el-input>
       </el-form-item>
     </el-form>

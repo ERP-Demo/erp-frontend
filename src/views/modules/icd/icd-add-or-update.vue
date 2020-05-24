@@ -59,7 +59,7 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.$http({
-            url: this.$http.adornUrl(`icd/icd/${!this.dataForm.id ? 'save' : 'update'}`),
+            url: this.$http.adornUrl(`/icd/icd/${!this.dataForm.id ? 'save' : 'update'}`),
             method: !this.dataForm.id ? 'post' : 'put',
             data: this.$http.adornData(this.dataForm)
           }).then(({data}) => {
