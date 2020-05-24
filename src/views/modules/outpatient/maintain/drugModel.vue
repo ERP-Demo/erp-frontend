@@ -364,8 +364,11 @@
                                 this.visible = false
                                 this.$emit('refreshDataList')
                                 this.getDataList1()
+                                this.dataList1=[]
+
                             }
                         })
+                        this.datafrom={brand_right:0}
                     } else {
                         this.$message.error(data.msg)
                     }
@@ -391,8 +394,10 @@
                                 this.visible = false
                                 this.$emit('refreshDataList')
                                 this.getDataList1()
+                                this.dataList1=[]
                             }
                         })
+                        this.datafrom={brand_right:0}
                     } else {
                         this.$message.error(data.msg)
                     }
@@ -444,6 +449,8 @@
                 this.loading = false
             },
             showaside(type){
+                this.dataList1=[]
+                this.datafrom={brand_right:0}
                 if(this.asidewidth==="100%")
                     this.asidewidth="0%"
                 else
