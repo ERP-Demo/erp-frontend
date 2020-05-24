@@ -64,17 +64,20 @@
         data() {
             return {
                 dataForm: {
-                    dataList:[]
+                    dataList:[],
+                    testAll:''
                 },
                 visible: false,
                 pageIndex: 1,
                 pageSize: 10,
                 totalPage: 0,
-                dataListLoading: false
+                dataListLoading: false,
+                testId:''
             }
         },
         methods: {
-            init(id) {
+            init(id,tid) {
+                this.testId=tid
                 this.visible = true
                 this.confirmButtonDisabled = false
                 this.$nextTick(() => {
@@ -91,6 +94,7 @@
                         }).then(({data}) => {
                             if (data && data.code === 200) {
                                 this.dataForm.dataList = data.page.list
+
                                 this.totalPage = data.page.totalCount
                             } else {
                                 this.dataList = []
@@ -102,6 +106,7 @@
                 })
             },
             dataFormSubmit(){
+                this.dataForm.testAll=this.testId;
                 this.$http({
                     url: this.$http.adornUrl('/requirements/testsheet/addTestSheet'),
                     method: 'post',

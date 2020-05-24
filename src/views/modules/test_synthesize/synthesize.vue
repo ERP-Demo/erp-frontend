@@ -23,10 +23,16 @@
                     width="50">
             </el-table-column>
             <el-table-column
+                    prop="testSynthesizeId"
+                    header-align="center"
+                    align="center"
+                    label="编号">
+            </el-table-column>
+            <el-table-column
                     prop="testSynthesizeName"
                     header-align="center"
                     align="center"
-                    label="">
+                    label="化验项目">
             </el-table-column>
             <el-table-column
                     fixed="right"
@@ -37,7 +43,7 @@
                 <template slot-scope="scope">
                     <el-button type="text" size="small" @click="showChilren(scope.row.testSynthesizeId)">详细</el-button>
                     <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-                    <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+                    <el-button type="text" size="small" @click="deleteHandle(scope.row.testSynthesizeId)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
