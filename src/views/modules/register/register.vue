@@ -57,8 +57,6 @@
         label="操作">
         <template slot-scope="scope">
           <el-button type="text" v-if="scope.row.bpmName==='挂号'" size="small" @click="back(scope.row.registerId)">退号</el-button>
-          <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.registerId)">修改</el-button>
-          <el-button type="text" size="small" @click="deleteHandle(scope.row.registerId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -77,7 +75,6 @@
 </template>
 
 <script>
-import AddOrUpdate from './register-add-or-update'
 export default {
   data () {
     return {
@@ -92,9 +89,6 @@ export default {
       dataListSelections: [],
       addOrUpdateVisible: false
     }
-  },
-  components: {
-    AddOrUpdate
   },
   activated () {
     this.getDataList()
@@ -136,43 +130,6 @@ export default {
     // 多选
     selectionChangeHandle (val) {
       this.dataListSelections = val
-    },
-    // 新增 / 修改
-    addOrUpdateHandle (id) {
-      this.addOrUpdateVisible = true
-      this.$nextTick(() => {
-        this.$refs.addOrUpdate.init(id)
-      })
-    },
-    // 删除
-    deleteHandle (id) {
-      var ids = id ? [id] : this.dataListSelections.map(item => {
-        return item.id
-      })
-      this.$confirm(`确定对这${ids.length}条数据进行[${id ? '删除' : '批量删除'}]操作?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$http({
-          url: this.$http.adornUrl('/register/register/delete'),
-          method: 'delete',
-          data: this.$http.adornData(ids, false)
-        }).then(({data}) => {
-          if (data && data.code === 200) {
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 1000,
-              onClose: () => {
-                this.getDataList()
-              }
-            })
-          } else {
-            this.$message.error(data.msg)
-          }
-        })
-      })
     },
     back(id){
       this.$http({

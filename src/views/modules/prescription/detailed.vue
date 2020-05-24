@@ -128,8 +128,7 @@
                 align="center"
                 label="状态">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.status===1" type="primary">已缴费</el-tag>
-            <el-tag v-if="scope.row.status===2" type="danger">未缴费</el-tag>
+            <el-tag v-if="scope.row.status===2" type="primary">已缴费</el-tag>
           </template>
         </el-table-column>
       </el-table>
