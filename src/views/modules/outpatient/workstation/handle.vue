@@ -134,6 +134,7 @@
         data() {
             return {
                 onemodel: {},
+                freqlist:[],
                 totalprice: 0.000,
                 ref: [],
                 checkmodels: [],
@@ -168,6 +169,7 @@
             'patient': function (newVal) {
                 this.patient = newVal;
                 this.listRecord()
+                this.getfreqList()
             },
         },
         methods: {

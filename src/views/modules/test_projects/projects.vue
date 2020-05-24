@@ -22,6 +22,12 @@
         align="center"
         width="50">
       </el-table-column>
+      <el-table-column
+              prop="testProjectsId"
+              header-align="center"
+              align="center"
+              label="化验项目编号">
+      </el-table-column>
     <el-table-column
         prop="testAbbreviation"
         header-align="center"
