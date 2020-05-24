@@ -75,8 +75,23 @@
             <el-main style="padding:0 0 0 0;" v-if="isaside">
                 <el-button type="primary" style="margin-left:30px;margin-top:30px;margin-bottom:30px" v-if="edit" @click="updateModel">提交修改</el-button>
                 <el-button type="primary" style="margin-left:30px;margin-top:30px;margin-bottom:30px" v-if="!edit" @click="createModel">新建模板</el-button>
-                <el-button type="danger" @click="showaside">取消</el-button>
-                <el-form :model="datafrom" label-width="140px" inline>
+                <el-button type="danger" @click="showaside('close')">取消</el-button>
+                <el-form :model="datafrom2" label-width="140px" inline v-if="!edit">
+                    <el-form-item label="模板名称">
+                        <el-input placeholder="请输入模板名称" v-model="datafrom2.testModelName" style="width:300px"></el-input>
+                    </el-form-item>
+                    <el-form-item label="模板简介">
+                        <el-input placeholder="模板简介" v-model="datafrom2.testModelIntroduction" style="width:300px"></el-input>
+                    </el-form-item>
+                    <el-form-item label="范围:" style="width:280px">
+                        <el-select placeholder="请选择范围" v-model="datafrom2.testModelRange" clearable style="width: 130px"
+                                   class="filter-item">
+                            <el-option v-for="item in [{key:0,value:'个人'},{key:1,value:'科室'},{key:2,value:'全院'}]"
+                                       :key="item.key" :label="item.value" :value="item.key"/>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                <el-form :model="datafrom" label-width="140px" inline v-if="edit">
                     <el-form-item label="模板名称">
                         <el-input placeholder="请输入模板名称" v-model="datafrom.testModelName" style="width:300px"></el-input>
                     </el-form-item>
@@ -98,10 +113,10 @@
                     <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="515"></el-table-column>
                 </el-table>
                 <el-table style="margin-bottom:50px" :data="dataList4" v-if="edit">
-                    <el-table-column label="化验项目id" prop="testSynthesizeId" width="550"></el-table-column>
-                    <el-table-column label="化验项目名" prop="testSynthesizeName" width="550"></el-table-column>
-                    <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="515"></el-table-column>
-                    <el-table-column label="操作" prop="id" width="100px">
+                    <el-table-column label="化验项目id" prop="testSynthesizeId" width="350"></el-table-column>
+                    <el-table-column label="化验项目名" prop="testSynthesizeName" width="400"></el-table-column>
+                    <el-table-column label="化验项目价格(元)" prop="testSynthesizePrice" width="350"></el-table-column>
+                    <el-table-column label="操作"  width="100px">
                         <template slot-scope="scope">
                             <el-button type="danger" size="mini" @click="removeList(scope.$index, scope.row)">删除</el-button>
                         </template>
@@ -120,7 +135,7 @@
                 <!--        </el-aside>-->
                 <el-main>
                     <el-button type="primary" style="float:right;margin-right: 6%" @click="addTest">确定</el-button>
-                    <el-table :data="dataList2" cell-style="text-align:center" header-cell-style="text-align:center" style="margin-bottom: 5%" @selection-change="handleSelectionChange">
+                    <el-table :data="dataList2"   ref="multipleTable" cell-style="text-align:center" header-cell-style="text-align:center" style="margin-bottom: 5%" @selection-change="handleSelectionChange">
                         <el-table-column type="selection" header-align="center" align="center" width="50">
                         </el-table-column>
                         <el-table-column property="testSynthesizeId" label="化验项目id" width="150"></el-table-column>
@@ -153,13 +168,8 @@
                     amount: 0,
                     status: 0,
                 },
-                datafrom: {
-                    testModelId:'',
-                    testModelName: '',
-                    testModelIntroduction: '',
-                    testModelCode: '',
-                    testModelRange: '',
-                },
+                datafrom: [],
+                datafrom2: {},
                 itemdrugList: [],
                 drugList: [],
                 searchdrug: '',
@@ -204,7 +214,7 @@
         },
         methods: {
             removeList(index){ //删除行数
-                this.dataList1.splice(index, 1)
+                this.dataList4.splice(index, 1)
             },
             // 获取数据列表
             getDataList() {
@@ -310,7 +320,7 @@
                                 type: 'success',
                                 duration: 1000,
                                 onClose: () => {
-                                    this.getDataList1()
+                                    this.getDataList()
                                 }
                             })
                         } else {
@@ -320,16 +330,15 @@
                 })
             },
             createModel() {
-                var datafrom=this.datafrom
-                console.log(this.datafrom);
+                var datafrom2=this.datafrom2
+                console.log(this.datafrom2);
                 var ids = this.multipleSelection.map(item => {
                     return item.testSynthesizeId
                 })
                 this.$http({
                     url: this.$http.adornUrl(`/test_model/model/save`),
                     method: 'post',
-                    data: this.$http.adornData({'testModel': datafrom, 'ids': ids},)
-
+                    data: this.$http.adornData({'testModel': datafrom2, 'ids': ids},)
                 }).then(({data}) => {
                     this.confirmButtonDisabled = true
                     if (data && data.code === 200) {
@@ -338,12 +347,14 @@
                             type: 'success',
                             duration: 1000,
                             onClose: () => {
+                                this.$refs.multipleTable.clearSelection();
+                                this.dataList3=[]
                                 this.visible = false
                                 this.$emit('refreshDataList')
-                                this.getDataList1()
+                                this.getDataList()
                             }
                         })
-                        console.log(this.datafrom)
+                        console.log(this.datafrom2)
                     } else {
                         this.$message.error(data.msg)
                     }
@@ -435,7 +446,12 @@
                     this.itemdrugList = []
                     this.model = {}
                     this.edit = 0
-                } else
+                    this.datafrom2={}
+                    this.datalist3=[]
+                } else if(type==='close')
+                    this.$refs.multipleTable.clearSelection(),
+                this.dataList3=[]
+                    else
                     this.edit = 0
             },
             editModel(i){
@@ -447,12 +463,14 @@
                         this.dataList4 = data.list
                         // this.multipleSelection
                         this.datafrom=data.mode
+                        console.log(data.mode);
 
                     }
                 })
                 this.itemdrugList = this.model.dmsMedicineModelItemList
                 this.showaside('edit')
-            }
+            },
+
         }
     }
 </script>
