@@ -21,6 +21,12 @@
                     width="50">
             </el-table-column>
             <el-table-column
+                    prop="id"
+                    header-align="center"
+                    align="center"
+                    label="序号">
+            </el-table-column>
+            <el-table-column
                     prop="testSynthesizeId"
                     header-align="center"
                     align="center"
@@ -62,6 +68,18 @@
                     align="center"
                     label="检查部位">
             </el-table-column>
+            <el-table-column label="状态">
+                <template slot-scope="scope">
+                    <el-tag type="danger" v-if="scope.row.status===0">作废</el-tag>
+                    <el-tag type="warning" v-if="scope.row.status===1">未缴费</el-tag>
+                    <el-tag type="danger" v-if="scope.row.status===2">未登记</el-tag>
+                    <el-tag type="warning" v-if="scope.row.status===3">已登记</el-tag>
+                    <el-tag type="success" v-if="scope.row.status===4">已执行</el-tag>
+                    <el-tag type="danger" v-if="scope.row.status===5">已退费</el-tag>
+                    <el-tag type="danger" v-if="scope.row.status===6">已过期</el-tag>
+                </template>
+            </el-table-column>
+
             <el-table-column
                     fixed="right"
                     header-align="center"
@@ -69,7 +87,8 @@
                     width="150"
                     label="操作">
                 <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="showReqChilren(scope.row.testSynthesizeId)">详细</el-button>
+                    <el-button type="text" size="small" @click="showReqChilren(scope.row.testSynthesizeId,scope.row.id)" v-if="scope.row.status===2">登记</el-button>
+                    <el-button type="text" size="small" @click="showReqChilren2(scope.row.id)" v-if="scope.row.status===3">执行</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -134,10 +153,35 @@
                     this.dataListLoading = false
                 })
             },
-            showReqChilren(id){
+            showReqChilren(id,tid){
                 this.childrenVisible = true
                 this.$nextTick(() => {
-                    this.$refs.chilren.init(id)
+                    this.$refs.chilren.init(id,tid)
+                })
+            },
+            showReqChilren2(id){
+                this.$confirm(`确定对这化验进行执行操作?`, '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.$http({
+                        url: this.$http.adornUrl('/requirements/testsheet/TestSheetGo/'+id),
+                        method: 'get'
+                    }).then(({data}) => {
+                        if (data && data.code === 200) {
+                            this.$message({
+                                message: '操作成功',
+                                type: 'success',
+                                duration: 1000,
+                                onClose: () => {
+                                    this.getDataList()
+                                }
+                            })
+                        } else {
+                            this.$message.error(data.msg)
+                        }
+                    })
                 })
             },
             // 每页数

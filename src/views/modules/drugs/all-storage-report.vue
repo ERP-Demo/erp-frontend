@@ -50,12 +50,6 @@
                     align="center"
                     label="操作人">
             </el-table-column>
-            <el-table-column
-                    header-align="center"
-                    align="center"
-                    label="状态">
-            </el-table-column>
-
         </el-table>
         <el-pagination
                 @size-change="sizeChangeHandle"

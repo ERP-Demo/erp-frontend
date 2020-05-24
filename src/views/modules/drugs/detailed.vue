@@ -164,8 +164,6 @@ export default {
         this.$refs.addOrUpdate.init(id)
       })
     },
-      },
-
     // 删除
     deleteHandle (id) {
       var ids = id ? [id] : this.dataListSelections.map(item => {
@@ -196,5 +194,6 @@ export default {
         })
       })
     }
+  }
 }
 </script>
