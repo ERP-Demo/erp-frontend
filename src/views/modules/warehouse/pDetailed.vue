@@ -2,7 +2,7 @@
     <el-dialog
             title="查看详情"
             :visible.sync="visible"
-            width="66%">
+            width="80%">
         <el-table
                 ref="multipleTable"
                 :data="tableData"
