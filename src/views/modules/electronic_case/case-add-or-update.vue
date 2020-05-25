@@ -1,8 +1,8 @@
 <template>
   <el-dialog
-    :title="!dataForm.id ? '新增' : '修改'"
-    :close-on-click-modal="false"
-    :visible.sync="visible">
+  :title="!dataForm.caseNo ? '新增' : '修改'"
+  :close-on-click-modal="false"
+  :visible.sync="visible">
     <el-form :model="dataForm" :rules="dataRule" ref="dataForm" @keyup.enter.native="dataFormSubmit()" label-width="120px">
       <el-form-item label="医生id" prop="uid">
         <el-input v-model="dataForm.uid" placeholder="医生id"></el-input>
@@ -10,20 +10,26 @@
       <el-form-item label="病人id" prop="patientId">
         <el-input v-model="dataForm.patientId" placeholder="病人id"></el-input>
       </el-form-item>
-      <el-form-item label="科室id" prop="departmentId">
-        <el-input v-model="dataForm.departmentId" placeholder="科室id"></el-input>
+      <el-form-item label="主诉" prop="complain">
+        <el-input v-model="dataForm.complain" placeholder="主诉"></el-input>
       </el-form-item>
-      <el-form-item label="入院时间" prop="enterHospital">
-        <el-input v-model="dataForm.enterHospital" placeholder="入院时间"></el-input>
-      </el-form-item>
-      <el-form-item label="出院时间" prop="leaveHospital">
-        <el-input v-model="dataForm.leaveHospital" placeholder="出院时间"></el-input>
+      <el-form-item label="发病时间" prop="onsetTime">
+        <el-input v-model="dataForm.onsetTime" placeholder="发病时间"></el-input>
       </el-form-item>
       <el-form-item label="症状" prop="patientSymptom">
         <el-input v-model="dataForm.patientSymptom" placeholder="症状"></el-input>
       </el-form-item>
-      <el-form-item label="医嘱" prop="doctorAdvice">
-        <el-input v-model="dataForm.doctorAdvice" placeholder="医嘱"></el-input>
+      <el-form-item label="既往病史" prop="patientSymptom">
+        <el-input v-model="dataForm.patientSymptom" placeholder="既往病史"></el-input>
+      </el-form-item>
+      <el-form-item label="过敏史" prop="allergyHistory">
+        <el-input v-model="dataForm.allergyHistory" placeholder="过敏史"></el-input>
+      </el-form-item>
+      <el-form-item label="体格检查" prop="healthCheckup">
+        <el-input v-model="dataForm.healthCheckup" placeholder="体格检查"></el-input>
+      </el-form-item>
+      <el-form-item label="治疗情况" prop="treatment">
+        <el-input v-model="dataForm.treatment" placeholder="治疗情况"></el-input>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -54,19 +60,20 @@ export default {
   },
   methods: {
     init (id) {
-      this.dataForm.id = id || ''
+      this.dataForm.caseNo = id || ''
+      console.log(this.dataForm.caseNo)
       this.visible = true
       this.confirmButtonDisabled = false
       this.$nextTick(() => {
         this.$refs['dataForm'].resetFields()
-        if (this.dataForm.id) {
+        if (this.dataForm.caseNo) {
           this.$http({
-            url: this.$http.adornUrl(`/electronic_case/case/info/${this.dataForm.id}`),
+            url: this.$http.adornUrl(`/electronic_case/case/info/${this.dataForm.caseNo}`),
             method: 'get',
             params: this.$http.adornParams()
           }).then(({data}) => {
             if (data && data.code === 200) {
-              this.dataForm = data.case
+              this.dataForm = data.e
             }
           })
         } else {
@@ -79,8 +86,8 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           this.$http({
-            url: this.$http.adornUrl(`/electronic_case/case/${!this.dataForm.id ? 'save' : 'update'}`),
-            method: !this.dataForm.id ? 'post' : 'put',
+            url: this.$http.adornUrl(`/electronic_case/case/${!this.dataForm.caseNo ? 'save' : 'update'}`),
+            method: !this.dataForm.caseNo ? 'post' : 'put',
             data: this.$http.adornData(this.dataForm)
           }).then(({data}) => {
             this.confirmButtonDisabled = true
