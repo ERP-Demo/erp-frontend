@@ -16,60 +16,60 @@
                 :data="dataList"
                 border
                 v-loading="dataListLoading"
-                @selection-change="selectionChangeHandle"
-                style="width: 100%;">
-          <el-table-column
-                  type="selection"
-                  header-align="center"
-                  align="center"
-                  width="50">
-          </el-table-column>
-          <el-table-column
-                  prop="patientDetailed.patientName"
-                  header-align="center"
-                  align="center"
-                  label="患者姓名">
-          </el-table-column>
-          <el-table-column
-                  prop="testSynthesize.testSynthesizeName"
-                  header-align="center"
-                  align="center"
-                  label="项目编码">
-          </el-table-column>
-          <el-table-column
-                  prop="registerId"
-                  header-align="center"
-                  align="center"
-                  label="就诊编号">
-          </el-table-column>
-          <el-table-column
-                  prop="testSynthesize.testSynthesizePrice"
-                  header-align="center"
-                  align="center"
-                  label="价格">
-          </el-table-column>
-          <el-table-column
-                  align="center"
-                  label="状态"
-                  show-overflow-tooltip>
-            <template slot-scope="scope">
-              <el-tag type="warning" v-if="scope.row.status===-1">未开立</el-tag>
-              <el-tag type="danger" v-if="scope.row.status===0">已作废</el-tag>
-              <el-tag type="info" v-if="scope.row.status===1">未缴费</el-tag>
-              <el-tag type="success" v-if="scope.row.status===4">已续费</el-tag>
-            </template>
-          </el-table-column>
-<!--          <el-table-column-->
-<!--                  fixed="right"-->
-<!--                  header-align="center"-->
-<!--                  align="center"-->
-<!--                  width="150"-->
-<!--                  label="操作">-->
-<!--            <template slot-scope="scope">-->
-<!--              <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>-->
-<!--              <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>-->
-<!--            </template>-->
-<!--          </el-table-column>-->
+          @selection-change="selectionChangeHandle"
+        style="width: 100%;">
+        <el-table-column
+                type="selection"
+                header-align="center"
+                align="center"
+                width="50">
+        </el-table-column>
+        <el-table-column
+                prop="patientDetailed.patientName"
+                header-align="center"
+                align="center"
+                label="患者姓名">
+        </el-table-column>
+        <el-table-column
+                prop="testSynthesize.testSynthesizeName"
+                header-align="center"
+                align="center"
+                label="项目编码">
+        </el-table-column>
+        <el-table-column
+                prop="registerId"
+                header-align="center"
+                align="center"
+                label="就诊编号">
+        </el-table-column>
+        <el-table-column
+                prop="testSynthesize.testSynthesizePrice"
+                header-align="center"
+                align="center"
+                label="价格">
+        </el-table-column>
+        <el-table-column
+                align="center"
+                label="状态"
+                show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tag type="warning" v-if="scope.row.status===-1">未开立</el-tag>
+            <el-tag type="danger" v-if="scope.row.status===0">已作废</el-tag>
+            <el-tag type="info" v-if="scope.row.status===1">未缴费</el-tag>
+            <el-tag type="success" v-if="scope.row.status===4">已续费</el-tag>
+          </template>
+        </el-table-column>
+        <!--          <el-table-column-->
+        <!--                  fixed="right"-->
+        <!--                  header-align="center"-->
+        <!--                  align="center"-->
+        <!--                  width="150"-->
+        <!--                  label="操作">-->
+        <!--            <template slot-scope="scope">-->
+        <!--              <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>-->
+        <!--              <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>-->
+        <!--            </template>-->
+        <!--          </el-table-column>-->
         </el-table>
         <el-pagination
                 @size-change="sizeChangeHandle"
@@ -442,6 +442,7 @@ export default {
       }).then(({data}) => {
         if (data && data.code === 200) {
           this.dataList = data.page.list
+          console.log(this.dataList)
           this.arrayList = data.page.list
           this.totalPage = data.page.totalCount
         } else {
